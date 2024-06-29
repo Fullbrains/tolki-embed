@@ -1,0 +1,340 @@
+@import "node_modules/@fullbrains/okuda/colors/cobalt/cobalt";
+@import "node_modules/@fullbrains/okuda/colors/cool/cool";
+@import "node_modules/@fullbrains/okuda/colors/sky/sky";
+@import "node_modules/@fullbrains/okuda/colors/eigen/eigen";
+@import "node_modules/@fullbrains/okuda/colors/ruby/ruby";
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
+
+$brand-dot-size: 7px;
+$circle-btn-size: 40px;
+$margin: 20px;
+$mobile-breakpoint: 500px;
+$toggle-btn-size: 60px;
+$toggle-corner-size: 8px;
+$window-border-radius: 10px;
+$message-radius: 15px;
+
+:host {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  bottom: $margin;
+  color: $eigen-45;
+  display: flex;
+  flex-direction: column;
+  font-family: "Inter", sans-serif;
+  font-size: 16px;
+  position: fixed;
+  right: $margin;
+  z-index: 9999999;
+
+  .icon {
+    fill: white;
+  }
+
+  .tkc {
+    &__window {
+      background-color: white;
+      box-shadow: 0 12px 24px 0 rgba(black, 0.10), 0 0 0 1px rgba(black, 0.1);
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: translateY($margin * 0.25);
+      transition: transform .3s ease-out, opacity .3s ease-out, visibility .3s ease-out;
+      visibility: hidden;
+
+      @media screen and (min-width: $mobile-breakpoint) {
+        border-radius: $window-border-radius $window-border-radius $toggle-btn-size * .5 $toggle-btn-size * .5;
+        height: calc(90vh - $toggle-btn-size - $margin - $margin);
+        margin-bottom: $margin * 0.5;
+        max-height: 700px;
+        max-width: $mobile-breakpoint;
+        width: calc(100vw - $margin - $margin);
+      }
+
+      @media screen and (max-width: $mobile-breakpoint - 1px) {
+        height: 100vh;
+        left: 0;
+        position: fixed;
+        top: 0;
+        width: 100vw;
+      }
+
+      &--open {
+        opacity: 1;
+        transform: translateY(0);
+        visibility: visible;
+      }
+    }
+
+    &__header {
+      align-items: center;
+      border-bottom: 1px solid $cool-10;
+      display: flex;
+      font-size: 16px;
+      font-weight: 700;
+      justify-content: space-between;
+      padding: 10px;
+
+      @media screen and (min-width: 768px) {
+        font-size: 18px;
+      }
+    }
+
+    &__title {
+      padding-left: 10px;
+      margin-right: auto;
+    }
+
+    &__branding {
+      align-items: center;
+      color: $cool-30;
+      display: flex;
+      font-size: 10px;
+      justify-content: center;
+
+      a {
+        color: $cool-30;
+        padding: 10px;
+        text-decoration: none;
+        transition: color .2s ease-out;
+
+        &:hover {
+          color: $cobalt-35;
+        }
+      }
+
+      span {
+        padding-top: 2px;
+      }
+
+      svg {
+        path {
+          fill: currentColor;
+        }
+      }
+    }
+
+    &__toggle {
+      align-items: center;
+      background-color: $cobalt-41;
+      border-radius: $toggle-btn-size $toggle-btn-size $toggle-btn-size $toggle-corner-size;
+      border: none;
+      color: $cool-14;
+      cursor: pointer;
+      display: flex;
+      height: $toggle-btn-size;
+      justify-content: center;
+      margin-left: auto;
+      outline: none;
+      transition: border-radius 300ms ease-out, background-color 300ms ease-out, color 300ms ease-out, transform 500ms ease-out;
+      width: $toggle-btn-size;
+
+      &--open {
+        border-radius: $toggle-corner-size $toggle-btn-size $toggle-btn-size $toggle-btn-size;
+      }
+
+      &:hover {
+        background-color: $cobalt-35;
+
+        span {
+          animation: animateDots 1s linear forwards;
+        }
+      }
+    }
+
+    &__dots {
+      align-items: center;
+      display: flex;
+      justify-content: center;
+
+      &--animated {
+        span {
+          animation: animateDots 1s linear infinite;
+        }
+      }
+
+      span {
+        background-color: currentColor;
+        border-radius: $brand-dot-size;
+        height: $brand-dot-size;
+        margin: 2px;
+        width: $brand-dot-size;
+        pointer-events: none;
+
+        &:nth-child(2) {
+          animation-delay: 0.1s;
+        }
+
+        &:nth-child(3) {
+          animation-delay: 0.2s;
+        }
+      }
+    }
+
+    &__log {
+      display: flex;
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      flex-direction: column;
+      justify-items: start;
+      align-items: start;
+    }
+
+    &__avatar {
+      width: $circle-btn-size;
+      height: $circle-btn-size;
+      border-radius: $circle-btn-size;
+      overflow: hidden;
+    }
+
+    &__message {
+      border-radius: $message-radius * 0.25 $message-radius $message-radius $message-radius;
+      padding: 10px 15px;
+      margin-bottom: 5px;
+      margin-right: auto;
+      max-width: 75%;
+      line-height: 1.5;
+      font-size: 14px;
+
+      &--user {
+        background-color: #007ce3;
+        color: white;
+        margin-right: 0;
+        margin-left: auto;
+        font-weight: 500;
+        border-radius: $message-radius $message-radius * 0.25 $message-radius $message-radius;
+      }
+
+      &--thinking {
+        padding: 15px;
+        background-color: $cool-08;
+        span {
+          background-color: $cool-30;
+        }
+      }
+
+      &--assistant {
+        background-color: $cool-08;
+      }
+
+      &--error {
+        background-color: #ffebc5;
+        color: #733d00;
+      }
+
+      &--info {
+        background-color: $sky-06;
+        color: darken($sky-50, 25);
+      }
+    }
+
+    &__input {
+      border-top: 1px solid $cool-10;
+      box-sizing: border-box;
+      display: flex;
+      justify-content: space-between;
+      padding: 10px;
+      position: relative;
+      width: 100%;
+
+      textarea {
+        border-radius: 0;
+        border: none;
+        font-family: inherit;
+        resize: none;
+        font-size: 14px;
+        flex-grow: 1;
+        margin: 0 10px 0 0;
+        min-height: 40px;
+        outline: none;
+        padding: 10px;
+        box-sizing: content-box;
+        transition: height .3s ease-out;
+
+        &::placeholder {
+          color: $cool-30;
+          opacity: 1;
+        }
+
+        @media screen and (min-width: 768px) {
+          font-size: 16px;
+        }
+      }
+    }
+
+    &__send, &__close, &__scroll-down {
+      align-items: center;
+      background-color: transparent;
+      border-radius: $circle-btn-size;
+      border: none;
+      color: $eigen-45;
+      cursor: pointer;
+      display: flex;
+      height: $circle-btn-size;
+      justify-content: center;
+      outline: none;
+      pointer-events: auto;
+      transition: background-color .3s ease-out, color .3s ease-out;
+      width: $circle-btn-size;
+
+      &:hover {
+        background-color: $cool-10;
+        color: $cobalt-30;
+      }
+
+      svg {
+        pointer-events: none;
+        line, g, path, polyline {
+          stroke: currentColor;
+        }
+      }
+    }
+
+    &__scroll-down {
+      background-color: white;
+      box-shadow: 0 5px 10px 0 rgba(black, 0.20), 0 0 0 1px rgba(black, 0.1);
+
+      &-container {
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        left: 0;
+        opacity: 0;
+        padding: 10px;
+        pointer-events: none;
+        position: absolute;
+        transform: translateY(5px) scale(0.8);
+        transition: opacity .3s ease-in-out, visibility .3s ease-in-out, transform .3s ease-in-out;
+        top: -60px;
+        visibility: hidden;
+        width: 100%;
+
+        &--visible {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0) scale(1);
+        }
+      }
+    }
+  }
+}
+
+@keyframes animateDots {
+  0% {
+    transform: translateY(0);
+  }
+
+  20% {
+    transform: translateY(-50%);
+  }
+
+  40% {
+    transform: translateY(50%);
+  }
+
+  60% {
+    transform: translateY(0);
+  }
+}
