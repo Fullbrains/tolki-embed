@@ -237,7 +237,7 @@ $message-radius: 15px;
       box-sizing: border-box;
       display: flex;
       justify-content: space-between;
-      padding: 10px;
+      padding: 0;
       position: relative;
       width: 100%;
 
@@ -248,10 +248,10 @@ $message-radius: 15px;
         resize: none;
         font-size: 15px;
         flex-grow: 1;
-        margin: 0 10px 0 0;
+        margin: 0;
         min-height: 40px;
         outline: none;
-        padding: 10px;
+        padding: 20px 60px 20px 20px;
         box-sizing: content-box;
         transition: height .3s ease-out;
 
@@ -264,6 +264,12 @@ $message-radius: 15px;
           font-size: 16px;
         }
       }
+    }
+
+    &__send {
+      position: absolute;
+      top: 10px;
+      right: 10px;
     }
 
     &__send, &__close, &__scroll-down {
