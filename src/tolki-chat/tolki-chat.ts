@@ -193,26 +193,24 @@ export class TolkiChat extends LitElement {
   async sendMessage() {
     const message: string = this.textarea?.value?.trim()
 
-    if (
-      !message ||
-      message === '' ||
-      state.bot?.status !== TolkiBotStatus.ok ||
-      state.pending
-    ) {
+    if (!message || message === '' || state.bot?.status !== TolkiBotStatus.ok) {
+      this.resetMessage()
+      this.scrollToBottom(100)
       return
     }
 
     this.totalTokens += this.estimateTokens(message)
     state.messages.push(userMessage(message))
-    state.messages.push(thinkingMessage)
-    state.messages = [...state.messages]
-    this.afterSend()
-
     const filteredMessages: TolkiChatMessage[] = state.messages.filter(
       (msg) => msg.role !== TolkiChatMessageRole.thinking
     )
     const lastMessage: TolkiChatMessage =
       filteredMessages[filteredMessages.length - 1]
+    filteredMessages.push(thinkingMessage)
+    state.messages = [...filteredMessages]
+
+    this.afterSend()
+
     try {
       TolkiApi.chat(state.chat, state.bot.uuid, lastMessage.content)
         .then(({ data }: TolkiChatApiResponse) => {
