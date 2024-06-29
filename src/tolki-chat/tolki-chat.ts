@@ -2,8 +2,12 @@ import autosize from 'autosize'
 import { property, State, StateController, storage } from '@lit-app/state'
 import { html, LitElement } from 'lit'
 import { customElement, query } from 'lit/decorators.js'
-import styles from './tolki-chat.scss'
 import { v6 as uuidv6, validate as validateUuid } from 'uuid'
+import {
+  subscribe as subscribeVirtualKeyboardVisibility,
+  isSupported as isVirtualKeyboardSupported,
+} from 'on-screen-keyboard-detector'
+import styles from './tolki-chat.scss'
 import {
   TolkiBot,
   TolkiBotInitResult,
@@ -29,6 +33,7 @@ import {
   TolkiChatApiResponse,
   TolkiChatApiResponseStatus,
 } from '../tolki-api/tolki-api'
+import { vi } from 'cronstrue/dist/i18n/locales/vi'
 
 const TOKEN_LIMIT = 1000
 const SPECIAL_TOKEN_BUFFER = 10
@@ -55,6 +60,9 @@ class TolkiChatState extends State {
 
   @property({ value: false })
   showScrollDown: boolean
+
+  @property({ value: '' })
+  virtualKeyboardVisibility: string
 
   @property({
     value: [
@@ -138,6 +146,12 @@ export class TolkiChat extends LitElement {
       .catch((bot) => {
         state.bot = bot
       })
+
+    if (isVirtualKeyboardSupported()) {
+      subscribeVirtualKeyboardVisibility((visibility) => {
+        state.virtualKeyboardVisibility = visibility
+      })
+    }
   }
 
   estimateTokens(message: string) {
@@ -197,6 +211,12 @@ export class TolkiChat extends LitElement {
       this.resetMessage()
       this.scrollToBottom(100)
       return
+    }
+
+    if (state.virtualKeyboardVisibility === 'visible') {
+      setTimeout(() => {
+        this.textarea.blur()
+      }, 100)
     }
 
     this.totalTokens += this.estimateTokens(message)
