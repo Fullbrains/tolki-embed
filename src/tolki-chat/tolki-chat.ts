@@ -1,8 +1,9 @@
-import autosize from 'autosize'
 import { property, State, StateController, storage } from '@lit-app/state'
 import { html, LitElement } from 'lit'
 import { customElement, query } from 'lit/decorators.js'
+import { classMap } from 'lit/directives/class-map.js'
 import { v6 as uuidv6, validate as validateUuid } from 'uuid'
+import autosize from 'autosize'
 import {
   subscribe as subscribeVirtualKeyboardVisibility,
   isSupported as isVirtualKeyboardSupported,
@@ -13,12 +14,6 @@ import {
   TolkiBotInitResult,
   TolkiBotStatus,
 } from '../tolki-bot/tolki-bot'
-import { header } from '../templates/header'
-import { branding } from '../templates/branding'
-import { textarea } from '../templates/textarea'
-import { toggle } from '../templates/toggle'
-import { message } from '../templates/message'
-import { classMap } from 'lit/directives/class-map.js'
 import {
   assistantMessage,
   errorMessage,
@@ -33,7 +28,11 @@ import {
   TolkiChatApiResponse,
   TolkiChatApiResponseStatus,
 } from '../tolki-api/tolki-api'
-import { vi } from 'cronstrue/dist/i18n/locales/vi'
+import { header } from '../templates/header'
+import { branding } from '../templates/branding'
+import { textarea } from '../templates/textarea'
+import { toggle } from '../templates/toggle'
+import { message } from '../templates/message'
 
 const TOKEN_LIMIT = 1000
 const SPECIAL_TOKEN_BUFFER = 10
@@ -120,17 +119,15 @@ const state = new TolkiChatState()
 @customElement(TOLKI_CHAT)
 export class TolkiChat extends LitElement {
   static styles = styles
+  totalTokens: number = 0
   stateController = new StateController(this, state)
 
-  totalTokens: number = 0
-  thinkingTimeout = null
-
-  @query('.tkc__textarea') textarea: HTMLTextAreaElement
-  @query('.tkc__log') log: HTMLDivElement
-  @query('.tkc__toggle') toggle: HTMLButtonElement
   @query('.tkc__close') close: HTMLButtonElement
-  @query('.tkc__send') send: HTMLButtonElement
+  @query('.tkc__log') log: HTMLDivElement
   @query('.tkc__scroll-down') scrollDown: HTMLButtonElement
+  @query('.tkc__send') send: HTMLButtonElement
+  @query('.tkc__textarea') textarea: HTMLTextAreaElement
+  @query('.tkc__toggle') toggle: HTMLButtonElement
 
   constructor() {
     super()
