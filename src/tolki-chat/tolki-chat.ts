@@ -5,7 +5,6 @@ import { customElement, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 
 // Libs
-import { v6 as uuidv6, validate as validateUuid } from 'uuid'
 import { decrypt, encrypt } from '@fntools/crypto'
 import { getLuminance, lighten } from 'polished'
 import autosize from 'autosize'
@@ -112,8 +111,8 @@ export class TolkiChat extends LitElement {
       .then((bot) => {
         state.bot = bot
 
-        if (!validateUuid(state.chat)) {
-          state.chat = uuidv6()
+        if (!this.validateUUID(state.chat)) {
+          state.chat = self.crypto.randomUUID()
         }
 
         if (state.history) {
@@ -141,6 +140,12 @@ export class TolkiChat extends LitElement {
         state.virtualKeyboardVisibility = visibility
       })
     }
+  }
+
+  validateUUID(uuid: string) {
+    return /[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}/i.test(
+      uuid
+    )
   }
 
   get colorVariables() {
