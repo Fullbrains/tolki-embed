@@ -5,7 +5,6 @@ import { customElement, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 
 // Libs
-//import { decrypt, encrypt } from '@fntools/crypto'
 import { getLuminance, lighten } from 'polished'
 import autosize from 'autosize'
 import {
@@ -22,6 +21,7 @@ import cool from '@fullbrains/okuda/colors/cool'
 import styles from './tolki-chat.scss'
 
 // Tolki
+import { decrypt, encrypt, validateUUID } from '../tolki-utils/tolki-utils'
 import {
   TolkiBot,
   TolkiBotInitResult,
@@ -111,23 +111,25 @@ export class TolkiChat extends LitElement {
       .then((bot) => {
         state.bot = bot
 
-        if (!this.validateUUID(state.chat)) {
+        if (!validateUUID(state.chat)) {
           state.chat = self.crypto.randomUUID()
+          self.crypto
         }
 
-        /*if (state.history) {
-          const decrypted: string | boolean = decrypt(
-            state.history,
-            state.chat,
-            state.bot.uuid
-          )
-          if (decrypted && typeof decrypted === 'string') {
-            const decryptedAny = JSON.parse(decrypted)
-            if (Array.isArray(decryptedAny)) {
-              state.messages = decryptedAny as TolkiChatMessage[]
+        if (state.history) {
+          const password = state.chat + state.bot.uuid
+          const encrypted = JSON.parse(state.history)
+          decrypt(encrypted.ciphertext, encrypted.iv, password).then(
+            (decrypted: string) => {
+              if (decrypted && typeof decrypted === 'string') {
+                const decryptedAny = JSON.parse(decrypted)
+                if (Array.isArray(decryptedAny)) {
+                  state.messages = decryptedAny as TolkiChatMessage[]
+                }
+              }
             }
-          }
-        }*/
+          )
+        }
 
         this.scrollToBottom()
       })
@@ -140,12 +142,6 @@ export class TolkiChat extends LitElement {
         state.virtualKeyboardVisibility = visibility
       })
     }
-  }
-
-  validateUUID(uuid: string) {
-    return /[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}/i.test(
-      uuid
-    )
   }
 
   get colorVariables() {
@@ -229,19 +225,22 @@ export class TolkiChat extends LitElement {
   }
 
   saveHistory() {
-    /*state.history = encrypt(
-      JSON.stringify(
-        state.messages.filter((message: TolkiChatMessage) => {
-          return (
-            message.role === TolkiChatMessageRole.assistant ||
-            message.role === TolkiChatMessageRole.user ||
-            message.role === TolkiChatMessageRole.info
-          )
-        })
-      ),
-      state.chat,
-      state.bot.uuid
-    )*/
+    const stringified = JSON.stringify(
+      state.messages.filter((message: TolkiChatMessage) => {
+        return (
+          message.role === TolkiChatMessageRole.assistant ||
+          message.role === TolkiChatMessageRole.user ||
+          message.role === TolkiChatMessageRole.info
+        )
+      })
+    )
+    console.log(stringified)
+    encrypt(stringified, state.chat + state.bot.uuid).then(
+      (res: { [key: string]: string }) => {
+        console.log(res)
+        state.history = JSON.stringify(res)
+      }
+    )
   }
 
   async sendMessage() {

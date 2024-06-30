@@ -1,4 +1,4 @@
-import { validate as validateUuid } from 'uuid'
+import { validateUUID } from '../tolki-utils/tolki-utils'
 import { TolkiApi } from '../tolki-api/tolki-api'
 
 export enum TolkiBotStatus {
@@ -28,7 +28,7 @@ export class TolkiBot {
       this._props = null
 
       if (this._uuid) {
-        if (validateUuid(this._uuid)) {
+        if (validateUUID(this._uuid)) {
           TolkiApi.bot(this._uuid)
             .then(({ data }) => {
               this._status = TolkiBotStatus.ok

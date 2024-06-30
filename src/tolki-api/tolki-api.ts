@@ -1,4 +1,4 @@
-import { validate as validateUuid } from 'uuid'
+import { validateUUID } from '../tolki-utils/tolki-utils'
 
 export interface TolkiApiResponse {
   status: number
@@ -50,7 +50,7 @@ export class TolkiApi {
     message: string
   ): Promise<TolkiChatApiResponse> {
     return new Promise((resolve, reject) => {
-      if (validateUuid(chat) && validateUuid(bot) && message?.trim() !== '') {
+      if (validateUUID(chat) && validateUUID(bot) && message?.trim() !== '') {
         try {
           fetch(`${TOLKI_API_BASE_URL}chat/`, {
             method: `POST`,
