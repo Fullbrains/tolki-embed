@@ -1,6 +1,6 @@
 {
   "name": "tolki-chat-wc",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Tolki Chat Web Component",
   "main": "index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "@fntools/crypto": "^1.0.0",
-    "@fullbrains/okuda": "^3.4.35",
+    "@fullbrains/okuda": "^3.4.36",
     "@lit-app/state": "^1.0.0",
     "@lit/reactive-element": "^2.0.4",
     "@rollup/plugin-terser": "^0.4.4",
@@ -25,6 +25,7 @@
     "feed-view": "^1.0.1",
     "lit": "latest",
     "on-screen-keyboard-detector": "^2.3.0",
+    "polished": "^4.3.1",
     "rollup-plugin-html-literals": "^1.1.8",
     "rollup-plugin-string": "^3.0.0",
     "tslib": "^2.6.3",

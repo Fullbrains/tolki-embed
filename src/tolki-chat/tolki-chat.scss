@@ -119,10 +119,10 @@ $message-radius: 15px;
     &__toggle {
       -webkit-tap-highlight-color: rgba(0,0,0,0);
       align-items: center;
-      background-color: $cobalt-41;
+      background-color: var(--toggle-default-background);
       border-radius: $toggle-btn-size $toggle-btn-size $toggle-btn-size $toggle-corner-size;
       border: none;
-      color: $cool-14;
+      color: var(--toggle-dots-background);
       cursor: pointer;
       display: flex;
       height: $toggle-btn-size;
@@ -133,11 +133,12 @@ $message-radius: 15px;
       width: $toggle-btn-size;
 
       &--open {
+        background-color: var(--toggle-hover-background);
         border-radius: $toggle-corner-size $toggle-btn-size $toggle-btn-size $toggle-btn-size;
       }
 
       &:hover {
-        background-color: $cobalt-35;
+        background-color: var(--toggle-hover-background);
 
         span {
           animation: animateDots 1s linear forwards;
@@ -201,8 +202,8 @@ $message-radius: 15px;
       font-size: 14px;
 
       &--user {
-        background-color: #007ce3;
-        color: white;
+        background-color: var(--bubble-background);
+        color: var(--bubble-color);
         margin-right: 0;
         margin-left: auto;
         font-weight: 500;

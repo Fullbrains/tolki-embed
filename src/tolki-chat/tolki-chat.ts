@@ -1,15 +1,28 @@
+// Lit Imports
 import { property, State, StateController, storage } from '@lit-app/state'
 import { html, LitElement } from 'lit'
 import { customElement, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
+
+// Libs
 import { v6 as uuidv6, validate as validateUuid } from 'uuid'
-import { encrypt, decrypt } from '@fntools/crypto'
+import { decrypt, encrypt } from '@fntools/crypto'
+import { getLuminance, lighten } from 'polished'
 import autosize from 'autosize'
 import {
   isSupported as isVirtualKeyboardSupported,
   subscribe as subscribeVirtualKeyboardVisibility,
 } from 'on-screen-keyboard-detector'
+
+// Okuda Colors
+import eigen from '@fullbrains/okuda/colors/eigen'
+import cobalt from '@fullbrains/okuda/colors/cobalt'
+import cool from '@fullbrains/okuda/colors/cool'
+
+// Styles
 import styles from './tolki-chat.scss'
+
+// Tolki
 import {
   TolkiBot,
   TolkiBotInitResult,
@@ -29,6 +42,8 @@ import {
   TolkiChatApiResponse,
   TolkiChatApiResponseStatus,
 } from '../tolki-api/tolki-api'
+
+// Templates
 import { header } from '../templates/header'
 import { branding } from '../templates/branding'
 import { textarea } from '../templates/textarea'
@@ -52,6 +67,9 @@ class TolkiChatState extends State {
   @storage({ key: 'history', prefix: TOLKI_PREFIX })
   @property({ value: '' })
   history: string
+
+  @property({ value: {} })
+  styles: { [key: string]: string }
 
   @property({ value: null })
   bot: TolkiBotInitResult
@@ -141,19 +159,18 @@ export class TolkiChat extends LitElement {
     TolkiBot.init()
       .then((bot) => {
         state.bot = bot
+
         if (!validateUuid(state.chat)) {
           state.chat = uuidv6()
         }
 
         if (state.history) {
-          console.log('history', state.history)
           const decrypted: string | boolean = decrypt(
             state.history,
             state.chat,
             state.bot.uuid
           )
           if (decrypted && typeof decrypted === 'string') {
-            console.log('history', decrypted)
             const decryptedAny = JSON.parse(decrypted)
             if (Array.isArray(decryptedAny)) {
               state.messages = decryptedAny as TolkiChatMessage[]
@@ -172,6 +189,36 @@ export class TolkiChat extends LitElement {
         state.virtualKeyboardVisibility = visibility
       })
     }
+  }
+
+  get colorVariables() {
+    const styles = state.bot.props.styles?.chat
+    const map: { [key: string]: string } = {}
+    if (styles.button?.color) {
+      const toggleLuminance = getLuminance(styles.button.color)
+      map['toggle-default-background'] = styles.button.color
+      map['toggle-hover-background'] = lighten(0.1, styles.button.color)
+      map['toggle-dots-background'] =
+        toggleLuminance >= 0.5 ? eigen['eigen-45'] : '#fff'
+    } else {
+      map['toggle-default-background'] = cobalt['cobalt-41']
+      map['toggle-hover-background'] = cobalt['cobalt-35']
+      map['toggle-dots-background'] = cool['cool-14']
+    }
+    if (styles.bubble?.color) {
+      const bubbleLuminance = getLuminance(styles.bubble.color)
+      map['bubble-background'] = styles.bubble.color
+      map['bubble-color'] = bubbleLuminance >= 0.5 ? eigen['eigen-45'] : '#fff'
+    } else {
+      map['bubble-background'] = cobalt['cobalt-35']
+      map['bubble-color'] = '#fff'
+    }
+
+    return Object.keys(map)
+      .map((key: string) => {
+        return '--' + key + ':' + map[key]
+      })
+      .join(';')
   }
 
   estimateTokens(message: string) {
@@ -226,7 +273,15 @@ export class TolkiChat extends LitElement {
 
   saveHistory() {
     state.history = encrypt(
-      JSON.stringify(state.messages),
+      JSON.stringify(
+        state.messages.filter((message: TolkiChatMessage) => {
+          return (
+            message.role === TolkiChatMessageRole.assistant ||
+            message.role === TolkiChatMessageRole.user ||
+            message.role === TolkiChatMessageRole.info
+          )
+        })
+      ),
       state.chat,
       state.bot.uuid
     )
@@ -354,6 +409,9 @@ export class TolkiChat extends LitElement {
     return state.bot?.status === TolkiBotStatus.ok
       ? html`
           <style>
+            :host {
+              ${this.colorVariables}
+            }
             ${styles}
           </style>
           <div

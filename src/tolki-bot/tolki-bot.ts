@@ -78,6 +78,6 @@ export interface TolkiBotProps {
   name: string
   organization: string
   avatar?: string
-  styles: { [key: string]: { [key: string]: string } }
+  styles: { [key: string]: { [key: string]: { [key: string]: string } } }
   version: string
 }
