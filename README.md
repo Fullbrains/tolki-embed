@@ -1,1 +1,1 @@
-# Tolki Chat Web Component
+# Tolki Embed
