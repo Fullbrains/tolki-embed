@@ -5,7 +5,7 @@ import { customElement, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 
 // Libs
-import { decrypt, encrypt } from '@fntools/crypto'
+//import { decrypt, encrypt } from '@fntools/crypto'
 import { getLuminance, lighten } from 'polished'
 import autosize from 'autosize'
 import {
@@ -115,7 +115,7 @@ export class TolkiChat extends LitElement {
           state.chat = self.crypto.randomUUID()
         }
 
-        if (state.history) {
+        /*if (state.history) {
           const decrypted: string | boolean = decrypt(
             state.history,
             state.chat,
@@ -127,7 +127,7 @@ export class TolkiChat extends LitElement {
               state.messages = decryptedAny as TolkiChatMessage[]
             }
           }
-        }
+        }*/
 
         this.scrollToBottom()
       })
@@ -229,7 +229,7 @@ export class TolkiChat extends LitElement {
   }
 
   saveHistory() {
-    state.history = encrypt(
+    /*state.history = encrypt(
       JSON.stringify(
         state.messages.filter((message: TolkiChatMessage) => {
           return (
@@ -241,7 +241,7 @@ export class TolkiChat extends LitElement {
       ),
       state.chat,
       state.bot.uuid
-    )
+    )*/
   }
 
   async sendMessage() {
