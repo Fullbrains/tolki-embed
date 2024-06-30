@@ -18,12 +18,12 @@ export interface TolkiChatApiResponse {
   error?: unknown
 }
 
-export class TolkiApi {
-  private static baseUrl: string = 'https://tolki-api.vercel.app/v1/'
+const TOLKI_API_BASE_URL: string = 'https://api.tolki.ai/v1/'
 
+export class TolkiApi {
   public static async bot(id: string): Promise<TolkiApiResponse> {
     return new Promise((resolve, reject) => {
-      fetch(`${this.baseUrl}bot/${id}`)
+      fetch(`${TOLKI_API_BASE_URL}bot/${id}`)
         .then((response: Response) => {
           if (response.status === 200) {
             response.json().then((data) => {
@@ -52,7 +52,7 @@ export class TolkiApi {
     return new Promise((resolve, reject) => {
       if (validateUuid(chat) && validateUuid(bot) && message?.trim() !== '') {
         try {
-          fetch(`${this.baseUrl}chat/`, {
+          fetch(`${TOLKI_API_BASE_URL}chat/`, {
             method: `POST`,
             headers: {
               'Content-Type': `application/json`,
