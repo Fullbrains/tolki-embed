@@ -25,7 +25,6 @@
     "feed-view": "^1.0.1",
     "lit": "latest",
     "on-screen-keyboard-detector": "^2.3.0",
-    "polished": "^4.3.1",
     "rollup-plugin-html-literals": "^1.1.8",
     "rollup-plugin-string": "^3.0.0",
     "tslib": "^2.6.3"

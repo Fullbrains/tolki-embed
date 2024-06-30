@@ -1,4 +1,4 @@
-import { validateUUID } from '../tolki-utils/tolki-utils'
+import { validateUUID } from '../utils/encryption'
 
 export interface TolkiApiResponse {
   status: number

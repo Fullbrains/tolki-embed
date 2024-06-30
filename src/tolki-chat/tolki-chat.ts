@@ -5,7 +5,6 @@ import { customElement, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 
 // Libs
-import { getLuminance, lighten } from 'polished'
 import autosize from 'autosize'
 import {
   isSupported as isVirtualKeyboardSupported,
@@ -21,7 +20,7 @@ import cool from '@fullbrains/okuda/colors/cool'
 import styles from './tolki-chat.scss'
 
 // Tolki
-import { decrypt, encrypt, validateUUID } from '../tolki-utils/tolki-utils'
+import { decrypt, encrypt, validateUUID } from '../utils/encryption'
 import {
   TolkiBot,
   TolkiBotInitResult,
@@ -48,6 +47,7 @@ import { branding } from '../templates/branding'
 import { textarea } from '../templates/textarea'
 import { toggle } from '../templates/toggle'
 import { message } from '../templates/message'
+import { isDark, lighten } from '../utils/color'
 
 const TOKEN_LIMIT = 1000
 const SPECIAL_TOKEN_BUFFER = 10
@@ -148,20 +148,21 @@ export class TolkiChat extends LitElement {
     const styles = state.bot.props.styles?.chat
     const map: { [key: string]: string } = {}
     if (styles.button?.color) {
-      const toggleLuminance = getLuminance(styles.button.color)
       map['toggle-default-background'] = styles.button.color
-      map['toggle-hover-background'] = lighten(0.1, styles.button.color)
-      map['toggle-dots-background'] =
-        toggleLuminance >= 0.5 ? eigen['eigen-45'] : '#fff'
+      map['toggle-hover-background'] = lighten(styles.button.color, 30)
+      map['toggle-dots-background'] = isDark(styles.button.color)
+        ? '#fff'
+        : eigen['eigen-45']
     } else {
       map['toggle-default-background'] = cobalt['cobalt-41']
       map['toggle-hover-background'] = cobalt['cobalt-35']
       map['toggle-dots-background'] = cool['cool-14']
     }
     if (styles.bubble?.color) {
-      const bubbleLuminance = getLuminance(styles.bubble.color)
       map['bubble-background'] = styles.bubble.color
-      map['bubble-color'] = bubbleLuminance >= 0.5 ? eigen['eigen-45'] : '#fff'
+      map['bubble-color'] = isDark(styles.bubble.color)
+        ? '#fff'
+        : eigen['eigen-45']
     } else {
       map['bubble-background'] = cobalt['cobalt-35']
       map['bubble-color'] = '#fff'
