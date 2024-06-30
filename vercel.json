@@ -1,8 +1,0 @@
-{
-  "routes": [
-    {
-      "src": "/src/chat.ts",
-      "dest": "/dist/chat.js"
-    }
-  ]
-}
