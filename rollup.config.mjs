@@ -4,6 +4,7 @@ import resolve from '@rollup/plugin-node-resolve'
 import postcss from 'rollup-plugin-postcss'
 import litcss from 'rollup-plugin-postcss-lit'
 import terser from '@rollup/plugin-terser'
+import commonjs from '@rollup/plugin-commonjs'
 
 export default {
   input: 'src/chat.ts',
@@ -16,6 +17,7 @@ export default {
     resolve({
       browser: true,
     }),
+    commonjs(),
     typescript(),
     postcss({
       minimize: true,

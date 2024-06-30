@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@fntools/crypto':
+        specifier: ^1.0.0
+        version: 1.0.0
       '@fullbrains/okuda':
         specifier: ^3.4.35
         version: 3.4.35(magicast@0.3.4)(nuxt@3.12.2(@opentelemetry/api@1.9.0)(@parcel/watcher@2.4.1)(@types/node@20.14.9)(encoding@0.1.13)(eslint@9.5.0)(ioredis@5.4.1)(magicast@0.3.4)(meow@9.0.0)(optionator@0.9.4)(rollup@4.18.0)(sass@1.77.6)(terser@5.31.1)(typescript@5.5.2)(vite@5.3.2(@types/node@20.14.9)(sass@1.77.6)(terser@5.31.1)))(rollup@4.18.0)(vite@5.3.2(@types/node@20.14.9)(sass@1.77.6)(terser@5.31.1))
@@ -17,9 +20,6 @@ importers:
       '@lit/reactive-element':
         specifier: ^2.0.4
         version: 2.0.4
-      '@rollup/plugin-commonjs':
-        specifier: ^26.0.1
-        version: 26.0.1(rollup@4.18.0)
       '@rollup/plugin-terser':
         specifier: ^0.4.4
         version: 0.4.4(rollup@4.18.0)
@@ -69,6 +69,9 @@ importers:
       '@open-wc/eslint-config':
         specifier: ^12.0.3
         version: 12.0.3(@babel/core@7.24.7)(eslint-plugin-html@7.1.0)(eslint-plugin-import@2.29.1(@typescript-eslint/parser@7.14.1(eslint@9.5.0)(typescript@5.5.2))(eslint@9.5.0))(eslint-plugin-lit-a11y@4.1.3(eslint@9.5.0))(eslint-plugin-lit@1.14.0(eslint@9.5.0))(eslint-plugin-no-only-tests@3.1.0)(eslint-plugin-wc@1.5.0(eslint@9.5.0))(eslint@9.5.0)
+      '@rollup/plugin-commonjs':
+        specifier: ^26.0.1
+        version: 26.0.1(rollup@4.18.0)
       '@rollup/plugin-node-resolve':
         specifier: ^15.2.3
         version: 15.2.3(rollup@4.18.0)
@@ -630,6 +633,10 @@ packages:
   '@fastify/busboy@2.1.1':
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
+
+  '@fntools/crypto@1.0.0':
+    resolution: {integrity: sha512-G/mRTYra7ijFEWNKt46atiqIWWM+I1N1/rmmXliFuwWkGGe7+jwSCyeot5sitHRZy+z5+dzmBzNZ287oCZ6H0w==}
+    engines: {node: '>=6.0.0'}
 
   '@fullbrains/okuda@3.4.35':
     resolution: {integrity: sha512-GR1qvxagg8Xqil5fUgLgGRJong6Dh9YLF/1QUsjQ/m3da2tMRIxSqYmDLDvBY7CSimRLomCFu1ubVd5ib7dSrA==, tarball: https://npm.pkg.github.com/download/@Fullbrains/okuda/3.4.35/12fe623b4489a9b62de0c7cd24bd2df4d4c136c1}
@@ -2088,6 +2095,9 @@ packages:
     peerDependenciesMeta:
       uWebSockets.js:
         optional: true
+
+  crypto-js@4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
 
   css-declaration-sorter@6.4.1:
     resolution: {integrity: sha512-rtdthzxKuyq6IzqX6jEcIzQF/YqccluefyCYheovBOLhFT/drQA9zj/UbRAa9J7C0o6EG6u3E6g+vKkay7/k3g==}
@@ -6125,6 +6135,10 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
+  '@fntools/crypto@1.0.0':
+    dependencies:
+      crypto-js: 4.2.0
+
   '@fullbrains/okuda@3.4.35(magicast@0.3.4)(nuxt@3.12.2(@opentelemetry/api@1.9.0)(@parcel/watcher@2.4.1)(@types/node@20.14.9)(encoding@0.1.13)(eslint@9.5.0)(ioredis@5.4.1)(magicast@0.3.4)(meow@9.0.0)(optionator@0.9.4)(rollup@4.18.0)(sass@1.77.6)(terser@5.31.1)(typescript@5.5.2)(vite@5.3.2(@types/node@20.14.9)(sass@1.77.6)(terser@5.31.1)))(rollup@4.18.0)(vite@5.3.2(@types/node@20.14.9)(sass@1.77.6)(terser@5.31.1))':
     dependencies:
       '@nuxt/devtools-kit': 0.5.5(magicast@0.3.4)(nuxt@3.12.2(@opentelemetry/api@1.9.0)(@parcel/watcher@2.4.1)(@types/node@20.14.9)(encoding@0.1.13)(eslint@9.5.0)(ioredis@5.4.1)(magicast@0.3.4)(meow@9.0.0)(optionator@0.9.4)(rollup@4.18.0)(sass@1.77.6)(terser@5.31.1)(typescript@5.5.2)(vite@5.3.2(@types/node@20.14.9)(sass@1.77.6)(terser@5.31.1)))(rollup@4.18.0)(vite@5.3.2(@types/node@20.14.9)(sass@1.77.6)(terser@5.31.1))
@@ -8007,6 +8021,8 @@ snapshots:
       which: 2.0.2
 
   crossws@0.2.4: {}
+
+  crypto-js@4.2.0: {}
 
   css-declaration-sorter@6.4.1(postcss@8.4.38):
     dependencies:

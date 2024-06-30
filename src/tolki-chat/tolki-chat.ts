@@ -3,10 +3,11 @@ import { html, LitElement } from 'lit'
 import { customElement, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { v6 as uuidv6, validate as validateUuid } from 'uuid'
+import { encrypt, decrypt } from '@fntools/crypto'
 import autosize from 'autosize'
 import {
-  subscribe as subscribeVirtualKeyboardVisibility,
   isSupported as isVirtualKeyboardSupported,
+  subscribe as subscribeVirtualKeyboardVisibility,
 } from 'on-screen-keyboard-detector'
 import styles from './tolki-chat.scss'
 import {
@@ -47,6 +48,10 @@ class TolkiChatState extends State {
   @storage({ key: 'open', prefix: TOLKI_PREFIX })
   @property({ value: '' })
   open: string
+
+  @storage({ key: 'history', prefix: TOLKI_PREFIX })
+  @property({ value: '' })
+  history: string
 
   @property({ value: null })
   bot: TolkiBotInitResult
@@ -114,6 +119,7 @@ class TolkiChatState extends State {
   })
   messages: TolkiChatMessage[]
 }
+
 const state = new TolkiChatState()
 
 @customElement(TOLKI_CHAT)
@@ -137,8 +143,25 @@ export class TolkiChat extends LitElement {
         state.bot = bot
         if (!validateUuid(state.chat)) {
           state.chat = uuidv6()
-          this.scrollToBottom()
         }
+
+        if (state.history) {
+          console.log('history', state.history)
+          const decrypted: string | boolean = decrypt(
+            state.history,
+            state.chat,
+            state.bot.uuid
+          )
+          if (decrypted && typeof decrypted === 'string') {
+            console.log('history', decrypted)
+            const decryptedAny = JSON.parse(decrypted)
+            if (Array.isArray(decryptedAny)) {
+              state.messages = decryptedAny as TolkiChatMessage[]
+            }
+          }
+        }
+
+        this.scrollToBottom()
       })
       .catch((bot) => {
         state.bot = bot
@@ -201,6 +224,14 @@ export class TolkiChat extends LitElement {
     state.atBottom = offsetFromBottom <= 50
   }
 
+  saveHistory() {
+    state.history = encrypt(
+      JSON.stringify(state.messages),
+      state.chat,
+      state.bot.uuid
+    )
+  }
+
   async sendMessage() {
     const message: string = this.textarea?.value?.trim()
 
@@ -221,11 +252,12 @@ export class TolkiChat extends LitElement {
     const filteredMessages: TolkiChatMessage[] = state.messages.filter(
       (msg) => msg.role !== TolkiChatMessageRole.thinking
     )
+    state.messages = [...filteredMessages]
+    this.saveHistory()
     const lastMessage: TolkiChatMessage =
       filteredMessages[filteredMessages.length - 1]
     filteredMessages.push(thinkingMessage)
     state.messages = [...filteredMessages]
-
     this.afterSend()
 
     try {
@@ -238,6 +270,7 @@ export class TolkiChat extends LitElement {
           state.messages = state.messages.filter(
             (msg) => msg.role !== TolkiChatMessageRole.thinking
           )
+          this.saveHistory()
           this.afterReceive()
         })
         .catch(({ status, data, response, error }: TolkiChatApiResponse) => {
@@ -249,6 +282,7 @@ export class TolkiChat extends LitElement {
             state.messages = state.messages.filter(
               (msg) => msg.role !== TolkiChatMessageRole.thinking
             )
+            this.saveHistory()
             console.error('Tolki: error:', status, data, response, error)
             this.afterReceive()
           }
