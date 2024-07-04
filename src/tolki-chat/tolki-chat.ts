@@ -237,7 +237,6 @@ export class TolkiChat extends LitElement {
     )
     encrypt(serializedMessages, state.chat + state.bot.uuid).then(
       (res: { [key: string]: string }) => {
-        console.log(res)
         state.history = JSON.stringify(res)
       }
     )
