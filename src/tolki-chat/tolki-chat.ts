@@ -112,7 +112,7 @@ export class TolkiChat extends LitElement {
         state.bot = bot
 
         if (!validateUUID(state.chat)) {
-          state.chat = self.crypto.randomUUID()
+          state.chat = window.crypto.randomUUID()
         }
 
         if (state.history) {
