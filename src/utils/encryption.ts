@@ -1,3 +1,5 @@
+import { v4 } from 'uuid'
+
 export async function encrypt(
   text: string,
   password: string
@@ -51,7 +53,7 @@ async function getKey(
   return crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: encoder.encode('salt'), // Puoi cambiare il sale per una maggiore sicurezza
+      salt: encoder.encode('salt'),
       iterations: 100000,
       hash: 'SHA-256',
     },
@@ -66,4 +68,8 @@ export function validateUUID(uuid: string) {
   return /[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}/i.test(
     uuid
   )
+}
+
+export function UUID() {
+  return v4()
 }

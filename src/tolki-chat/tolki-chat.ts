@@ -20,7 +20,7 @@ import cool from '@fullbrains/okuda/colors/cool'
 import styles from './tolki-chat.scss'
 
 // Tolki
-import { decrypt, encrypt, validateUUID } from '../utils/encryption'
+import { decrypt, encrypt, UUID, validateUUID } from '../utils/encryption'
 import {
   TolkiBot,
   TolkiBotInitResult,
@@ -112,7 +112,7 @@ export class TolkiChat extends LitElement {
         state.bot = bot
 
         if (!validateUUID(state.chat)) {
-          state.chat = window.crypto.randomUUID()
+          state.chat = UUID()
         }
 
         if (state.history) {
