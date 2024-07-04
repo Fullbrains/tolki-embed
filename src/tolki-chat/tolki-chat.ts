@@ -113,7 +113,6 @@ export class TolkiChat extends LitElement {
 
         if (!validateUUID(state.chat)) {
           state.chat = self.crypto.randomUUID()
-          self.crypto
         }
 
         if (state.history) {
@@ -135,6 +134,7 @@ export class TolkiChat extends LitElement {
       })
       .catch((bot) => {
         state.bot = bot
+        console.error('Tolki: Bot not initialized:', bot)
       })
 
     if (isVirtualKeyboardSupported()) {
@@ -226,7 +226,7 @@ export class TolkiChat extends LitElement {
   }
 
   saveHistory() {
-    const stringified = JSON.stringify(
+    const serializedMessages = JSON.stringify(
       state.messages.filter((message: TolkiChatMessage) => {
         return (
           message.role === TolkiChatMessageRole.assistant ||
@@ -235,8 +235,7 @@ export class TolkiChat extends LitElement {
         )
       })
     )
-    console.log(stringified)
-    encrypt(stringified, state.chat + state.bot.uuid).then(
+    encrypt(serializedMessages, state.chat + state.bot.uuid).then(
       (res: { [key: string]: string }) => {
         console.log(res)
         state.history = JSON.stringify(res)

@@ -39,6 +39,7 @@ export class TolkiApi {
           }
         })
         .catch((err) => {
+          console.error('Tolki: bot error:', err)
           reject(err)
         })
     })
