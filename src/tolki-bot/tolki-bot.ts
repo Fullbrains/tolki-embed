@@ -76,7 +76,7 @@ export class TolkiBot {
 
 export interface TolkiBotProps {
   name: string
-  organization: string
+  team: string
   avatar?: string
   styles: { [key: string]: { [key: string]: { [key: string]: string } } }
   version: string
