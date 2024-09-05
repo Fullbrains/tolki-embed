@@ -18,12 +18,12 @@ export interface TolkiChatApiResponse {
   error?: unknown
 }
 
-const TOLKI_API_BASE_URL: string = 'https://api.tolki.ai/v1/'
+const TOLKI_API_BASE_URL: string = 'https://api.tolki.ai/chat/v1/'
 
 export class TolkiApi {
   public static async bot(id: string): Promise<TolkiApiResponse> {
     return new Promise((resolve, reject) => {
-      fetch(`${TOLKI_API_BASE_URL}bot/${id}`)
+      fetch(`${TOLKI_API_BASE_URL}embed/${id}`)
         .then((response: Response) => {
           if (response.status === 200) {
             response.json().then((data) => {
