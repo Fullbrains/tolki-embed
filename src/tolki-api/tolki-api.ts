@@ -5,25 +5,26 @@ export interface TolkiApiResponse {
   data: unknown
 }
 
-export enum TolkiChatApiResponseStatus {
+export enum TolkiApiResponseStatus {
   ok = 'ok',
   notOk = 'notOk',
   error = 'error',
   badMessage = 'badMessage',
 }
-export interface TolkiChatApiResponse {
-  status: TolkiChatApiResponseStatus
+export interface TolkiApiResponse {
+  status: TolkiApiResponseStatus
   data: unknown
   response?: Partial<Response>
   error?: unknown
 }
 
-const TOLKI_API_BASE_URL: string = 'https://api.tolki.ai/chat/v1/'
+const TOLKI_API_BASE_URL: string = 'https://api.tolki.ai/chat/v1/embed/'
 
 export class TolkiApi {
-  public static async bot(id: string): Promise<TolkiApiResponse> {
+  public static async settings(bot_uuid: string): Promise<TolkiApiResponse> {
+    // api.tolki.ai/chat/v1/embed/:bot_uuid/settings
     return new Promise((resolve, reject) => {
-      fetch(`${TOLKI_API_BASE_URL}embed/${id}`)
+      fetch(`${TOLKI_API_BASE_URL}${bot_uuid}/settings`)
         .then((response: Response) => {
           if (response.status === 200) {
             response.json().then((data) => {
@@ -45,22 +46,21 @@ export class TolkiApi {
     })
   }
 
-  public static async chat(
-    chat: string,
-    bot: string,
+  public static async message(
+    chat_uuid: string,
+    bot_uuid: string,
     message: string
-  ): Promise<TolkiChatApiResponse> {
+  ): Promise<TolkiApiResponse> {
+    // api.tolki.ai/chat/v1/embed/:bot_uuid/chat/:chat_uuid/message
     return new Promise((resolve, reject) => {
-      if (validateUUID(chat) && validateUUID(bot) && message?.trim() !== '') {
+      if (validateUUID(chat_uuid) && validateUUID(bot_uuid) && message?.trim() !== '') {
         try {
-          fetch(`${TOLKI_API_BASE_URL}chat/`, {
+          fetch(`${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`, {
             method: `POST`,
             headers: {
               'Content-Type': `application/json`,
             },
             body: JSON.stringify({
-              chat,
-              bot,
               message,
             }),
           })
@@ -69,17 +69,17 @@ export class TolkiApi {
                 response
                   .json()
                   .then((data) => {
-                    resolve({ status: TolkiChatApiResponseStatus.ok, data })
+                    resolve({ status: TolkiApiResponseStatus.ok, data })
                   })
                   .catch((error) => {
-                    reject({ status: TolkiChatApiResponseStatus.error, error })
+                    reject({ status: TolkiApiResponseStatus.error, error })
                   })
               } else {
                 response
                   .json()
                   .then((data) => {
                     reject({
-                      status: TolkiChatApiResponseStatus.notOk,
+                      status: TolkiApiResponseStatus.notOk,
                       data,
                       response: {
                         status: response.status,
@@ -88,25 +88,25 @@ export class TolkiApi {
                     })
                   })
                   .catch((error) => {
-                    reject({ status: TolkiChatApiResponseStatus.error, error })
+                    reject({ status: TolkiApiResponseStatus.error, error })
                   })
               }
             })
             .catch((error) => {
               reject({
-                status: TolkiChatApiResponseStatus.error,
+                status: TolkiApiResponseStatus.error,
                 error,
               })
             })
         } catch (error) {
           reject({
-            status: TolkiChatApiResponseStatus.error,
+            status: TolkiApiResponseStatus.error,
             error,
           })
         }
       } else {
         reject({
-          status: TolkiChatApiResponseStatus.badMessage,
+          status: TolkiApiResponseStatus.badMessage,
         })
       }
     })

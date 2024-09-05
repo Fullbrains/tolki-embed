@@ -29,7 +29,7 @@ export class TolkiBot {
 
       if (this._uuid) {
         if (validateUUID(this._uuid)) {
-          TolkiApi.bot(this._uuid)
+          TolkiApi.settings(this._uuid)
             .then(({ data }) => {
               this._status = TolkiBotStatus.ok
               this._props = data as TolkiBotProps

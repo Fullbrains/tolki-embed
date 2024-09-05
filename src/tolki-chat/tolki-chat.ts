@@ -37,8 +37,8 @@ import {
 } from './tolki-chat-message'
 import {
   TolkiApi,
-  TolkiChatApiResponse,
-  TolkiChatApiResponseStatus,
+  TolkiApiResponse,
+  TolkiApiResponseStatus,
 } from '../tolki-api/tolki-api'
 
 // Templates
@@ -271,8 +271,8 @@ export class TolkiChat extends LitElement {
     this.afterSend()
 
     try {
-      TolkiApi.chat(state.chat, state.bot.uuid, lastMessage.content)
-        .then(({ data }: TolkiChatApiResponse) => {
+      TolkiApi.message(state.chat, state.bot.uuid, lastMessage.content)
+        .then(({ data }: TolkiApiResponse) => {
           const content: string =
             (data as { [key: string]: string }).content || TOLKI_SORRY_MESSAGE
           this.totalTokens += this.estimateTokens(content)
@@ -283,10 +283,10 @@ export class TolkiChat extends LitElement {
           this.saveHistory()
           this.afterReceive()
         })
-        .catch(({ status, data, response, error }: TolkiChatApiResponse) => {
+        .catch(({ status, data, response, error }: TolkiApiResponse) => {
           if (
-            status === TolkiChatApiResponseStatus.error ||
-            status === TolkiChatApiResponseStatus.notOk
+            status === TolkiApiResponseStatus.error ||
+            status === TolkiApiResponseStatus.notOk
           ) {
             state.messages.push(errorMessage)
             state.messages = state.messages.filter(
