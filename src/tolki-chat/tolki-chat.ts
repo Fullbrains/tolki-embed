@@ -273,8 +273,7 @@ export class TolkiChat extends LitElement {
     try {
       TolkiApi.message(state.chat, state.bot.uuid, lastMessage.content)
         .then(({ data }: TolkiApiMessageResponse) => {
-          const content: string =
-            (data as { [key: string]: string }).content || TOLKI_SORRY_MESSAGE
+          const content: string = data as string || TOLKI_SORRY_MESSAGE
           this.totalTokens += this.estimateTokens(content)
           state.messages.push(assistantMessage(content))
           state.messages = state.messages.filter(
