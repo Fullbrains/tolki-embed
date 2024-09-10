@@ -1,17 +1,16 @@
-@import "node_modules/@fullbrains/okuda/colors/cobalt/cobalt";
-@import "node_modules/@fullbrains/okuda/colors/cool/cool";
-@import "node_modules/@fullbrains/okuda/colors/sky/sky";
-@import "node_modules/@fullbrains/okuda/colors/eigen/eigen";
-@import "node_modules/@fullbrains/okuda/colors/ruby/ruby";
+@import "node_modules/@fullbrains/okuda/colors/cobalt/cobalt.scss";
+@import "node_modules/@fullbrains/okuda/colors/kool/kool.scss";
+@import "node_modules/@fullbrains/okuda/colors/sky/sky.scss";
+@import "node_modules/@fullbrains/okuda/colors/eigen/eigen.scss";
+@import "node_modules/@fullbrains/okuda/colors/ruby/ruby.scss";
 
-$brand-dot-size: 7px;
 $circle-btn-size: 40px;
 $margin: 20px;
 $mobile-breakpoint: 500px;
 $toggle-btn-size: 60px;
-$toggle-corner-size: 8px;
 $window-border-radius: 10px;
 $message-radius: 15px;
+$brand-dot-size: $toggle-btn-size * 0.12;
 
 :host {
   -moz-osx-font-smoothing: grayscale;
@@ -70,7 +69,7 @@ $message-radius: 15px;
 
     &__header {
       align-items: center;
-      border-bottom: 1px solid $cool-10;
+      border-bottom: 1px solid $kool-10;
       display: flex;
       font-size: 16px;
       font-weight: 700;
@@ -89,14 +88,14 @@ $message-radius: 15px;
 
     &__branding {
       align-items: center;
-      color: $cool-30;
+      color: $kool-30;
       display: flex;
       font-size: 10px;
       justify-content: center;
       padding-bottom: env(safe-area-inset-bottom);
 
       a {
-        color: $cool-30;
+        color: $kool-30;
         padding-bottom: 10px;
         text-decoration: none;
         transition: color .2s ease-out;
@@ -121,7 +120,7 @@ $message-radius: 15px;
       -webkit-tap-highlight-color: rgba(0,0,0,0);
       align-items: center;
       background-color: var(--toggle-default-background);
-      border-radius: $toggle-btn-size $toggle-btn-size $toggle-btn-size $toggle-corner-size;
+      border-radius: $toggle-btn-size * 0.5 $toggle-btn-size * 0.5 $toggle-btn-size * 0.5 $toggle-btn-size * 0.15;
       border: none;
       color: var(--toggle-dots-background);
       cursor: pointer;
@@ -136,7 +135,7 @@ $message-radius: 15px;
 
       &--open {
         background-color: var(--toggle-hover-background);
-        border-radius: $toggle-corner-size $toggle-btn-size $toggle-btn-size $toggle-btn-size;
+        border-radius: $toggle-btn-size * 0.15 $toggle-btn-size * 0.5 $toggle-btn-size * 0.5 $toggle-btn-size * 0.5;
       }
 
       &:hover {
@@ -163,7 +162,7 @@ $message-radius: 15px;
         background-color: currentColor;
         border-radius: $brand-dot-size;
         height: $brand-dot-size;
-        margin: 2px;
+        margin: $brand-dot-size * 0.33;
         width: $brand-dot-size;
         pointer-events: none;
 
@@ -214,14 +213,24 @@ $message-radius: 15px;
 
       &--thinking {
         padding: 15px;
-        background-color: $cool-08;
+        background-color: $kool-08;
         span {
-          background-color: $cool-30;
+          background-color: $kool-30;
         }
       }
 
       &--assistant {
-        background-color: $cool-08;
+        background-color: $kool-08;
+        padding-top: 0;
+        padding-bottom: 0;
+
+        a {
+          color: $cobalt-30;
+
+          &:visited {
+            color: mix(red, $cobalt-30);
+          }
+        }
       }
 
       &--error {
@@ -236,7 +245,7 @@ $message-radius: 15px;
     }
 
     &__input {
-      border-top: 1px solid $cool-10;
+      border-top: 1px solid $kool-10;
       box-sizing: border-box;
       display: flex;
       justify-content: space-between;
@@ -259,7 +268,7 @@ $message-radius: 15px;
         transition: height .3s ease-out;
 
         &::placeholder {
-          color: $cool-30;
+          color: $kool-30;
           opacity: 1;
         }
       }
@@ -288,7 +297,7 @@ $message-radius: 15px;
       width: $circle-btn-size;
 
       &:hover {
-        background-color: $cool-10;
+        background-color: $kool-10;
       }
 
       svg {

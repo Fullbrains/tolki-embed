@@ -12,9 +12,9 @@ import {
 } from 'on-screen-keyboard-detector'
 
 // Okuda Colors
-import eigen from '@fullbrains/okuda/colors/eigen'
-import cobalt from '@fullbrains/okuda/colors/cobalt'
-import cool from '@fullbrains/okuda/colors/cool'
+import eigen from '@fullbrains/okuda/colors/eigen/eigen.js'
+import cobalt from '@fullbrains/okuda/colors/cobalt/cobalt.js'
+import kool from '@fullbrains/okuda/colors/kool/kool.js'
 
 // Styles
 import styles from './tolki-chat.scss'
@@ -156,7 +156,7 @@ export class TolkiChat extends LitElement {
     } else {
       map['toggle-default-background'] = cobalt['cobalt-41']
       map['toggle-hover-background'] = cobalt['cobalt-35']
-      map['toggle-dots-background'] = cool['cool-14']
+      map['toggle-dots-background'] = kool['kool-14']
     }
     if (styles.bubble?.color) {
       map['bubble-background'] = styles.bubble.color

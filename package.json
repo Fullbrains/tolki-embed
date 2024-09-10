@@ -13,7 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "@fntools/crypto": "^1.0.0",
-    "@fullbrains/okuda": "^3.4.36",
+    "@fullbrains/okuda": "^3.6.0",
     "@lit-app/state": "^1.0.0",
     "@lit/reactive-element": "^2.0.4",
     "@rollup/plugin-terser": "^0.4.4",
@@ -24,6 +24,7 @@
     "eslint-plugin-prettier": "^5.1.3",
     "feed-view": "^1.0.1",
     "lit": "latest",
+    "lit-markdown": "^1.3.2",
     "on-screen-keyboard-detector": "^2.3.0",
     "rollup-plugin-html-literals": "^1.1.8",
     "rollup-plugin-string": "^3.0.0",
