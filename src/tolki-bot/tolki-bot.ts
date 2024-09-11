@@ -21,9 +21,9 @@ export class TolkiBot {
   private static _status: TolkiBotStatus
   private static _props: TolkiBotProps
 
-  static async init(): Promise<TolkiBotInitResult> {
+  static async init(uuid: string): Promise<TolkiBotInitResult> {
     return new Promise((resolve, reject) => {
-      this._uuid = window['tolki']?.bot || null
+      this._uuid = uuid || null
       this._status = TolkiBotStatus.unknown
       this._props = null
 

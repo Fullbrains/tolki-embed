@@ -11,6 +11,7 @@ export enum TolkiApiMessageResponseStatus {
   error = 'error',
   badMessage = 'badMessage',
 }
+
 export interface TolkiApiMessageResponse {
   status: TolkiApiMessageResponseStatus
   data: unknown
@@ -22,9 +23,10 @@ const TOLKI_API_BASE_URL: string = 'https://api.tolki.ai/chat/v1/embed/'
 
 export class TolkiApi {
   public static async settings(bot_uuid: string): Promise<TolkiApiResponse> {
-    // api.tolki.ai/chat/v1/embed/:bot_uuid/settings
+    // api.tolki.ai/chat/v1/embed/:bot_uuid/settings/:lang
+    const lang: string = navigator.language || 'en'
     return new Promise((resolve, reject) => {
-      fetch(`${TOLKI_API_BASE_URL}${bot_uuid}/settings`)
+      fetch(`${TOLKI_API_BASE_URL}${bot_uuid}/settings/${lang}`)
         .then((response: Response) => {
           if (response.status === 200) {
             response.json().then((data) => {
@@ -53,7 +55,11 @@ export class TolkiApi {
   ): Promise<TolkiApiMessageResponse> {
     // api.tolki.ai/chat/v1/embed/:bot_uuid/chat/:chat_uuid/message
     return new Promise((resolve, reject) => {
-      if (validateUUID(chat_uuid) && validateUUID(bot_uuid) && message?.trim() !== '') {
+      if (
+        validateUUID(chat_uuid) &&
+        validateUUID(bot_uuid) &&
+        message?.trim() !== ''
+      ) {
         try {
           fetch(`${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`, {
             method: `POST`,
@@ -72,7 +78,10 @@ export class TolkiApi {
                     resolve({ status: TolkiApiMessageResponseStatus.ok, data })
                   })
                   .catch((error) => {
-                    reject({ status: TolkiApiMessageResponseStatus.error, error })
+                    reject({
+                      status: TolkiApiMessageResponseStatus.error,
+                      error,
+                    })
                   })
               } else {
                 response
@@ -88,7 +97,10 @@ export class TolkiApi {
                     })
                   })
                   .catch((error) => {
-                    reject({ status: TolkiApiMessageResponseStatus.error, error })
+                    reject({
+                      status: TolkiApiMessageResponseStatus.error,
+                      error,
+                    })
                   })
               }
             })

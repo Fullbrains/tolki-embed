@@ -1,7 +1,7 @@
 // Lit Imports
 import { property, State, StateController, storage } from '@lit-app/state'
 import { html, LitElement } from 'lit'
-import { customElement, query } from 'lit/decorators.js'
+import { customElement, query, property as prop } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 
 // Libs
@@ -97,6 +97,10 @@ export class TolkiChat extends LitElement {
   totalTokens: number = 0
   stateController = new StateController(this, state)
 
+  static get observedAttributes() {
+    return ['bot']
+  }
+
   @query('.tkc__close') close: HTMLButtonElement
   @query('.tkc__log') log: HTMLDivElement
   @query('.tkc__scroll-down') scrollDown: HTMLButtonElement
@@ -106,48 +110,56 @@ export class TolkiChat extends LitElement {
 
   constructor() {
     super()
+  }
 
-    TolkiBot.init()
-      .then((bot) => {
-        state.bot = bot
+  attributeChangedCallback(
+    name: string,
+    oldValue?: unknown,
+    newValue?: unknown
+  ) {
+    if (name === 'bot' && newValue) {
+      TolkiBot.init(newValue as string)
+        .then((bot) => {
+          if (isVirtualKeyboardSupported()) {
+            subscribeVirtualKeyboardVisibility((visibility) => {
+              state.virtualKeyboardVisibility = visibility
+            })
+          }
 
-        if (!validateUUID(state.chat)) {
-          state.chat = UUID()
-        }
+          state.bot = bot
 
-        if (state.history) {
-          const password = state.chat + state.bot.uuid
-          const encrypted = JSON.parse(state.history)
-          decrypt(encrypted.ciphertext, encrypted.iv, password).then(
-            (decrypted: string) => {
-              if (decrypted && typeof decrypted === 'string') {
-                const decryptedAny = JSON.parse(decrypted)
-                if (Array.isArray(decryptedAny)) {
-                  state.messages = decryptedAny as TolkiChatMessage[]
+          if (!validateUUID(state.chat)) {
+            state.chat = UUID()
+          }
+
+          if (state.history) {
+            const password = state.chat + state.bot.uuid
+            const encrypted = JSON.parse(state.history)
+            decrypt(encrypted.ciphertext, encrypted.iv, password).then(
+              (decrypted: string) => {
+                if (decrypted && typeof decrypted === 'string') {
+                  const decryptedAny = JSON.parse(decrypted)
+                  if (Array.isArray(decryptedAny)) {
+                    state.messages = decryptedAny as TolkiChatMessage[]
+                  }
                 }
               }
-            }
-          )
-        }
+            )
+          }
 
-        this.scrollToBottom()
-      })
-      .catch((bot) => {
-        state.bot = bot
-        console.error('Tolki: Bot not initialized:', bot)
-      })
-
-    if (isVirtualKeyboardSupported()) {
-      subscribeVirtualKeyboardVisibility((visibility) => {
-        state.virtualKeyboardVisibility = visibility
-      })
+          this.scrollToBottom()
+        })
+        .catch((bot) => {
+          state.bot = bot
+          console.error('Tolki: Bot not initialized:', bot)
+        })
     }
   }
 
   get colorVariables() {
     const styles = state.bot.props.styles?.chat
     const map: { [key: string]: string } = {}
-    if (styles.button?.color) {
+    if (styles?.button?.color) {
       map['toggle-default-background'] = styles.button.color
       map['toggle-hover-background'] = lighten(styles.button.color, 30)
       map['toggle-dots-background'] = isDark(styles.button.color)
@@ -158,7 +170,7 @@ export class TolkiChat extends LitElement {
       map['toggle-hover-background'] = cobalt['cobalt-35']
       map['toggle-dots-background'] = kool['kool-14']
     }
-    if (styles.bubble?.color) {
+    if (styles?.bubble?.color) {
       map['bubble-background'] = styles.bubble.color
       map['bubble-color'] = isDark(styles.bubble.color)
         ? '#fff'
@@ -273,7 +285,7 @@ export class TolkiChat extends LitElement {
     try {
       TolkiApi.message(state.chat, state.bot.uuid, lastMessage.content)
         .then(({ data }: TolkiApiMessageResponse) => {
-          const content: string = data as string || TOLKI_SORRY_MESSAGE
+          const content: string = (data as string) || TOLKI_SORRY_MESSAGE
           this.totalTokens += this.estimateTokens(content)
           state.messages.push(assistantMessage(content))
           state.messages = state.messages.filter(
@@ -372,6 +384,7 @@ export class TolkiChat extends LitElement {
             :host {
               ${this.colorVariables}
             }
+
             ${styles}
           </style>
           <div
@@ -395,6 +408,3 @@ export class TolkiChat extends LitElement {
       : html``
   }
 }
-
-const tolkiElement = document.createElement(TOLKI_CHAT)
-document.body.appendChild(tolkiElement)
