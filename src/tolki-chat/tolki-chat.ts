@@ -162,6 +162,8 @@ export class TolkiChat extends LitElement {
                 assistantMessage(state.bot.props.welcomeMessage),
               ]
             }
+          } else {
+            state.messages = []
           }
 
           state.open = this.getSetting('open') as string
