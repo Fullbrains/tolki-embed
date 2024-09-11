@@ -158,10 +158,9 @@ export class TolkiChat extends LitElement {
           if (history) {
             state.messages = history
             if (!state.messages?.length && state.bot?.props?.welcomeMessage) {
-              state.messages = []
-              state.messages.push(
-                assistantMessage(state.bot.props.welcomeMessage)
-              )
+              state.messages = [
+                assistantMessage(state.bot.props.welcomeMessage),
+              ]
             }
           }
 
