@@ -1,7 +1,7 @@
 // Lit Imports
 import { property, State, StateController, storage } from '@lit-app/state'
 import { html, LitElement } from 'lit'
-import { customElement, query, property as prop } from 'lit/decorators.js'
+import { customElement, query } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 
 // Libs
@@ -20,7 +20,7 @@ import kool from '@fullbrains/okuda/colors/kool/kool.js'
 import styles from './tolki-chat.scss'
 
 // Tolki
-import { decrypt, encrypt, UUID, validateUUID } from '../utils/encryption'
+import { UUID, validateUUID } from '../utils/encryption'
 import {
   TolkiBot,
   TolkiBotInitResult,
@@ -55,17 +55,15 @@ const TOLKI_CHAT: string = `tolki-chat`
 const TOLKI_PREFIX: string = `tolki`
 
 class TolkiChatState extends State {
-  @storage({ key: 'chat', prefix: TOLKI_PREFIX })
+  @storage({ key: 'settings', prefix: TOLKI_PREFIX })
+  @property({ value: '{}' })
+  settings: string
+
   @property({ value: '' })
   chat: string
 
-  @storage({ key: 'open', prefix: TOLKI_PREFIX })
   @property({ value: '' })
   open: string
-
-  @storage({ key: 'history', prefix: TOLKI_PREFIX })
-  @property({ value: '' })
-  history: string
 
   @property({ value: {} })
   styles: { [key: string]: string }
@@ -90,6 +88,7 @@ class TolkiChatState extends State {
 }
 
 const state = new TolkiChatState()
+let slef = null
 
 @customElement(TOLKI_CHAT)
 export class TolkiChat extends LitElement {
@@ -110,6 +109,27 @@ export class TolkiChat extends LitElement {
 
   constructor() {
     super()
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    slef = this
+  }
+
+  get botUUID() {
+    return state.bot?.uuid
+  }
+
+  getSetting(key: string): string | boolean | unknown | undefined {
+    if (!this.botUUID) return undefined
+    const settings = JSON.parse(state.settings)
+    if (!settings[this.botUUID]) return undefined
+    return settings[this.botUUID][key]
+  }
+
+  saveSetting(key: string, value: unknown): void {
+    if (!this.botUUID) return undefined
+    const settings = JSON.parse(state.settings)
+    if (!settings[this.botUUID]) settings[this.botUUID] = {}
+    settings[this.botUUID][key] = value
+    state.settings = JSON.stringify(settings)
   }
 
   attributeChangedCallback(
@@ -128,24 +148,23 @@ export class TolkiChat extends LitElement {
 
           state.bot = bot
 
-          if (!validateUUID(state.chat)) {
+          const chatUUID = this.getSetting('chat') as string
+          if (!validateUUID(chatUUID)) {
             state.chat = UUID()
           }
 
-          if (state.history) {
-            const password = state.chat + state.bot.uuid
-            const encrypted = JSON.parse(state.history)
-            decrypt(encrypted.ciphertext, encrypted.iv, password).then(
-              (decrypted: string) => {
-                if (decrypted && typeof decrypted === 'string') {
-                  const decryptedAny = JSON.parse(decrypted)
-                  if (Array.isArray(decryptedAny)) {
-                    state.messages = decryptedAny as TolkiChatMessage[]
-                  }
-                }
-              }
-            )
+          const history = this.getSetting('history') as TolkiChatMessage[]
+
+          if (history) {
+            state.messages = history
+            if (!state.messages?.length && state.bot?.props?.welcomeMessage) {
+              state.messages.push(
+                assistantMessage(state.bot.props.welcomeMessage)
+              )
+            }
           }
+
+          state.open = this.getSetting('open') as string
 
           this.scrollToBottom()
         })
@@ -193,6 +212,7 @@ export class TolkiChat extends LitElement {
 
   toggleWindow() {
     state.open = state.open === 'true' ? '' : 'true'
+    slef.saveSetting('open', state.open)
   }
 
   resetMessage() {
@@ -238,20 +258,16 @@ export class TolkiChat extends LitElement {
   }
 
   saveHistory() {
-    const serializedMessages = JSON.stringify(
-      state.messages.filter((message: TolkiChatMessage) => {
+    const serializedMessages = state.messages.filter(
+      (message: TolkiChatMessage) => {
         return (
           message.role === TolkiChatMessageRole.assistant ||
           message.role === TolkiChatMessageRole.user ||
           message.role === TolkiChatMessageRole.info
         )
-      })
-    )
-    encrypt(serializedMessages, state.chat + state.bot.uuid).then(
-      (res: { [key: string]: string }) => {
-        state.history = JSON.stringify(res)
       }
     )
+    this.saveSetting('history', serializedMessages)
   }
 
   async sendMessage() {
