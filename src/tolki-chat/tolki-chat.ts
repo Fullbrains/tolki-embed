@@ -185,7 +185,7 @@ export class TolkiChat extends LitElement {
       styles?.button?.foregroundColor || kool['kool-14']
     map['bubble-background'] =
       styles?.bubble?.backgroundColor || cobalt['cobalt-35']
-    map['bubble-color'] = styles?.bubble?.foregroundColor || eigen['eigen-45']
+    map['bubble-color'] = styles?.bubble?.foregroundColor || kool['kool-01']
 
     return Object.keys(map)
       .map((key: string) => {
