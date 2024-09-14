@@ -47,7 +47,6 @@ import { branding } from '../templates/branding'
 import { textarea } from '../templates/textarea'
 import { toggle } from '../templates/toggle'
 import { message } from '../templates/message'
-import { isDark, lighten } from '../utils/color'
 
 const TOKEN_LIMIT = 1000
 const SPECIAL_TOKEN_BUFFER = 10
@@ -178,26 +177,15 @@ export class TolkiChat extends LitElement {
   get colorVariables() {
     const styles = state.bot.props.styles?.chat
     const map: { [key: string]: string } = {}
-    if (styles?.button?.color) {
-      map['toggle-default-background'] = styles.button.color
-      map['toggle-hover-background'] = lighten(styles.button.color, 30)
-      map['toggle-dots-background'] = isDark(styles.button.color)
-        ? '#fff'
-        : eigen['eigen-45']
-    } else {
-      map['toggle-default-background'] = cobalt['cobalt-41']
-      map['toggle-hover-background'] = cobalt['cobalt-35']
-      map['toggle-dots-background'] = kool['kool-14']
-    }
-    if (styles?.bubble?.color) {
-      map['bubble-background'] = styles.bubble.color
-      map['bubble-color'] = isDark(styles.bubble.color)
-        ? '#fff'
-        : eigen['eigen-45']
-    } else {
-      map['bubble-background'] = cobalt['cobalt-35']
-      map['bubble-color'] = '#fff'
-    }
+    map['toggle-default-background'] =
+      styles?.button?.defaultBackgroundColor || cobalt['cobalt-41']
+    map['toggle-hover-background'] =
+      styles?.button?.hoverBackgroundColor || cobalt['cobalt-35']
+    map['toggle-dots-background'] =
+      styles?.button?.foregroundColor || kool['kool-14']
+    map['bubble-background'] =
+      styles?.bubble?.backgroundColor || cobalt['cobalt-35']
+    map['bubble-color'] = styles?.bubble?.foregroundColor || eigen['eigen-45']
 
     return Object.keys(map)
       .map((key: string) => {
