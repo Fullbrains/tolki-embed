@@ -101,7 +101,7 @@ export class TolkiChat extends LitElement {
   stateController = new StateController(this, state)
 
   static get observedAttributes() {
-    return ['bot', 'inline']
+    return ['bot', 'inline', 'unclosable']
   }
 
   @query('.tkc__close') close: HTMLButtonElement
@@ -423,7 +423,7 @@ export class TolkiChat extends LitElement {
                 (state.open === 'true' || state.unclosable) && !state.inline,
               'tkc__window--inline': state.inline,
               'tkc__window--floating': !state.inline,
-              'tkc__window--unclosable': !state.unclosable,
+              'tkc__window--unclosable': state.unclosable,
             })}
           >
             ${header(state.bot.props.name, state.bot.props.avatar)}
@@ -436,7 +436,9 @@ export class TolkiChat extends LitElement {
             </div>
             ${textarea(state.pending, state.showScrollDown)} ${branding}
           </div>
-          ${state.inline ? '' : toggle(state.open === 'true')}
+          ${state.inline
+            ? ''
+            : toggle(state.open === 'true' || state.unclosable)}
         `
       : html``
   }
