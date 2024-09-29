@@ -41,6 +41,12 @@ $brand-dot-size: $toggle-btn-size * 0.12;
         }
       }
 
+      &--unclosable {
+        .tkc__close {
+          display: none;
+        }
+      }
+
       &--floating {
         opacity: 0;
         transform: translateY($margin * 0.25);

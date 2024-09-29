@@ -63,6 +63,9 @@ class TolkiChatState extends State {
   @property({ value: false })
   inline: boolean
 
+  @property({ value: false })
+  unclosable: boolean
+
   @property({ value: '' })
   open: string
 
@@ -140,6 +143,9 @@ export class TolkiChat extends LitElement {
   ) {
     if (name === 'inline') {
       state.inline = true
+    }
+    if (name === 'unclosable') {
+      state.unclosable = true
     }
     if (name === 'bot' && newValue) {
       TolkiBot.init(newValue as string)
@@ -413,9 +419,11 @@ export class TolkiChat extends LitElement {
           <div
             class=${classMap({
               tkc__window: true,
-              'tkc__window--open': state.open === 'true' && !state.inline,
+              'tkc__window--open':
+                (state.open === 'true' || state.unclosable) && !state.inline,
               'tkc__window--inline': state.inline,
               'tkc__window--floating': !state.inline,
+              'tkc__window--unclosable': !state.unclosable,
             })}
           >
             ${header(state.bot.props.name, state.bot.props.avatar)}
