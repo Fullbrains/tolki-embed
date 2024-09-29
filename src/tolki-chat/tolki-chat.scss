@@ -22,9 +22,7 @@ $brand-dot-size: $toggle-btn-size * 0.12;
   font-family: "Inter", sans-serif;
   font-size: 16px;
   pointer-events: none;
-  position: fixed;
   right: $margin;
-  z-index: 9999999;
 
   .icon {
     fill: white;
@@ -32,33 +30,47 @@ $brand-dot-size: $toggle-btn-size * 0.12;
 
   .tkc {
     &__window {
+
+      &--inline {
+        height: 100%;
+        width: 100%;
+        flex-grow: 1;
+
+        .tkc__close {
+          display: none;
+        }
+      }
+
+      &--floating {
+        opacity: 0;
+        transform: translateY($margin * 0.25);
+        transition: transform .3s ease-out, opacity .3s ease-out, visibility .3s ease-out;
+        visibility: hidden;
+        z-index: 9999999;
+
+        @media screen and (min-width: $mobile-breakpoint) {
+          border-radius: $window-border-radius;
+          box-shadow: 0 12px 24px 0 rgba(black, 0.10), 0 0 0 1px rgba(black, 0.1);
+          height: calc(90vh - $toggle-btn-size - $margin - $margin);
+          margin-bottom: $margin * 0.5;
+          max-height: 728px;
+          max-width: 450px;
+          width: calc(100vw - $margin - $margin);
+        }
+
+        @media screen and (max-width: $mobile-breakpoint - 1px) {
+          height: 100%;
+          left: 0;
+          position: fixed;
+          top: 0;
+          width: 100vw;
+        }
+      }
+
       background-color: white;
-      box-shadow: 0 12px 24px 0 rgba(black, 0.10), 0 0 0 1px rgba(black, 0.1);
       display: flex;
       flex-direction: column;
-      opacity: 0;
       pointer-events: auto;
-      transform: translateY($margin * 0.25);
-      transition: transform .3s ease-out, opacity .3s ease-out, visibility .3s ease-out;
-      visibility: hidden;
-      z-index: 9999999;
-
-      @media screen and (min-width: $mobile-breakpoint) {
-        border-radius: $window-border-radius;
-        height: calc(90vh - $toggle-btn-size - $margin - $margin);
-        margin-bottom: $margin * 0.5;
-        max-height: 728px;
-        max-width: 450px;
-        width: calc(100vw - $margin - $margin);
-      }
-
-      @media screen and (max-width: $mobile-breakpoint - 1px) {
-        height: 100%;
-        left: 0;
-        position: fixed;
-        top: 0;
-        width: 100vw;
-      }
 
       &--open {
         opacity: 1;
@@ -84,6 +96,7 @@ $brand-dot-size: $toggle-btn-size * 0.12;
     &__title {
       padding-left: 10px;
       margin-right: auto;
+      line-height: 40px;
     }
 
     &__branding {
@@ -117,7 +130,7 @@ $brand-dot-size: $toggle-btn-size * 0.12;
     }
 
     &__toggle {
-      -webkit-tap-highlight-color: rgba(0,0,0,0);
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
       align-items: center;
       background-color: var(--toggle-default-background);
       border-radius: $toggle-btn-size * 0.5 $toggle-btn-size * 0.5 $toggle-btn-size * 0.5 $toggle-btn-size * 0.15;
@@ -214,6 +227,7 @@ $brand-dot-size: $toggle-btn-size * 0.12;
       &--thinking {
         padding: 15px;
         background-color: $kool-08;
+
         span {
           background-color: $kool-30;
         }
@@ -281,7 +295,7 @@ $brand-dot-size: $toggle-btn-size * 0.12;
     }
 
     &__send, &__close, &__scroll-down {
-      -webkit-tap-highlight-color: rgba(0,0,0,0);
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
       align-items: center;
       background-color: transparent;
       border-radius: $circle-btn-size;
@@ -302,6 +316,7 @@ $brand-dot-size: $toggle-btn-size * 0.12;
 
       svg {
         pointer-events: none;
+
         line, g, path, polyline {
           stroke: currentColor;
         }

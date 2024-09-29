@@ -12,7 +12,6 @@ import {
 } from 'on-screen-keyboard-detector'
 
 // Okuda Colors
-import eigen from '@fullbrains/okuda/colors/eigen/eigen.js'
 import cobalt from '@fullbrains/okuda/colors/cobalt/cobalt.js'
 import kool from '@fullbrains/okuda/colors/kool/kool.js'
 
@@ -61,6 +60,9 @@ class TolkiChatState extends State {
   @property({ value: '' })
   chat: string
 
+  @property({ value: false })
+  inline: boolean
+
   @property({ value: '' })
   open: string
 
@@ -96,7 +98,7 @@ export class TolkiChat extends LitElement {
   stateController = new StateController(this, state)
 
   static get observedAttributes() {
-    return ['bot']
+    return ['bot', 'inline']
   }
 
   @query('.tkc__close') close: HTMLButtonElement
@@ -136,6 +138,9 @@ export class TolkiChat extends LitElement {
     oldValue?: unknown,
     newValue?: unknown
   ) {
+    if (name === 'inline') {
+      state.inline = true
+    }
     if (name === 'bot' && newValue) {
       TolkiBot.init(newValue as string)
         .then((bot) => {
@@ -289,14 +294,27 @@ export class TolkiChat extends LitElement {
     try {
       TolkiApi.message(state.chat, state.bot.uuid, lastMessage.content)
         .then(({ data }: TolkiApiMessageResponse) => {
-          const content: string = (data as string) || TOLKI_SORRY_MESSAGE
-          this.totalTokens += this.estimateTokens(content)
-          state.messages.push(assistantMessage(content))
-          state.messages = state.messages.filter(
-            (msg) => msg.role !== TolkiChatMessageRole.thinking
-          )
-          this.saveHistory()
-          this.afterReceive()
+          if (typeof data === 'string') {
+            const content: string = (data as string) || TOLKI_SORRY_MESSAGE
+            this.totalTokens += this.estimateTokens(content)
+            state.messages.push(assistantMessage(content))
+            state.messages = state.messages.filter(
+              (msg) => msg.role !== TolkiChatMessageRole.thinking
+            )
+            this.saveHistory()
+            this.afterReceive()
+          }
+          if (Array.isArray(data)) {
+            /*data.forEach((item: TolkiChatMessage) => {
+              this.totalTokens += this.estimateTokens(item.content)
+              state.messages.push(item)
+            })
+            state.messages = state.messages.filter(
+              (msg) => msg.role !== TolkiChatMessageRole.thinking
+            )
+            this.saveHistory()
+            this.afterReceive()*/
+          }
         })
         .catch(({ status, data, response, error }: TolkiApiMessageResponse) => {
           if (
@@ -390,11 +408,14 @@ export class TolkiChat extends LitElement {
             }
 
             ${styles}
+            ${!state.inline && `:host{position:fixed;z-index:9999999}`}
           </style>
           <div
             class=${classMap({
               tkc__window: true,
-              'tkc__window--open': state.open === 'true',
+              'tkc__window--open': state.open === 'true' && !state.inline,
+              'tkc__window--inline': state.inline,
+              'tkc__window--floating': !state.inline,
             })}
           >
             ${header(state.bot.props.name, state.bot.props.avatar)}
@@ -407,7 +428,7 @@ export class TolkiChat extends LitElement {
             </div>
             ${textarea(state.pending, state.showScrollDown)} ${branding}
           </div>
-          ${toggle(state.open === 'true')}
+          ${state.inline ? '' : toggle(state.open === 'true')}
         `
       : html``
   }
