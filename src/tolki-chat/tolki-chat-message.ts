@@ -11,6 +11,10 @@ export interface TolkiChatMessage {
   content?: string
 }
 
+export interface TolkiChatTypedResponse {
+  type: string
+}
+
 export const TOLKI_SORRY_MESSAGE: string = "Sorry, I didn't understand that."
 export const TOLKI_ERROR_MESSAGE: string =
   'Sorry, there was an error processing your message.'
