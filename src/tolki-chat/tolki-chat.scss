@@ -3,6 +3,7 @@
 @import "node_modules/@fullbrains/okuda/colors/sky/sky.scss";
 @import "node_modules/@fullbrains/okuda/colors/eigen/eigen.scss";
 @import "node_modules/@fullbrains/okuda/colors/ruby/ruby.scss";
+@import "tolki-chat-item";
 
 $circle-btn-size: 40px;
 $margin: 20px;
@@ -200,9 +201,10 @@ $brand-dot-size: $toggle-btn-size * 0.12;
       flex: 1;
       padding: 20px;
       overflow-y: auto;
-      flex-direction: column;
+      flex-direction: row;
       justify-items: start;
       align-items: start;
+      flex-wrap: wrap;
     }
 
     &__avatar {

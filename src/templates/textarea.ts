@@ -3,8 +3,8 @@ import { send } from './svg/send'
 import { classMap } from 'lit/directives/class-map.js'
 import { scrollDown } from './svg/scroll-down'
 
-export const textarea = (pending: boolean, showScrollDown: boolean) => {
-  return html`<div class="tkc__input">
+export const textareaTemplate = (pending: boolean, showScrollDown: boolean) => {
+  return html` <div class="tkc__input">
     <div
       class=${classMap({
         'tkc__scroll-down-container': true,

@@ -1,8 +1,8 @@
 import { html } from 'lit'
 import { close } from './svg/close'
 
-export const header = (title?: string, avatar?: string) => {
-  return html`<div class="tkc__header">
+export const headerTemplate = (title?: string, avatar?: string) => {
+  return html` <div class="tkc__header">
     ${avatar
       ? html`<img src=${avatar} alt=${title} class="tkc__avatar" />`
       : ''}

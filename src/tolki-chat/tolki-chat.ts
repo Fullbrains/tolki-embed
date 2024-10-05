@@ -26,14 +26,14 @@ import {
   TolkiBotStatus,
 } from '../tolki-bot/tolki-bot'
 import {
-  assistantMessage,
-  errorMessage,
-  thinkingMessage,
-  TOLKI_SORRY_MESSAGE,
-  TolkiChatMessage,
-  TolkiChatMessageRole,
-  userMessage,
-} from './tolki-chat-message'
+  assistantResponse,
+  errorResponse,
+  thinkingResponse,
+  TolkiChatItem,
+  TolkiChatItemType,
+  userInput,
+} from './tolki-chat-item'
+
 import {
   TolkiApi,
   TolkiApiMessageResponse,
@@ -41,14 +41,12 @@ import {
 } from '../tolki-api/tolki-api'
 
 // Templates
-import { header } from '../templates/header'
-import { branding } from '../templates/branding'
-import { textarea } from '../templates/textarea'
-import { toggle } from '../templates/toggle'
-import { message } from '../templates/message'
+import { headerTemplate } from '../templates/header'
+import { brandingTemplate } from '../templates/branding'
+import { textareaTemplate } from '../templates/textarea'
+import { toggleTemplate } from '../templates/toggle'
+import { chatItemTemplate } from '../templates/item'
 
-const TOKEN_LIMIT = 1000
-const SPECIAL_TOKEN_BUFFER = 10
 const TOLKI_CHAT: string = `tolki-chat`
 const TOLKI_PREFIX: string = `tolki`
 
@@ -88,7 +86,7 @@ class TolkiChatState extends State {
   virtualKeyboardVisibility: string
 
   @property({ value: [] })
-  messages: TolkiChatMessage[]
+  history: TolkiChatItem[]
 }
 
 const state = new TolkiChatState()
@@ -97,7 +95,6 @@ let slef = null
 @customElement(TOLKI_CHAT)
 export class TolkiChat extends LitElement {
   static styles = styles
-  totalTokens: number = 0
   stateController = new StateController(this, state)
 
   static get observedAttributes() {
@@ -163,15 +160,15 @@ export class TolkiChat extends LitElement {
             state.chat = UUID()
           }
 
-          const history = this.getSetting('history') as TolkiChatMessage[]
+          const history = this.getSetting('history') as TolkiChatItem[]
 
           if (history) {
-            state.messages = history
+            state.history = history
           } else {
-            state.messages = []
+            state.history = []
           }
-          if (!state.messages?.length && state.bot?.props?.welcomeMessage) {
-            state.messages = [assistantMessage(state.bot.props.welcomeMessage)]
+          if (!state.history?.length && state.bot?.props?.welcomeMessage) {
+            state.history = [assistantResponse(state.bot.props.welcomeMessage)]
           }
 
           state.open = this.getSetting('open') as string
@@ -203,10 +200,6 @@ export class TolkiChat extends LitElement {
         return '--' + key + ':' + map[key]
       })
       .join(';')
-  }
-
-  estimateTokens(message: string) {
-    return message.split(/\s+/).length + SPECIAL_TOKEN_BUFFER
   }
 
   toggleWindow() {
@@ -256,16 +249,24 @@ export class TolkiChat extends LitElement {
     state.atBottom = offsetFromBottom <= 50
   }
 
-  saveHistory() {
-    const serializedMessages = state.messages.filter(
-      (message: TolkiChatMessage) => {
-        return (
-          message.role === TolkiChatMessageRole.assistant ||
-          message.role === TolkiChatMessageRole.user ||
-          message.role === TolkiChatMessageRole.info
-        )
-      }
+  clearHistory(): TolkiChatItem[] {
+    const filteredHistory: TolkiChatItem[] = state.history.filter(
+      (item) => item.type !== TolkiChatItemType.thinking
     )
+    state.history = filteredHistory
+    return filteredHistory
+  }
+
+  saveHistory() {
+    const serializedMessages = state.history.filter((item: TolkiChatItem) => {
+      return (
+        item.type === TolkiChatItemType.action ||
+        item.type === TolkiChatItemType.card ||
+        item.type === TolkiChatItemType.markdown ||
+        item.type === TolkiChatItemType.product ||
+        item.type === TolkiChatItemType.userInput
+      )
+    })
     this.saveSetting('history', serializedMessages)
   }
 
@@ -284,42 +285,24 @@ export class TolkiChat extends LitElement {
       }, 100)
     }
 
-    this.totalTokens += this.estimateTokens(message)
-    state.messages.push(userMessage(message))
-    const filteredMessages: TolkiChatMessage[] = state.messages.filter(
-      (msg) => msg.role !== TolkiChatMessageRole.thinking
-    )
-    state.messages = [...filteredMessages]
+    const userInputItem = userInput(message)
+    state.history.push(userInputItem)
+    this.clearHistory()
     this.saveHistory()
-    const lastMessage: TolkiChatMessage =
-      filteredMessages[filteredMessages.length - 1]
-    filteredMessages.push(thinkingMessage)
-    state.messages = [...filteredMessages]
+    state.history.push(thinkingResponse)
     this.afterSend()
 
     try {
-      TolkiApi.message(state.chat, state.bot.uuid, lastMessage.content)
+      TolkiApi.message(state.chat, state.bot.uuid, message)
         .then(({ data }: TolkiApiMessageResponse) => {
-          if (typeof data === 'string') {
-            const content: string = (data as string) || TOLKI_SORRY_MESSAGE
-            this.totalTokens += this.estimateTokens(content)
-            state.messages.push(assistantMessage(content))
-            state.messages = state.messages.filter(
-              (msg) => msg.role !== TolkiChatMessageRole.thinking
-            )
+          if (Array.isArray(data)) {
+            const chatItems: TolkiChatItem[] = data
+            chatItems.forEach((item) => {
+              state.history.push(item)
+            })
+            this.clearHistory()
             this.saveHistory()
             this.afterReceive()
-          }
-          if (Array.isArray(data)) {
-            /*data.forEach((item: TolkiChatMessage) => {
-              this.totalTokens += this.estimateTokens(item.content)
-              state.messages.push(item)
-            })
-            state.messages = state.messages.filter(
-              (msg) => msg.role !== TolkiChatMessageRole.thinking
-            )
-            this.saveHistory()
-            this.afterReceive()*/
           }
         })
         .catch(({ status, data, response, error }: TolkiApiMessageResponse) => {
@@ -327,9 +310,9 @@ export class TolkiChat extends LitElement {
             status === TolkiApiMessageResponseStatus.error ||
             status === TolkiApiMessageResponseStatus.notOk
           ) {
-            state.messages.push(errorMessage)
-            state.messages = state.messages.filter(
-              (msg) => msg.role !== TolkiChatMessageRole.thinking
+            state.history.push(errorResponse)
+            state.history = state.history.filter(
+              (item) => item.type !== TolkiChatItemType.thinking
             )
             this.saveHistory()
             console.error('Tolki: error:', status, data, response, error)
@@ -339,11 +322,6 @@ export class TolkiChat extends LitElement {
     } catch (err) {
       console.error('Tolki: error:', err)
       this.afterReceive()
-    }
-
-    while (this.totalTokens > TOKEN_LIMIT && state.messages.length > 0) {
-      const removedMessage = state.messages.shift()
-      this.totalTokens -= this.estimateTokens(removedMessage.content)
     }
   }
 
@@ -426,19 +404,20 @@ export class TolkiChat extends LitElement {
               'tkc__window--unclosable': state.unclosable,
             })}
           >
-            ${header(state.bot.props.name, state.bot.props.avatar)}
+            ${headerTemplate(state.bot.props.name, state.bot.props.avatar)}
             <div
               class=${classMap({
                 tkc__log: true,
               })}
             >
-              ${state.messages.map((msg) => message(msg.content, msg.role))}
+              ${state.history.map((item) => chatItemTemplate(item))}
             </div>
-            ${textarea(state.pending, state.showScrollDown)} ${branding}
+            ${textareaTemplate(state.pending, state.showScrollDown)}
+            ${brandingTemplate}
           </div>
           ${state.inline
             ? ''
-            : toggle(state.open === 'true' || state.unclosable)}
+            : toggleTemplate(state.open === 'true' || state.unclosable)}
         `
       : html``
   }
