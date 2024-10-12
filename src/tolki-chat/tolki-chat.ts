@@ -423,7 +423,7 @@ export class TolkiChat extends LitElement {
           </div>
           ${state.inline
             ? ''
-            : toggleTemplate(state.open === 'true' || state.unclosable)}
+            : toggleTemplate(state.open === 'true', state.unclosable)}
         `
       : html``
   }

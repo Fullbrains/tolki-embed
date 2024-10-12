@@ -158,6 +158,11 @@ $brand-dot-size: $toggle-btn-size * 0.12;
         border-radius: $toggle-btn-size * 0.15 $toggle-btn-size * 0.5 $toggle-btn-size * 0.5 $toggle-btn-size * 0.5;
       }
 
+      &--unclosable {
+        background-color: var(--toggle-default-background);
+        border-radius: $toggle-btn-size * 0.15 $toggle-btn-size * 0.5 $toggle-btn-size * 0.5 $toggle-btn-size * 0.5;
+      }
+
       &:hover {
         background-color: var(--toggle-hover-background);
 

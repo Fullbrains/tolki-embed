@@ -15,13 +15,22 @@
         align-items: center;
     }
 </style>
-
+<script>
+  function reTolki() {
+    const tolkiChatElement = document.getElementById('tolki')
+    if (tolkiChatElement) {
+      tolkiChatElement.init()
+    }
+  }
+</script>
 <script src="dist/chat.js"></script>
-<tolki-chat bot="acb17df1-150f-4342-b60e-281d8c790780" unclosable></tolki-chat>
+<tolki-chat bot="acb17df1-150f-4342-b60e-281d8c790780" id="tolki" unclosable></tolki-chat>
 <!--<script>window.tolki = window.tolki || {}
 window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
 -->
-<div class="block">1</div>
+<div class="block">1
+  <button onclick="reTolki()">reTolki</button>
+</div>
 <div class="block">2</div>
 <div class="block">3</div>
 <div class="block">4</div>
