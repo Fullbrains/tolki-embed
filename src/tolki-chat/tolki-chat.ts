@@ -145,41 +145,47 @@ export class TolkiChat extends LitElement {
       state.unclosable = true
     }
     if (name === 'bot' && newValue) {
-      TolkiBot.init(newValue as string)
-        .then((bot) => {
-          if (isVirtualKeyboardSupported()) {
-            subscribeVirtualKeyboardVisibility((visibility) => {
-              state.virtualKeyboardVisibility = visibility
-            })
-          }
-
-          state.bot = bot
-
-          const chatUUID = this.getSetting('chat') as string
-          if (!validateUUID(chatUUID)) {
-            state.chat = UUID()
-          }
-
-          const history = this.getSetting('history') as TolkiChatItem[]
-
-          if (history) {
-            state.history = history
-          } else {
-            state.history = []
-          }
-          if (!state.history?.length && state.bot?.props?.welcomeMessage) {
-            state.history = [assistantResponse(state.bot.props.welcomeMessage)]
-          }
-
-          state.open = this.getSetting('open') as string
-
-          this.scrollToBottom()
-        })
-        .catch((bot) => {
-          state.bot = bot
-          console.error('Tolki: Bot not initialized:', bot)
-        })
+      this.init()
     }
+  }
+
+  public init() {
+    const botUUID: string = this.getAttribute('bot')
+    if (!botUUID) return
+    TolkiBot.init(botUUID)
+      .then((bot) => {
+        if (isVirtualKeyboardSupported()) {
+          subscribeVirtualKeyboardVisibility((visibility) => {
+            state.virtualKeyboardVisibility = visibility
+          })
+        }
+
+        state.bot = bot
+
+        const chatUUID = this.getSetting('chat') as string
+        if (!validateUUID(chatUUID)) {
+          state.chat = UUID()
+        }
+
+        const history = this.getSetting('history') as TolkiChatItem[]
+
+        if (history) {
+          state.history = history
+        } else {
+          state.history = []
+        }
+        if (!state.history?.length && state.bot?.props?.welcomeMessage) {
+          state.history = [assistantResponse(state.bot.props.welcomeMessage)]
+        }
+
+        state.open = this.getSetting('open') as string
+
+        this.scrollToBottom()
+      })
+      .catch((bot) => {
+        state.bot = bot
+        console.error('Tolki: Bot not initialized:', bot)
+      })
   }
 
   get colorVariables() {
