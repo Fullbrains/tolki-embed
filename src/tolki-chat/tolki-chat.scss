@@ -208,7 +208,7 @@ $brand-dot-size: $toggle-btn-size * 0.12;
       overflow-y: auto;
       flex-direction: row;
       justify-items: start;
-      align-items: start;
+      align-content: start;
       flex-wrap: wrap;
     }
 
