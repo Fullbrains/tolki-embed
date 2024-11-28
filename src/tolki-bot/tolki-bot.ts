@@ -79,6 +79,7 @@ export interface TolkiBotProps {
   team: string
   avatar?: string
   icon?: string
+  suggestions?: string[]
   welcomeMessage?: string
   styles: { [key: string]: { [key: string]: { [key: string]: string } } }
   version: string

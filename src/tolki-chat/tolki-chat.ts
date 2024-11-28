@@ -1,7 +1,7 @@
 // Lit Imports
 import { property, State, StateController, storage } from '@lit-app/state'
 import { html, LitElement } from 'lit'
-import { customElement, query } from 'lit/decorators.js'
+import { customElement, query, queryAll } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 
 // Libs
@@ -28,6 +28,7 @@ import {
 import {
   assistantResponse,
   errorResponse,
+  infoResponse,
   thinkingResponse,
   TolkiChatItem,
   TolkiChatItemType,
@@ -46,6 +47,7 @@ import { brandingTemplate } from '../templates/branding'
 import { textareaTemplate } from '../templates/textarea'
 import { toggleTemplate } from '../templates/toggle'
 import { chatItemTemplate } from '../templates/item'
+import { suggestionsTemplate } from '../templates/suggestions'
 
 const TOLKI_CHAT: string = `tolki-chat`
 const TOLKI_PREFIX: string = `tolki`
@@ -96,9 +98,16 @@ let slef = null
 export class TolkiChat extends LitElement {
   static styles = styles
   stateController = new StateController(this, state)
+  suggestionsListenersAdded = false
 
   static get observedAttributes() {
     return ['bot', 'inline', 'unclosable']
+  }
+
+  static get privacyNotice() {
+    return {
+      en: 'By using this chat, you agree to our <a target="_blank" href="https://tolki.ai/privacy">privacy policy</a>.',
+    }
   }
 
   @query('.tkc__close') close: HTMLButtonElement
@@ -107,6 +116,7 @@ export class TolkiChat extends LitElement {
   @query('.tkc__send') send: HTMLButtonElement
   @query('.tkc__textarea') textarea: HTMLTextAreaElement
   @query('.tkc__toggle') toggle: HTMLButtonElement
+  @queryAll('.tkc__suggestion') suggestions: HTMLButtonElement[]
 
   constructor() {
     super()
@@ -174,8 +184,18 @@ export class TolkiChat extends LitElement {
         } else {
           state.history = []
         }
-        if (!state.history?.length && state.bot?.props?.welcomeMessage) {
-          state.history = [assistantResponse(state.bot.props.welcomeMessage)]
+        if (!state.history?.length) {
+          const lang: string = navigator.language || 'en'
+          state.history = [
+            infoResponse(
+              TolkiChat.privacyNotice[lang] || TolkiChat.privacyNotice['en']
+            ),
+          ]
+          if (state.bot?.props?.welcomeMessage) {
+            state.history.push(
+              assistantResponse(state.bot.props.welcomeMessage)
+            )
+          }
         }
 
         state.open = this.getSetting('open') as string
@@ -381,6 +401,17 @@ export class TolkiChat extends LitElement {
       this.scrollDown.removeEventListener('click', scrollDown)
       this.scrollDown.addEventListener('click', scrollDown)
     }
+    if (this.suggestions?.length) {
+      if (slef.suggestionsListenersAdded === false) {
+        this.suggestions.forEach((suggestion) => {
+          suggestion.addEventListener('click', () => {
+            this.textarea.value = suggestion.textContent
+            this.sendMessage().then()
+          })
+        })
+        slef.suggestionsListenersAdded = true
+      }
+    }
   }
 
   override render() {
@@ -418,6 +449,7 @@ export class TolkiChat extends LitElement {
             >
               ${state.history.map((item) => chatItemTemplate(item))}
             </div>
+            ${suggestionsTemplate(state.bot.props.suggestions)}
             ${textareaTemplate(state.pending, state.showScrollDown)}
             ${brandingTemplate}
           </div>

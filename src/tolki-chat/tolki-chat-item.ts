@@ -38,6 +38,7 @@ export interface TolkiChatCardResponse {
 export interface TolkiChatMarkdownResponse {
   type: TolkiChatItemType.markdown
   content: string
+  caption?: string
   level?: TolkiChatMarkdownResponseLevel
 }
 

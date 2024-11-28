@@ -97,9 +97,9 @@ export const markdownResponseTemplate = (item: TolkiChatMarkdownResponse) => {
   return html` <div
     class=${classMap({
       tkc__markdown: true,
-      'tkc__markdown--error':
+      'tkc__message--error':
         item.level === TolkiChatMarkdownResponseLevel.error,
-      'tkc__markdown--info': item.level === TolkiChatMarkdownResponseLevel.info,
+      'tkc__message--info': item.level === TolkiChatMarkdownResponseLevel.info,
     })}
   >
     ${content}

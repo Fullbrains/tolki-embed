@@ -3,6 +3,7 @@
 @import "node_modules/@fullbrains/okuda/colors/sky/sky.scss";
 @import "node_modules/@fullbrains/okuda/colors/eigen/eigen.scss";
 @import "node_modules/@fullbrains/okuda/colors/ruby/ruby.scss";
+@import "node_modules/@fullbrains/okuda/colors/emer/emer.scss";
 @import "tolki-chat-item";
 
 $circle-btn-size: 40px;
@@ -201,7 +202,39 @@ $brand-dot-size: $toggle-btn-size * 0.12;
       }
     }
 
+    &__suggestions {
+      align-items: end;
+      display: flex;
+      height: 35px;
+      overflow-x: auto;
+      padding: 5px 10px;
+    }
+
+    &__suggestion {
+      align-items: center;
+      background-color: rgba($cobalt-30, 0.1);
+      border: 0;
+      border-radius: 30px 6px 30px 30px;
+      color: $cobalt-30;
+      cursor: pointer;
+      display: flex;
+      flex-shrink: 0;
+      font-size: 13px;
+      line-height: 20px;
+      margin-left: 5px;
+      padding: 3px 10px;
+      transition-property: color, background-color;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      transition-duration: 300ms;
+
+      &:hover {
+        background-color: rgba($cobalt-30, 0.15);
+        color: $cobalt-35;
+      }
+    }
+
     &__log {
+      border-bottom: 1px solid $kool-10;
       display: flex;
       flex: 1;
       padding: 20px;
@@ -270,13 +303,21 @@ $brand-dot-size: $toggle-btn-size * 0.12;
       }
 
       &--info {
-        background-color: $sky-06;
-        color: darken($sky-50, 25);
+        background-color: $emer-06;
+        color: $emer-45;
+        font-size: 12px;
+
+        p {
+          margin: 4px 0;
+        }
+
+        a {
+          color: $emer-45;
+        }
       }
     }
 
     &__input {
-      border-top: 1px solid $kool-10;
       box-sizing: border-box;
       display: flex;
       justify-content: space-between;
