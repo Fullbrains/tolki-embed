@@ -252,6 +252,12 @@ $brand-dot-size: $toggle-btn-size * 0.12;
       overflow: hidden;
     }
 
+    &__markdown {
+      img {
+        max-width: 100%;
+      }
+    }
+
     &__message {
       border-radius: $message-radius * 0.25 $message-radius $message-radius $message-radius;
       padding: 10px 15px;
