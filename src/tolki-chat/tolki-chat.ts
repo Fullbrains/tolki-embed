@@ -111,6 +111,7 @@ export class TolkiChat extends LitElement {
   }
 
   @query('.tkc__close') close: HTMLButtonElement
+  @query('.tkc__reset') reset: HTMLButtonElement
   @query('.tkc__log') log: HTMLDivElement
   @query('.tkc__scroll-down') scrollDown: HTMLButtonElement
   @query('.tkc__send') send: HTMLButtonElement
@@ -159,6 +160,22 @@ export class TolkiChat extends LitElement {
     }
   }
 
+  static lang() {
+    return navigator.language || 'en'
+  }
+
+  public addHeadingMessages() {
+    const lang: string = TolkiChat.lang()
+    state.history = [
+      infoResponse(
+        TolkiChat.privacyNotice[lang] || TolkiChat.privacyNotice['en']
+      ),
+    ]
+    if (state.bot?.props?.welcomeMessage) {
+      state.history.push(assistantResponse(state.bot.props.welcomeMessage))
+    }
+  }
+
   public init() {
     const botUUID: string = this.getAttribute('bot')
     if (!botUUID) return
@@ -185,17 +202,7 @@ export class TolkiChat extends LitElement {
           state.history = []
         }
         if (!state.history?.length) {
-          const lang: string = navigator.language || 'en'
-          state.history = [
-            infoResponse(
-              TolkiChat.privacyNotice[lang] || TolkiChat.privacyNotice['en']
-            ),
-          ]
-          if (state.bot?.props?.welcomeMessage) {
-            state.history.push(
-              assistantResponse(state.bot.props.welcomeMessage)
-            )
-          }
+          this.addHeadingMessages()
         }
 
         state.open = this.getSetting('open') as string
@@ -206,6 +213,19 @@ export class TolkiChat extends LitElement {
         state.bot = bot
         console.error('Tolki: Bot not initialized:', bot)
       })
+  }
+
+  public resetChat() {
+    if (
+      confirm(
+        'Do you want to start a new chat?\nYou will lose the current messages.'
+      )
+    ) {
+      state.chat = UUID()
+      slef.saveSetting('chat', state.chat)
+      slef.addHeadingMessages()
+      slef.saveSetting('history', state.history)
+    }
   }
 
   get colorVariables() {
@@ -388,6 +408,10 @@ export class TolkiChat extends LitElement {
     if (this.close) {
       this.close.removeEventListener('click', this.toggleWindow)
       this.close.addEventListener('click', this.toggleWindow)
+    }
+    if (this.reset) {
+      this.reset.removeEventListener('click', this.resetChat)
+      this.reset.addEventListener('click', this.resetChat)
     }
     if (this.send) {
       this.send.removeEventListener('click', sendMessage)

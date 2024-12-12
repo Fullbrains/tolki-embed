@@ -358,7 +358,7 @@ $brand-dot-size: $toggle-btn-size * 0.12;
       right: 10px;
     }
 
-    &__send, &__close, &__scroll-down {
+    &__send, &__close, &__scroll-down, &__reset {
       -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
       align-items: center;
       background-color: transparent;
