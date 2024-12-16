@@ -26,6 +26,7 @@ import {
   TolkiBotStatus,
 } from '../tolki-bot/tolki-bot'
 import {
+  actionResponse,
   assistantResponse,
   errorResponse,
   infoResponse,
@@ -216,16 +217,30 @@ export class TolkiChat extends LitElement {
   }
 
   public resetChat() {
-    if (
-      confirm(
-        'Do you want to start a new chat?\nYou will lose the current messages.'
-      )
-    ) {
-      state.chat = UUID()
-      slef.saveSetting('chat', state.chat)
-      slef.addHeadingMessages()
-      slef.saveSetting('history', state.history)
-    }
+    const resetAction = actionResponse(
+      `Do you want to start a new chat?
+      You will lose the current messages.`,
+      [
+        {
+          label: 'Reset',
+          primary: true,
+          click() {
+            state.chat = UUID()
+            slef.saveSetting('chat', state.chat)
+            slef.addHeadingMessages()
+            slef.saveSetting('history', state.history)
+          },
+        },
+        {
+          label: 'Cancel',
+          click() {
+            state.history = state.history.filter((item) => item !== resetAction)
+          },
+        },
+      ]
+    )
+    state.history = [...state.history, resetAction]
+    slef.scrollToBottom(100)
   }
 
   get colorVariables() {

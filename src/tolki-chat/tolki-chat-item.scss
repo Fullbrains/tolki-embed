@@ -82,5 +82,50 @@
         background-color: $kool-30;
       }
     }
+
+    &__action {
+      background-color: $kool-04;
+      border-radius: 6px 22px 22px 22px;
+      font-size: 14px;
+      line-height: 1.5;
+      margin-right: auto;
+      max-width: 75%;
+
+      &-prompt {
+        padding: 15px;
+        white-space: pre-line;
+      }
+
+      &-buttons {
+        padding: 0 10px 10px 10px;
+        display: flex;
+      }
+
+      &-button {
+        border: none;
+        border-radius: 20px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 14px;
+        margin: 3px;
+        padding: 0 20px;
+        height: 30px;
+        transition: background-color .3s ease-out, color .3s ease-out;
+        background-color: $kool-10;
+
+        &:hover {
+          background-color: $kool-15;
+        }
+
+        &--primary {
+          background-color: $cobalt-30;
+          color: white;
+
+          &:hover {
+            background-color: $cobalt-35;
+          }
+        }
+      }
+    }
   }
 }

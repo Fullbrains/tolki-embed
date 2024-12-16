@@ -76,7 +76,22 @@ export const chatItemTemplate = (item: TolkiChatItem) => {
 }
 
 export const actionResponseTemplate = (item: TolkiChatActionResponse) => {
-  return html` <div class="tkc__action">${item.text}</div>`
+  return html` <div class="tkc__action">
+    <div class="tkc__action-prompt">${item.text}</div>
+    <div class="tkc__action-buttons">
+      ${item.actions?.map((action) => {
+        return html` <button
+          class="${classMap({
+            'tkc__action-button': true,
+            'tkc__action-button--primary': action.primary,
+          })}"
+          @click=${action.click}
+        >
+          ${action.label}
+        </button>`
+      })}
+    </div>
+  </div>`
 }
 
 export const cardResponseTemplate = (item: TolkiChatCardResponse) => {

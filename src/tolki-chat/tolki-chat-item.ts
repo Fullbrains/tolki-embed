@@ -21,9 +21,16 @@ export type TolkiChatItem =
   | TolkiChatThinkingResponse
   | TolkiChatUserInput
 
+export interface TolkiAction {
+  label: string
+  primary?: boolean
+  click: () => void
+}
+
 export interface TolkiChatActionResponse {
   type: TolkiChatItemType.action
   text: string
+  actions: TolkiAction[]
   data?: { [key: string]: unknown }
 }
 
@@ -65,6 +72,19 @@ export const TOLKI_ERROR_MESSAGE: string =
 
 export const thinkingResponse: TolkiChatThinkingResponse = {
   type: TolkiChatItemType.thinking,
+}
+
+export const actionResponse = (
+  message: string,
+  actions?: TolkiAction[],
+  data?: { [key: string]: unknown }
+): TolkiChatActionResponse => {
+  return {
+    type: TolkiChatItemType.action,
+    text: message,
+    actions,
+    data,
+  }
 }
 
 export const userInput = (message: string): TolkiChatUserInput => {

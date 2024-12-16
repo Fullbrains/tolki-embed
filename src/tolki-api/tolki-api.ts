@@ -54,12 +54,14 @@ export class TolkiApi {
     message: string
   ): Promise<TolkiApiMessageResponse> {
     // api.tolki.ai/chat/v1/embed/:bot_uuid/chat/:chat_uuid/message
+
     return new Promise((resolve, reject) => {
       if (
         validateUUID(chat_uuid) &&
         validateUUID(bot_uuid) &&
         message?.trim() !== ''
       ) {
+        console.log('Tolki: message:', message, chat_uuid, bot_uuid)
         try {
           fetch(`${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`, {
             method: `POST`,
@@ -117,6 +119,7 @@ export class TolkiApi {
           })
         }
       } else {
+        console.log('Tolki: not message:', chat_uuid)
         reject({
           status: TolkiApiMessageResponseStatus.badMessage,
         })
