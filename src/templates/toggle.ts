@@ -3,7 +3,7 @@ import { classMap } from 'lit/directives/class-map.js'
 
 export const toggleTemplate = (open: boolean, unclosable: boolean) => {
   return html` <button
-    aria-description="Chat"
+    aria-label="Tolki AI"
     class=${classMap({
       tkc__toggle: true,
       tkc__dots: true,
