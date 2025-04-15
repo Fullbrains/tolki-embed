@@ -333,6 +333,7 @@ $brand-dot-size: $toggle-btn-size * 0.12;
       width: 100%;
 
       textarea {
+        background-color: transparent;
         border-radius: 0;
         border: none;
         font-family: inherit;

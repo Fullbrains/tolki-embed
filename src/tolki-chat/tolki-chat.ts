@@ -490,7 +490,7 @@ export class TolkiChat extends LitElement {
             </div>
             ${suggestionsTemplate(state.bot.props.suggestions)}
             ${textareaTemplate(state.pending, state.showScrollDown)}
-            ${brandingTemplate}
+            ${state.bot?.props?.unbranded ? '' : brandingTemplate}
           </div>
           ${state.inline
             ? ''
