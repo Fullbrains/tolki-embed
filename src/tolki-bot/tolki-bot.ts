@@ -82,6 +82,7 @@ export interface TolkiBotProps {
   unbranded?: boolean
   suggestions?: string[]
   welcomeMessage?: string
+  defaultOpen?: boolean
   styles: { [key: string]: { [key: string]: { [key: string]: string } } }
   version: string
 }

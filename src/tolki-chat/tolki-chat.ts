@@ -206,7 +206,17 @@ export class TolkiChat extends LitElement {
           this.addHeadingMessages()
         }
 
-        state.open = this.getSetting('open') as string
+        const savedOpen = this.getSetting('open') as string
+        
+        if (savedOpen === 'false') {
+          state.open = ''
+        } else if (savedOpen === 'true') {
+          state.open = 'true'
+        } else if (state.bot.props.defaultOpen === true) {
+          state.open = 'true'
+        } else {
+          state.open = ''
+        }
 
         this.scrollToBottom()
       })
