@@ -34,6 +34,7 @@ $brand-dot-size: $toggle-btn-size * 0.12;
 
   .tkc {
     &__window {
+      overflow: hidden;
 
       &--inline {
         height: 100%;
@@ -91,7 +92,9 @@ $brand-dot-size: $toggle-btn-size * 0.12;
 
     &__header {
       align-items: center;
-      border-bottom: 1px solid $kool-10;
+      background: white;
+      outline: 1px solid rgba(black, 0.1);
+      z-index: 10;
       display: flex;
       font-size: 17px;
       font-weight: 700;
@@ -110,6 +113,8 @@ $brand-dot-size: $toggle-btn-size * 0.12;
     }
 
     &__branding {
+      background: white;
+      z-index: 10;
       align-items: center;
       color: $kool-30;
       display: flex;
@@ -236,7 +241,6 @@ $brand-dot-size: $toggle-btn-size * 0.12;
     }
 
     &__log {
-      border-bottom: 1px solid $kool-10;
       display: flex;
       flex: 1;
       padding: 20px;
@@ -261,6 +265,7 @@ $brand-dot-size: $toggle-btn-size * 0.12;
     }
 
     &__message {
+      background: white;
       border-radius: $message-radius * 0.25 $message-radius $message-radius $message-radius;
       padding: 10px 15px;
       margin-bottom: 5px;
@@ -326,10 +331,12 @@ $brand-dot-size: $toggle-btn-size * 0.12;
     }
 
     &__input {
+      outline: 1px solid rgba(black, 0.1);
       box-sizing: border-box;
       display: flex;
       justify-content: space-between;
       padding: 0;
+      border-radius: 15px 15px 0 0;
       position: relative;
       width: 100%;
 
@@ -353,12 +360,6 @@ $brand-dot-size: $toggle-btn-size * 0.12;
           opacity: 1;
         }
       }
-    }
-
-    &__send {
-      position: absolute;
-      top: 10px;
-      right: 10px;
     }
 
     &__send, &__close, &__scroll-down, &__reset {
@@ -388,6 +389,13 @@ $brand-dot-size: $toggle-btn-size * 0.12;
           stroke: currentColor;
         }
       }
+    }
+
+    &__send {
+      position: absolute;
+      background-color: $kool-06;
+      top: 10px;
+      right: 10px;
     }
 
     &__scroll-down {
