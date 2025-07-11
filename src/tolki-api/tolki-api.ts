@@ -1,3 +1,5 @@
+import { validateUUID } from '../utils/encryption'
+
 export interface TolkiApiResponse {
   status: number
   data: unknown
@@ -55,8 +57,8 @@ export class TolkiApi {
 
     return new Promise((resolve, reject) => {
       if (
-        // validateUUID(chat_uuid) &&
-        // validateUUID(bot_uuid) &&
+        validateUUID(chat_uuid) &&
+        validateUUID(bot_uuid) &&
         message?.trim() !== ''
       ) {
         console.log('Tolki: message:', message, chat_uuid, bot_uuid)

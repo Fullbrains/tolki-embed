@@ -193,6 +193,8 @@ export class TolkiChat extends LitElement {
         const chatUUID = this.getSetting('chat') as string
         if (!validateUUID(chatUUID)) {
           state.chat = UUID()
+        } else {
+          state.chat = chatUUID
         }
 
         const history = this.getSetting('history') as TolkiChatItem[]
@@ -207,7 +209,7 @@ export class TolkiChat extends LitElement {
         }
 
         const savedOpen = this.getSetting('open') as string
-        
+
         if (savedOpen === 'false') {
           state.open = ''
         } else if (savedOpen === 'true') {
@@ -364,6 +366,7 @@ export class TolkiChat extends LitElement {
     this.afterSend()
 
     try {
+      console.log('Tolki: ', state.chat, state.bot.uuid)
       TolkiApi.message(state.chat, state.bot.uuid, message)
         .then(({ data }: TolkiApiMessageResponse) => {
           if (Array.isArray(data)) {
