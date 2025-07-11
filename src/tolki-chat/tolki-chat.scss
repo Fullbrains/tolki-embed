@@ -5,6 +5,7 @@
 @import "node_modules/@fullbrains/okuda/colors/ruby/ruby.scss";
 @import "node_modules/@fullbrains/okuda/colors/emer/emer.scss";
 @import "tolki-chat-item";
+@import url('https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap');
 
 $circle-btn-size: 40px;
 $margin: 20px;
@@ -21,7 +22,7 @@ $brand-dot-size: $toggle-btn-size * 0.12;
   color: $eigen-45;
   display: flex;
   flex-direction: column;
-  font-family: "Inter", sans-serif;
+  font-family: "Funnel Sans", sans-serif;
   font-size: 16px;
   letter-spacing: normal;
   pointer-events: none;
