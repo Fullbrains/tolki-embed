@@ -469,12 +469,6 @@ export class TolkiChat extends LitElement {
   override render() {
     return state.bot?.status === TolkiBotStatus.ok
       ? html`
-          <link rel="preconnect" href="https://fonts.googleapis.com" />
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-          <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap"
-            rel="stylesheet"
-          />
           <style>
             :host {
               ${this.colorVariables}
