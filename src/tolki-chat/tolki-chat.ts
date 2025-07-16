@@ -220,7 +220,13 @@ export class TolkiChat extends LitElement {
           state.open = ''
         }
 
-        this.scrollToBottom()
+        setTimeout(() => {
+          const top = this.log.scrollHeight - (this.log.clientHeight - 80)
+          this.log.scrollTo({
+            top,
+            behavior: 'auto',
+          })
+        }, 0)
       })
       .catch((bot) => {
         state.bot = bot
@@ -276,8 +282,20 @@ export class TolkiChat extends LitElement {
   }
 
   toggleWindow() {
+    const wasOpen = state.open === 'true'
     state.open = state.open === 'true' ? '' : 'true'
-    slef.saveSetting('open', state.open)
+    slef.saveSetting('open', state.open === 'true' ? 'true' : 'false')
+
+    // Focus input only when user manually opens window
+    if (!wasOpen && state.open === 'true') {
+      slef.updateComplete.then(() => {
+        setTimeout(() => {
+          if (slef.textarea) {
+            slef.textarea.focus()
+          }
+        }, 300)
+      })
+    }
   }
 
   resetMessage() {
@@ -296,21 +314,41 @@ export class TolkiChat extends LitElement {
     }, timeout)
   }
 
+  scrollToLastMessage(timeout: number = 500, animated: boolean = true) {
+    setTimeout(() => {
+      const chatItems = this.log.querySelectorAll('.tkc__chat-item')
+      if (chatItems.length > 0) {
+        const lastMessage = chatItems[chatItems.length - 1] as HTMLElement
+        const messageTop = lastMessage.offsetTop - 20 - 60 // 20px log padding + 60px extra space
+        this.log.scrollTo({
+          top: Math.max(0, messageTop),
+          behavior: animated ? 'smooth' : 'auto',
+        })
+      }
+    }, timeout)
+  }
+
   autoScrollToBottom() {
     if (state.atBottom) {
-      this.scrollToBottom()
+      this.updateComplete.then(() => {
+        this.scrollToLastMessage()
+      })
     }
   }
 
   afterReceive() {
     state.pending = false
-    this.scrollToBottom(100)
+    this.updateComplete.then(() => {
+      this.scrollToLastMessage(100)
+    })
   }
 
   afterSend() {
     state.pending = true
     this.resetMessage()
-    this.scrollToBottom(100)
+    this.updateComplete.then(() => {
+      this.scrollToLastMessage(100)
+    })
   }
 
   logScroll = () => {
@@ -366,7 +404,6 @@ export class TolkiChat extends LitElement {
     this.afterSend()
 
     try {
-      console.log('Tolki: ', state.chat, state.bot.uuid)
       TolkiApi.message(state.chat, state.bot.uuid, message)
         .then(({ data }: TolkiApiMessageResponse) => {
           if (Array.isArray(data)) {

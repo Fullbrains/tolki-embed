@@ -61,7 +61,6 @@ export class TolkiApi {
         validateUUID(bot_uuid) &&
         message?.trim() !== ''
       ) {
-        console.log('Tolki: message:', message, chat_uuid, bot_uuid)
         try {
           fetch(`${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`, {
             method: `POST`,
