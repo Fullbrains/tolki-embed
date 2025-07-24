@@ -300,7 +300,7 @@ export class TolkiChat extends LitElement {
 
   resetMessage() {
     this.textarea.value = ''
-    this.textarea.style.height = '40px'
+    this.textarea.style.height = '43px'
     this.textarea.focus()
   }
 
