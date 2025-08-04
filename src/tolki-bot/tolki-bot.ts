@@ -80,6 +80,7 @@ export interface TolkiBotProps {
   avatar?: string
   icon?: string
   unbranded?: boolean
+  isAdk?: boolean
   suggestions?: string[]
   welcomeMessage?: string
   defaultOpen?: boolean

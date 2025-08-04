@@ -404,7 +404,7 @@ export class TolkiChat extends LitElement {
     this.afterSend()
 
     try {
-      TolkiApi.message(state.chat, state.bot.uuid, message)
+      TolkiApi.message(state.chat, state.bot.uuid, message, state.bot.props.isAdk)
         .then(({ data }: TolkiApiMessageResponse) => {
           if (Array.isArray(data)) {
             const chatItems: TolkiChatItem[] = data

@@ -20,6 +20,7 @@ export interface TolkiApiMessageResponse {
 }
 
 const TOLKI_API_BASE_URL: string = 'https://api.tolki.ai/chat/v1/embed/'
+const TOLKI_BRAIN_API_BASE_URL: string = 'https://api.tolki.ai/brain-chat/v1/embed/'
 
 export class TolkiApi {
   public static async settings(bot_uuid: string): Promise<TolkiApiResponse> {
@@ -51,9 +52,11 @@ export class TolkiApi {
   public static async message(
     chat_uuid: string,
     bot_uuid: string,
-    message: string
+    message: string,
+    isAdk?: boolean
   ): Promise<TolkiApiMessageResponse> {
     // api.tolki.ai/chat/v1/embed/:bot_uuid/chat/:chat_uuid/message
+    // or different URL if isAdk is true
 
     return new Promise((resolve, reject) => {
       if (
@@ -62,7 +65,10 @@ export class TolkiApi {
         message?.trim() !== ''
       ) {
         try {
-          fetch(`${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`, {
+          const url = isAdk 
+            ? `${TOLKI_BRAIN_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`
+            : `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`
+          fetch(url, {
             method: `POST`,
             headers: {
               'Content-Type': `application/json`,
