@@ -20,7 +20,7 @@ export interface TolkiApiMessageResponse {
 }
 
 const TOLKI_API_BASE_URL: string = 'https://api.tolki.ai/chat/v1/embed/'
-const TOLKI_BRAIN_API_BASE_URL: string = 'https://api.tolki.ai/brain-chat/v1/embed/'
+const TOLKI_BRAIN_API_BASE_URL: string = 'https://brain.tolki.ai/v1/embed/'
 
 export class TolkiApi {
   public static async settings(bot_uuid: string): Promise<TolkiApiResponse> {
