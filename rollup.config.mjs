@@ -9,7 +9,7 @@ import commonjs from '@rollup/plugin-commonjs'
 export default {
   input: 'src/components/tolki-chat/tolki-chat.ts',
   output: {
-    dir: 'dist',
+    file: 'dist/chat.js',
     format: 'iife',
     name: 'TolkiChat',
   },
