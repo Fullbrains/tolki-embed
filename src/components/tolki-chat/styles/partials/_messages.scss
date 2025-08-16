@@ -1,0 +1,258 @@
+@import "../base/colors";
+@import "../base/variables";
+@import "../base/typography";
+
+.tk__chat-item {
+  width: 100%;
+  margin-bottom: 10px;
+  display: flex;
+
+  &--product, &--card {
+    width: 50%;
+  }
+
+  &--show_cart, &--show_orders {
+    .tk__action {
+      overflow: hidden;
+      width: 100%;
+      max-width: 100% !important;
+
+      .tk__cart-summary {
+        margin-bottom: 10px !important;
+
+        .tk__cart-item:last-child {
+
+          &::after {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+.tk__card {
+  border: 1px solid $steel-20;
+  background-color: $steel-04;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-right: 10px;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+
+  & > img {
+    max-width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: contain;
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0;
+  }
+
+  .tk__content {
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    padding: 10px;
+
+    .tk__name {
+      font-weight: $weight-bold;
+      font-size: $text-small;
+      color: $eigen-45;
+    }
+
+    .tk__description {
+      padding-top: 5px;
+      text-decoration: none;
+      font-size: 11px;
+    }
+  }
+
+  // Product variant with clickable behavior and price styling
+  &--product {
+    cursor: pointer;
+    transition: border-color $transition-default, background-color $transition-default;
+
+    &:hover {
+      background-color: $steel-01;
+      border-color: mix($sky-50, $cobalt-30);
+    }
+
+    .tk__description {
+      margin-top: auto;
+      font-size: $text-small !important;
+      color: mix($sky-50, $cobalt-30);
+    }
+  }
+
+  // Clickable behavior for cards with click handlers
+  &--clickable {
+    cursor: pointer;
+  }
+}
+
+.tk__price {
+  color: mix($sky-50, $cobalt-30);
+}
+
+
+.tk__markdown {
+  background-color: $steel-10;
+  border-radius: 6px 22px 22px 22px;
+  font-size: 15px;
+  line-height: $leading-base;
+  margin-right: auto;
+  max-width: 75%;
+  padding: 1px 15px;
+  width: max-content;
+
+  p {
+    margin: 10px 0;
+  }
+
+  img {
+    max-width: 100%;
+  }
+}
+
+.tk__user-input {
+  background-color: var(--bubble-background);
+  border-radius: 22px 6px 22px 22px;
+  color: var(--bubble-color);
+  font-size: 15px;
+  line-height: $leading-base;
+  margin-left: auto;
+  max-width: 75%;
+  padding: 11px 15px;
+  width: max-content;
+}
+
+.tk__thinking {
+  background-color: $steel-10;
+  border-radius: 6px 22px 22px 22px;
+  padding: 15px;
+
+  span {
+    background-color: $steel-30;
+  }
+}
+
+.tk__action {
+  background-color: $steel-06;
+  border-radius: 6px 22px 22px 22px;
+  font-size: 15px;
+  line-height: $leading-base;
+  margin-right: auto;
+  max-width: 75%;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+
+  &-prompt {
+    padding: 15px;
+    white-space: pre-line;
+  }
+
+  &-buttons {
+    padding: 0 10px 10px 10px;
+    display: flex;
+  }
+
+  &-button {
+    align-items: center;
+    background-color: $steel-10;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    height: 30px;
+    font-family: inherit;
+    font-size: 15px;
+    justify-content: center;
+    margin: 3px;
+    padding: 0 20px;
+    text-decoration: none;
+    transition: background-color $transition-default, color $transition-default;
+
+    &:hover {
+      background-color: $steel-15;
+    }
+
+    &--primary {
+      background-color: $cobalt-30;
+      color: white;
+
+      &:hover {
+        background-color: $cobalt-35;
+      }
+    }
+  }
+}
+
+// Legacy message styles (da rimuovere gradualmente)
+.tk__message {
+  background: white;
+  border-radius: $message-radius * 0.25 $message-radius $message-radius $message-radius;
+  padding: 10px 15px;
+  margin-bottom: 5px;
+  margin-right: auto;
+  max-width: 75%;
+  line-height: $leading-base;
+  font-size: $text-small;
+
+  img {
+    max-width: 100%;
+  }
+
+  &--user {
+    background-color: var(--bubble-background);
+    color: var(--bubble-color);
+    margin-right: 0;
+    margin-left: auto;
+    font-weight: $weight-medium;
+    border-radius: $message-radius $message-radius * 0.25 $message-radius $message-radius;
+  }
+
+  &--thinking {
+    padding: 15px;
+    background-color: $steel-08;
+
+    span {
+      background-color: $steel-30;
+    }
+  }
+
+  &--assistant {
+    background-color: $steel-08;
+    padding-top: 0;
+    padding-bottom: 0;
+
+    a {
+      color: $cobalt-30;
+
+      &:visited {
+        color: mix(red, $cobalt-30);
+      }
+    }
+  }
+
+  &--error {
+    background-color: #ffebc5;
+    color: #733d00;
+  }
+
+  &--info {
+    background-color: $jade-06;
+    color: $jade-45;
+    font-size: $text-xs;
+
+    p {
+      margin: 4px 0;
+    }
+
+    a {
+      color: $jade-45;
+    }
+  }
+}

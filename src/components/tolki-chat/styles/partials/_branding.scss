@@ -1,0 +1,35 @@
+@import "../base/colors";
+@import "../base/variables";
+@import "../base/typography";
+
+.tk__branding {
+  background: white;
+  z-index: $z-branding;
+  align-items: center;
+  color: $steel-30;
+  display: flex;
+  font-size: $text-tiny;
+  justify-content: center;
+  padding-bottom: env(safe-area-inset-bottom);
+
+  a {
+    color: $steel-30;
+    padding-bottom: 10px;
+    text-decoration: none;
+    transition: color $transition-fast;
+
+    &:hover {
+      color: $cobalt-35;
+    }
+  }
+
+  span {
+    padding-top: 2px;
+  }
+
+  svg {
+    path {
+      fill: currentColor;
+    }
+  }
+}

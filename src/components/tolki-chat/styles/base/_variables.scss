@@ -1,0 +1,19 @@
+// Sizes
+$circle-btn-size: 40px;
+$margin: 20px;
+$mobile-breakpoint: 500px;
+$toggle-btn-size: 60px;
+$window-border-radius: 10px;
+$message-radius: 15px;
+$brand-dot-size: $toggle-btn-size * 0.12;
+
+// Z-index layers
+$z-header: 10;
+$z-branding: 10;
+$z-window-floating: 9999999;
+
+// Animation timings
+$transition-default: 0.3s ease-out;
+$transition-fast: 0.2s ease-out;
+
+$price-color: mix($sky-50, $cobalt-30);

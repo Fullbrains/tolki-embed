@@ -13,8 +13,9 @@
   "license": "MIT",
   "dependencies": {
     "@fntools/crypto": "^1.0.0",
-    "@fullbrains/okuda": "^3.6.0",
+    "@fullbrains/iride": "^1.1.2",
     "@lit-app/state": "^1.0.0",
+    "@lit/localize": "^0.12.2",
     "@lit/reactive-element": "^2.0.4",
     "@rollup/plugin-terser": "^0.4.4",
     "@typescript-eslint/eslint-plugin": "^7.14.1",
@@ -34,6 +35,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.5.0",
+    "@lit/localize-tools": "^0.8.0",
     "@open-wc/eslint-config": "^12.0.3",
     "@rollup/plugin-commonjs": "^26.0.1",
     "@rollup/plugin-node-resolve": "^15.2.3",

@@ -1,0 +1,115 @@
+@import "../base/colors";
+@import "../base/variables";
+@import "../base/typography";
+
+.tk__cart {
+  &-empty {
+    padding: 15px;
+    text-align: center;
+    color: $steel-30;
+  }
+
+  &-item {
+    display: flex;
+    align-items: flex-start;
+    position: relative;
+    margin-bottom: -1px;
+
+    &--clickable {
+      cursor: pointer;
+      transition: background-color 150ms;
+      padding: 10px;
+
+      &:hover {
+        background-color: mix($sky-06, $cobalt-06);
+
+        &::after {
+          background-color: transparent;
+        }
+
+        .tk__placeholder-base {
+          background-color: mix($sky-10, $cobalt-10);
+
+          svg {
+            fill: mix($sky-35, $cobalt-35);
+          }
+        }
+      }
+    }
+
+    &::after {
+      background-color: $steel-15;
+      bottom: 0;
+      content: "";
+      height: 1px;
+      left: 10px;
+      position: absolute;
+      right: 10px;
+      transition: background-color 150ms;
+    }
+
+    &-image {
+      width: 40px;
+      height: 40px;
+      margin-right: 10px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    &-details {
+      flex: 1;
+      min-width: 0; // Allow flex item to shrink below content size
+    }
+
+    &-title {
+      font-weight: $weight-bold;
+      font-size: $text-small;
+      color: $eigen-45;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    &-info {
+      font-size: $text-small;
+      color: $steel-50;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      &-price {
+        color: $price-color;
+      }
+    }
+  }
+
+  &-more {
+    color: $price-color;
+    font-size: $text-small;
+    font-weight: $weight-normal;
+    cursor: pointer;
+    text-align: left;
+    transition: color $transition-default;
+    width: max-content;
+
+    &:hover {
+      color: darken($price-color, 10%);
+    }
+  }
+
+  &-total {
+    padding: 10px;
+    font-weight: $weight-bold;
+    font-size: $text-small;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    &-text {
+      font-weight: $weight-bold;
+      font-size: $text-small;
+      color: $eigen-45;
+    }
+  }
+}

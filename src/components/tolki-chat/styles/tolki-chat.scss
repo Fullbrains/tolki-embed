@@ -1,0 +1,37 @@
+// Base styles
+@import "base/colors";
+@import "base/variables";
+@import "base/typography";
+
+// Host styles
+:host {
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  bottom: $margin;
+  color: $eigen-45;
+  display: flex;
+  flex-direction: column;
+  font-family: $font-base;
+  font-weight: $weight-normal;
+  font-size: $text-base;
+  letter-spacing: $tracking-base;
+  pointer-events: none;
+  right: $margin;
+
+  .icon {
+    fill: white;
+  }
+}
+
+// Partial imports
+@import "partials/window";
+@import "partials/header";
+@import "partials/branding";
+@import "partials/suggestions";
+@import "partials/input";
+@import "partials/toggle";
+@import "partials/messages";
+@import "partials/cart";
+@import "partials/orders";
+@import "partials/image-placeholder";
+@import "partials/placeholder-common";

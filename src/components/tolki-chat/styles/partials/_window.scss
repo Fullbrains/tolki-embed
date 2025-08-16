@@ -1,0 +1,69 @@
+@import "../base/colors";
+@import "../base/variables";
+
+.tk__window {
+  overflow: hidden;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  pointer-events: auto;
+
+  &--inline {
+    height: 100%;
+    width: 100%;
+    flex-grow: 1;
+
+    .tk__close {
+      display: none;
+    }
+  }
+
+  &--unclosable {
+    .tk__close {
+      display: none;
+    }
+  }
+
+  &--floating {
+    opacity: 0;
+    transform: translateY($margin * 0.25);
+    transition: transform $transition-default, opacity $transition-default, visibility $transition-default;
+    visibility: hidden;
+    z-index: $z-window-floating;
+
+    @media screen and (min-width: $mobile-breakpoint) {
+      border-radius: $window-border-radius;
+      box-shadow: 0 12px 24px 0 rgba(black, 0.10), 0 0 0 1px rgba(black, 0.1);
+      height: calc(90vh - $toggle-btn-size - $margin - $margin);
+      margin-bottom: $margin * 0.5;
+      max-height: 728px;
+      max-width: 450px;
+      width: calc(100vw - $margin - $margin);
+    }
+
+    @media screen and (max-width: $mobile-breakpoint - 1px) {
+      height: 100%;
+      left: 0;
+      position: fixed;
+      top: 0;
+      width: 100vw;
+    }
+  }
+
+  &--open {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+  }
+}
+
+.tk__log {
+  display: flex;
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  flex-direction: row;
+  justify-items: start;
+  align-content: start;
+  flex-wrap: wrap;
+}

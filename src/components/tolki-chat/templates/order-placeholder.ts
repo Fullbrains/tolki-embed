@@ -1,0 +1,25 @@
+import { html, TemplateResult } from 'lit'
+
+// Template: Order placeholder for orders without images
+export const orderPlaceholderTemplate = (className: string = ''): TemplateResult => {
+  return html`
+    <div class="tk__order-placeholder ${className}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40">
+        <path d="m28.88 14.37-8.25-4.52a1.3 1.3 0 0 0-1.26 0l-8.25 4.52a1.31 1.31 0 0 0-.68 1.15v8.96a1.31 1.31 0 0 0 .68 1.15l8.25 4.52a1.3 1.3 0 0 0 1.26 0l8.25-4.52a1.31 1.31 0 0 0 .68-1.15v-8.96a1.31 1.31 0 0 0-.68-1.15Zm-8.97-3.53a.19.19 0 0 1 .18 0l7.83 4.29-3.18 1.74-7.92-4.34 3.09-1.7Zm-.47 18.07-7.78-4.26a.19.19 0 0 1-.1-.17v-8.36l7.88 4.32v8.47Zm-7.36-13.79 3.57-1.95 7.92 4.34L20 19.46l-7.92-4.34Zm16.36 9.36a.19.19 0 0 1-.1.17l-7.78 4.26v-8.48l3.38-1.84v3.66a.56.56 0 1 0 1.12 0v-4.28l3.38-1.85v8.36Z"/>
+      </svg>
+    </div>
+  `
+}
+
+// Template: Order image with fallback to order placeholder
+export const orderWithPlaceholderTemplate = (
+  imageUrl: string | undefined, 
+  alt: string = '',
+  className: string = ''
+): TemplateResult => {
+  const hasImage = imageUrl && imageUrl.trim()
+  
+  return hasImage
+    ? html`<img src="${imageUrl}" alt="${alt}" class="${className}" />`
+    : orderPlaceholderTemplate(className)
+}

@@ -1,0 +1,63 @@
+@import "../base/colors";
+@import "../base/variables";
+@import "../base/typography";
+
+// Status chip component for orders
+.tk__orders-status-chip {
+  display: inline-block;
+  padding: 2px 8px;
+  margin-right: 8px;
+  border-radius: 12px;
+  font-size: $text-tiny;
+  font-weight: $weight-bold;
+  color: white;
+  text-align: center;
+  line-height: 1.4;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  background-color: $steel-30;
+  white-space: nowrap;
+
+  // Status-specific colors
+  &.tk__orders-status--pending {
+    background-color: $cobalt-25;
+  }
+
+  &.tk__orders-status--processing {
+    background-color: $sky-30;
+  }
+
+  &.tk__orders-status--completed {
+    background-color: $jade-30;
+  }
+
+  &.tk__orders-status--refunded {
+    background-color: $steel-40;
+  }
+
+  &.tk__orders-status--cancelled {
+    background-color: $ruby-30;
+  }
+
+}
+
+// Order total styling (matching product card price)
+.tk__orders-total {
+  font-size: $text-small;
+  color: $price-color;
+}
+
+// Item count styling (black color on same line as total)
+.tk__orders-item-count {
+  color: $steel-50;
+  font-weight: $weight-normal;
+}
+
+// No orders message styling
+.tk__no-orders {
+  padding: 20px 15px;
+  text-align: center;
+  color: $steel-50;
+  font-size: $text-small;
+  margin: 0;
+}

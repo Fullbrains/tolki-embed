@@ -7,10 +7,11 @@ import terser from '@rollup/plugin-terser'
 import commonjs from '@rollup/plugin-commonjs'
 
 export default {
-  input: 'src/chat.ts',
+  input: 'src/components/tolki-chat/tolki-chat.ts',
   output: {
     dir: 'dist',
     format: 'iife',
+    name: 'TolkiChat',
   },
   plugins: [
     template(),
