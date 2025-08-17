@@ -354,6 +354,9 @@
   }
 
   window.tolki = { ...(window.tolki || {}), ...tolkiData }
+  setTimeout(() => {
+    window.dispatchEvent(new CustomEvent('tolki:cart:loaded', { detail: { cart: window.tolki.cart } }))
+  }, 1000)
 
 </script>
 <script src="dist/chat.js"></script>

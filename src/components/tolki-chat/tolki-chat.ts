@@ -222,11 +222,15 @@ export class TolkiChat extends LitElement {
     )
     const removedNotifications = initialHistoryLength !== state.history.length
 
+    // Check if the last message is a cart - if so, don't add cart notification
+    const lastMessage = state.history[state.history.length - 1]
+    const isLastMessageCart = lastMessage && lastMessage.type === ItemType.cart
+
     // Create new cart notification (will be null if cart is empty or error)
     const cartNotification = CartHelpers.createCartNotification()
     
-    if (cartNotification) {
-      // Add cart notification to history
+    if (cartNotification && !isLastMessageCart) {
+      // Add cart notification to history only if last message is not a cart
       state.history.push(cartNotification)
       this.saveHistory()
       this.updateComplete.then(() => {

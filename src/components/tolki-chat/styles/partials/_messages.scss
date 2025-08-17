@@ -152,6 +152,16 @@
   &-prompt {
     padding: 15px;
     white-space: pre-line;
+
+    &--with-icon {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+  }
+
+  &-prompt-text {
+    flex: 1;
   }
 
   &-buttons {
@@ -187,6 +197,24 @@
         background-color: $cobalt-35;
       }
     }
+  }
+}
+
+// Cart notification icon styling
+.tk__cart-notification-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: $steel-10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  svg {
+    fill: $steel-50;
+    width: 100%;
+    height: 100%;
   }
 }
 
