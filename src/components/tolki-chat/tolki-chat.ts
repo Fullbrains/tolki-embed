@@ -153,7 +153,6 @@ export class TolkiChat extends LitElement {
 
     // Listen for cart loaded event to update cart notification
     window.addEventListener('tolki:cart:loaded', () => {
-      console.log('🎯 tolki:cart:loaded event received')
       this.handleCartLoaded()
     })
 
@@ -211,81 +210,33 @@ export class TolkiChat extends LitElement {
     return state.bot?.uuid
   }
 
-  /**
-   * Check if the chat is in "virgin" state (only heading messages, no user interaction)
-   */
-  private isVirginChat(): boolean {
-    console.log('🔍 isVirginChat - state.history:', state.history)
-    
-    if (!state.history || state.history.length === 0) {
-      console.log('🔍 isVirginChat - empty history, returning true')
-      return true
-    }
-
-    // Check if history contains only initial heading messages (privacy, welcome, cart notification)
-    const hasUserInput = state.history.some(item => {
-      const isUserInteraction = item.type === ItemType.userInput || 
-        item.type === ItemType.action ||
-        (item.type === ItemType.markdown && !item.templateKey)
-      
-      console.log('🔍 isVirginChat - checking item:', item, 'isUserInteraction:', isUserInteraction)
-      return isUserInteraction
-    })
-
-    console.log('🔍 isVirginChat - hasUserInput:', hasUserInput, 'returning:', !hasUserInput)
-    return !hasUserInput
-  }
 
   /**
-   * Handle cart loaded event - update cart notification if chat is in virgin state
+   * Handle cart loaded event - update cart notification regardless of chat state
    */
   private handleCartLoaded(): void {
-    console.log('📦 handleCartLoaded called')
-    console.log('📦 isVirginChat:', this.isVirginChat())
-    console.log('📦 window.tolki.cart:', window.tolki?.cart)
-    
-    if (!this.isVirginChat()) {
-      console.log('📦 Chat is not virgin, skipping cart notification update')
-      return
-    }
-
-    // Check if there's already a cart notification in history
-    const hasCartNotification = state.history.some(item => 
-      item.type === ItemType.cartNotification
+    // First, remove any existing cart notifications from history
+    const initialHistoryLength = state.history.length
+    state.history = state.history.filter(item => 
+      item.type !== ItemType.cartNotification
     )
-    console.log('📦 hasCartNotification:', hasCartNotification)
+    const removedNotifications = initialHistoryLength !== state.history.length
 
     // Create new cart notification (will be null if cart is empty or error)
     const cartNotification = CartHelpers.createCartNotification()
-    console.log('📦 cartNotification:', cartNotification)
     
-    if (cartNotification && !hasCartNotification) {
-      console.log('📦 Adding cart notification to history')
+    if (cartNotification) {
       // Add cart notification to history
       state.history.push(cartNotification)
       this.saveHistory()
       this.updateComplete.then(() => {
         this.scrollToLastMessage(100)
       })
-    } else if (!cartNotification && hasCartNotification) {
-      console.log('📦 Removing cart notification from history')
-      // Remove cart notification if it should no longer be shown (cart became empty or error)
-      state.history = state.history.filter(item => 
-        item.type !== ItemType.cartNotification
-      )
-      this.saveHistory()
-    } else if (cartNotification && hasCartNotification) {
-      console.log('📦 Updating existing cart notification')
-      // Update existing cart notification (in case cart content changed)
-      const cartIndex = state.history.findIndex(item => 
-        item.type === ItemType.cartNotification
-      )
-      if (cartIndex !== -1) {
-        state.history[cartIndex] = cartNotification
+    } else {
+      // Just save history if we removed notifications but don't add new one
+      if (removedNotifications) {
         this.saveHistory()
       }
-    } else {
-      console.log('📦 No action needed for cart notification')
     }
   }
 
