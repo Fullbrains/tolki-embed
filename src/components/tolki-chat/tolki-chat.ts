@@ -151,6 +151,11 @@ export class TolkiChat extends LitElement {
       this.requestUpdate()
     })
 
+    // Listen for cart loaded event to update cart notification
+    window.addEventListener('tolki:cart:loaded', () => {
+      this.handleCartLoaded()
+    })
+
     // Add the update function to window.tolki
     if (!window.tolki) {
       window.tolki = {}
@@ -182,7 +187,7 @@ export class TolkiChat extends LitElement {
       state.atBottom = scrollState.atBottom
     })
 
-    // Initialize command service with new interface
+    // Initialize command service with the new interface
     this.commandService = new ChatCommandService(
       {
         addHeadingMessages: () => this.addHeadingMessages(),
@@ -203,6 +208,65 @@ export class TolkiChat extends LitElement {
 
   get botUUID() {
     return state.bot?.uuid
+  }
+
+  /**
+   * Check if the chat is in "virgin" state (only heading messages, no user interaction)
+   */
+  private isVirginChat(): boolean {
+    if (!state.history || state.history.length === 0) {
+      return true
+    }
+
+    // Check if history contains only initial heading messages (privacy, welcome, cart notification)
+    const hasUserInput = state.history.some(item => 
+      item.type === ItemType.userInput || 
+      item.type === ItemType.action ||
+      item.type === ItemType.markdown && !item.templateKey
+    )
+
+    return !hasUserInput
+  }
+
+  /**
+   * Handle cart loaded event - update cart notification if chat is in virgin state
+   */
+  private handleCartLoaded(): void {
+    if (!this.isVirginChat()) {
+      return
+    }
+
+    // Check if there's already a cart notification in history
+    const hasCartNotification = state.history.some(item => 
+      item.type === ItemType.cartNotification
+    )
+
+    // Create new cart notification
+    const cartNotification = CartHelpers.createCartNotification()
+    
+    if (cartNotification && !hasCartNotification) {
+      // Add cart notification to history
+      state.history.push(cartNotification)
+      this.saveHistory()
+      this.updateComplete.then(() => {
+        this.scrollToLastMessage(100)
+      })
+    } else if (!cartNotification && hasCartNotification) {
+      // Remove cart notification if it should no longer be shown
+      state.history = state.history.filter(item => 
+        item.type !== ItemType.cartNotification
+      )
+      this.saveHistory()
+    } else if (cartNotification && hasCartNotification) {
+      // Update existing cart notification (in case cart content changed)
+      const cartIndex = state.history.findIndex(item => 
+        item.type === ItemType.cartNotification
+      )
+      if (cartIndex !== -1) {
+        state.history[cartIndex] = cartNotification
+        this.saveHistory()
+      }
+    }
   }
 
   getSetting(key: string): string | boolean | unknown | undefined {

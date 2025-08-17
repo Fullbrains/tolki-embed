@@ -14,11 +14,16 @@ export class CartHelpers {
     const itemCount = cartData?.items?.length || 0
     const status = cartData?.status
     
-    // Show notification if there are items or if cart is in loading/error state
-    if (itemCount > 0 || status === 'loading' || status === 'error') {
+    // Show notification if:
+    // - Cart has items (any status)
+    // - Cart is loading 
+    // - Cart is in error state
+    // - Cart is loaded but empty (to show "empty" message)
+    if (itemCount > 0 || status === 'loading' || status === 'error' || status === 'loaded') {
       return ItemBuilder.cartNotification()
     }
     
+    // Don't show notification if cart is in idle state or status is undefined
     return null
   }
 
@@ -88,7 +93,7 @@ export class StyleHelpers {
   /**
    * Get CSS color variables from bot configuration
    */
-  static getColorVariables(botProps?: any): string {
+  static getColorVariables(botProps?: { styles?: { chat?: { button?: { defaultBackgroundColor?: string; hoverBackgroundColor?: string; foregroundColor?: string }; bubble?: { backgroundColor?: string; foregroundColor?: string } } } }): string {
     if (!botProps?.styles?.chat) return ''
 
     const styles = botProps.styles.chat

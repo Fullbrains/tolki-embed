@@ -4,19 +4,22 @@ import { Item, ItemType } from '../../../types/item'
 // Import all specialized template functions
 import { actionResponseTemplate } from './actions'
 import { cardResponseTemplate, productResponseTemplate } from './cards'
-import { markdownResponseTemplate, userInputTemplate, thinkingResponseTemplate } from './messages'
+import {
+  markdownResponseTemplate,
+  userInputTemplate,
+  thinkingResponseTemplate,
+} from './messages'
 import { cartResponseTemplate } from './cart'
 import { ordersResponseTemplate } from './orders'
 import { cartNotificationTemplate } from './cart-notification'
 
 // Import type-specific interfaces for type safety
-import { 
-  ActionResponse, 
-  CardResponse, 
-  CartNotificationResponse,
-  MarkdownResponse, 
-  ProductResponse, 
-  UserInput 
+import {
+  ActionResponse,
+  CardResponse,
+  MarkdownResponse,
+  ProductResponse,
+  UserInput,
 } from '../../../types/item'
 
 /**
@@ -28,7 +31,8 @@ export const chatItemTemplate = (item: Item): TemplateResult => {
   const templateMap: Record<ItemType, () => TemplateResult> = {
     [ItemType.action]: () => actionResponseTemplate(item as ActionResponse),
     [ItemType.card]: () => cardResponseTemplate(item as CardResponse),
-    [ItemType.markdown]: () => markdownResponseTemplate(item as MarkdownResponse),
+    [ItemType.markdown]: () =>
+      markdownResponseTemplate(item as MarkdownResponse),
     [ItemType.product]: () => productResponseTemplate(item as ProductResponse),
     [ItemType.cart]: () => cartResponseTemplate(),
     [ItemType.orders]: () => ordersResponseTemplate(),
@@ -52,6 +56,10 @@ export const chatItemTemplate = (item: Item): TemplateResult => {
 // Re-export specialized templates for direct usage if needed
 export { actionResponseTemplate } from './actions'
 export { cardResponseTemplate, productResponseTemplate } from './cards'
-export { markdownResponseTemplate, userInputTemplate, thinkingResponseTemplate } from './messages'
+export {
+  markdownResponseTemplate,
+  userInputTemplate,
+  thinkingResponseTemplate,
+} from './messages'
 export { cartResponseTemplate } from './cart'
 export { ordersResponseTemplate } from './orders'

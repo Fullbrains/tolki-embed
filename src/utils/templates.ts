@@ -43,10 +43,14 @@ export const TRANSLATION_TEMPLATES = {
   // Cart error message
   cart_error: () =>
     msg('Error loading cart.'),
+  
+  // Empty cart message
+  cart_empty: () =>
+    msg('Your cart is empty.'),
 }
 
 // Helper function to render template with parameters
-export function renderTemplate(templateKey: string, templateParams?: { [key: string]: any }): string {
+export function renderTemplate(templateKey: string, templateParams?: { [key: string]: unknown }): string {
   const template = TRANSLATION_TEMPLATES[templateKey]
   if (!template) {
     console.warn(`Template not found: ${templateKey}`)
