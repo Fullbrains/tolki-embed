@@ -107,7 +107,7 @@ export class Api {
           })
         }
       } else {
-        console.log('Tolki: not message:', chat_uuid)
+        // Chat UUID not found
         reject({
           status: ApiMessageResponseStatus.badMessage,
         })

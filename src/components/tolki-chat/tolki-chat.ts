@@ -572,7 +572,6 @@ export class TolkiChat extends LitElement {
     }
 
     const command = commandMatch[1]
-    console.log('Extracted command:', command, 'from:', suggestionText)
     const textBeforeCommand = suggestionText
       .substring(0, commandMatch.index)
       .trim()
@@ -620,7 +619,6 @@ export class TolkiChat extends LitElement {
 
   // Helper: Execute command from suggestion
   executeCommand(command: string): void {
-    console.log('Executing command:', command)
     // Handle commands with parameters
     const commandParts = command.split(' ')
     const commandName = commandParts[0]
@@ -635,7 +633,6 @@ export class TolkiChat extends LitElement {
         break
       case 'set_locale':
         if (commandParam) {
-          console.log('Changing language to:', commandParam)
           this.changeLanguage(commandParam).catch(console.error)
           return // Don't update history for language changes
         } else {
@@ -765,7 +762,6 @@ export class TolkiChat extends LitElement {
           const clickHandler = () => {
             const originalText =
               suggestion.getAttribute('data-original') || suggestion.textContent
-            console.log('Suggestion clicked, originalText:', originalText)
             const { command } = this.extractCommand(originalText)
 
             if (command) {
