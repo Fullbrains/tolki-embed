@@ -1,8 +1,9 @@
 import { html, TemplateResult } from 'lit'
-import { msg } from '@lit/localize'
+import { msg, str } from '@lit/localize'
 import { getLocale } from '../../../locales'
 import { actionButtonTemplate, actionContainerTemplate } from './actions'
 import { orderWithPlaceholderTemplate } from './order-placeholder'
+import { orderIconTemplate } from './order-icon'
 import { navigateTo } from '../../../utils/navigation'
 import '../../../types/global' // Import global types
 
@@ -135,15 +136,35 @@ export const ordersListTemplate = (
   }>
 ): TemplateResult => {
   if (orders.length === 0) {
-    return html`<p class="tk__no-orders">${msg('No orders found')}</p>`
+    return html`<div class="tk__action-prompt tk__action-prompt--with-icon">
+      ${orderIconTemplate()}
+      <div class="tk__action-prompt-text tk__cart-loading">${msg('No orders found.')}</div>
+    </div>`
   }
 
   const maxDisplayOrders = 3
   const displayOrders = orders.slice(0, maxDisplayOrders)
+  const remainingCount = orders.length - maxDisplayOrders
+  const hasMoreOrders = remainingCount > 0
+
+  const handleShowMore = (e: Event) => {
+    e.preventDefault()
+    const ordersLink = window.tolki?.links?.orders
+    if (ordersLink) {
+      navigateTo(ordersLink)
+    }
+  }
 
   return html`
     <div class="tk__cart-summary">
       ${displayOrders.map((order) => html` ${orderItemTemplate(order)} `)}
+      ${hasMoreOrders
+        ? html`<div class="tk__cart-total">
+            <span class="tk__cart-more" @click=${handleShowMore}>
+              (${str`${remainingCount} more ${remainingCount === 1 ? 'order' : 'orders'}`}...)
+            </span>
+          </div>`
+        : ''}
     </div>
   `
 }
@@ -185,8 +206,8 @@ export const ordersResponseTemplate = (): TemplateResult => {
     }
   }
 
-  // Show button if we have a link to navigate to, regardless of order count
-  const buttons = ordersLink
+  // Show button only if we have orders and a link to navigate to
+  const buttons = ordersLink && allOrders.length > 0
     ? [actionButtonTemplate(msg('View Orders'), handleGoToOrders, true)]
     : undefined
 

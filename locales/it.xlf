@@ -2,10 +2,6 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
 <file target-language="it" source-language="en" original="lit-localize-inputs" datatype="plaintext">
 <body>
-<trans-unit id="s012582738c349bb5">
-  <source>Your cart is empty</source>
-  <target>Il tuo carrello è vuoto</target>
-</trans-unit>
 <trans-unit id="sed8ec5e3c64fa25d">
   <source>Total</source>
   <target>Totale</target>
@@ -13,10 +9,6 @@
 <trans-unit id="s898e751edf09ec1e">
   <source>Go to Cart</source>
   <target>Vai al Carrello</target>
-</trans-unit>
-<trans-unit id="s2b2ef7ded2e422ce">
-  <source><x id="0" equiv-text="${remainingCount}"/> more items</source>
-  <target>Altri <x id="0" equiv-text="${remainingCount}"/> elementi</target>
 </trans-unit>
 <trans-unit id="s16430e1864d70df9">
   <source>Type a message...</source>
@@ -30,17 +22,13 @@
   <source>Order</source>
   <target>Ordine</target>
 </trans-unit>
-<trans-unit id="s9c26d3568ffda2c7">
-  <source>No orders found</source>
-  <target>Nessun ordine trovato</target>
-</trans-unit>
 <trans-unit id="s2841a0c596d6f426">
   <source>item</source>
-  <target>elemento</target>
+  <target>articolo</target>
 </trans-unit>
 <trans-unit id="s3e7884bf4f412c6f">
   <source>items</source>
-  <target>elementi</target>
+  <target>articoli</target>
 </trans-unit>
 <trans-unit id="s78636b92c1a3909c">
   <source>Pending</source>
@@ -70,10 +58,6 @@
   <source>My Orders (<x id="0" equiv-text="${orderCount}"/>)</source>
   <target>I miei Ordini (<x id="0" equiv-text="${orderCount}"/>)</target>
 </trans-unit>
-<trans-unit id="sdc7bf9df037d009f">
-  <source>You have <x id="0" equiv-text="${params.count}"/> items in cart.</source>
-  <target>Hai <x id="0" equiv-text="${itemCount}"/> articoli nel carrello.</target>
-</trans-unit>
 <trans-unit id="s27ac935473f90d03">
   <source>Language changed.</source>
   <target>Lingua cambiata.</target>
@@ -90,10 +74,6 @@
   <source>Cancel</source>
   <target>Annulla</target>
 </trans-unit>
-<trans-unit id="s1b9b0f519f1e0891">
-  <source>You have items in cart.</source>
-  <target>Hai articoli nel carrello.</target>
-</trans-unit>
 <trans-unit id="sd3bb9b94928481f8">
   <source>Do you want to start a new chat? You will lose the current messages.</source>
   <target>Vuoi iniziare una nuova chat? Perderai i messaggi attuali.</target>
@@ -109,6 +89,37 @@
 <trans-unit id="sfbd40db33f87611b">
   <source>Loading cart...</source>
   <target>Caricamento carrello...</target>
+</trans-unit>
+<trans-unit id="seb5a92532ad0d001">
+  <source>You have <x id="0" equiv-text="${params.count} ${params.count === 1 ? msg('item') : msg('items')}"/> in cart.</source>
+  <target>Hai <x id="0" equiv-text="${params.count} ${params.count === 1 ? 'articolo' : 'articoli'}"/> nel carrello.</target>
+</trans-unit>
+<trans-unit id="s0ac3dc1d83641895">
+  <source>Error loading cart.</source>
+  <target>Errore nel caricamento del carrello.</target>
+</trans-unit>
+<trans-unit id="s275845573d646861">
+  <source>Your cart is empty.</source>
+  <target>Il tuo carrello è vuoto.</target>
+</trans-unit>
+<trans-unit id="s61731584cd086e84">
+  <source><x id="0" equiv-text="${remainingCount}"/> more <x id="1" equiv-text="${remainingCount === 1 ? 'item' : 'items'}"/></source>
+  <target>Altri <x id="0" equiv-text="${remainingCount}"/> <x id="1" equiv-text="${remainingCount === 1 ? 'articolo' : 'articoli'}"/></target>
+</trans-unit>
+<trans-unit id="s539c0516abfbd1eb">
+  <source>No orders found.</source>
+  <target>Nessun ordine trovato.</target>
+</trans-unit>
+<trans-unit id="sf416c6faf53c9239">
+  <source>Checkout</source>
+  <target>Checkout</target>
+</trans-unit>
+<trans-unit id="s1b9b0f519f1e0891">
+  <source>You have items in cart.</source>
+</trans-unit>
+<trans-unit id="s8dcbad308d74cec5">
+  <source>Start Shopping</source>
+  <target>Vai allo Shop</target>
 </trans-unit>
 </body>
 </file>

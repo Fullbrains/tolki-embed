@@ -66,4 +66,28 @@
   justify-items: start;
   align-content: start;
   flex-wrap: wrap;
+  position: relative;
+
+  // Custom scrollbar for the main log area
+  scrollbar-width: thin; /* Firefox - thin scrollbar */
+  scrollbar-color: $steel-20 transparent; /* Firefox - thumb and track colors */
+
+  // WebKit browsers (Chrome, Safari)
+  &::-webkit-scrollbar {
+    width: 6px; /* Thin scrollbar */
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent; /* Invisible track */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $steel-20; /* Light thumb */
+    border-radius: 3px;
+    transition: background-color $transition-default;
+
+    &:hover {
+      background-color: $steel-30; /* Darker on hover */
+    }
+  }
 }

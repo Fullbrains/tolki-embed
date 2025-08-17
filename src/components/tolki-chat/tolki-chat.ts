@@ -131,6 +131,9 @@ export class TolkiChat extends LitElement {
   @query('.tk__textarea') textarea: HTMLTextAreaElement
   @query('.tk__toggle') toggle: HTMLButtonElement
   @queryAll('.tk__suggestion') suggestions: HTMLButtonElement[]
+  @query('.tk__suggestions') suggestionsContainer: HTMLElement
+  @query('.tk__suggestions-scroll-left') scrollLeftBtn: HTMLButtonElement
+  @query('.tk__suggestions-scroll-right') scrollRightBtn: HTMLButtonElement
 
   constructor() {
     super()
@@ -804,7 +807,7 @@ export class TolkiChat extends LitElement {
       this.scrollDown.addEventListener('click', scrollDown)
     }
     if (this.suggestions?.length) {
-      if (slef.suggestionsListenersAdded === false) {
+      if (this.suggestionsListenersAdded === false) {
         this.suggestions.forEach((suggestion) => {
           // Remove any existing listeners first
           const existingHandler = suggestion._tolkiClickHandler
@@ -832,9 +835,49 @@ export class TolkiChat extends LitElement {
           suggestion._tolkiClickHandler = clickHandler
           suggestion.addEventListener('click', clickHandler)
         })
-        slef.suggestionsListenersAdded = true
+        this.suggestionsListenersAdded = true
+        
+        // Setup scroll button visibility logic
+        this.setupSuggestionsScrollButtons()
       }
     }
+  }
+
+  private setupSuggestionsScrollButtons() {
+    if (!this.suggestionsContainer || !this.scrollLeftBtn || !this.scrollRightBtn) {
+      return
+    }
+
+    const updateScrollButtons = () => {
+      const container = this.suggestionsContainer
+      const scrollLeft = container.scrollLeft
+      const scrollWidth = container.scrollWidth
+      const clientWidth = container.clientWidth
+      const maxScroll = scrollWidth - clientWidth
+
+      // Show/hide left button
+      if (scrollLeft > 0) {
+        this.scrollLeftBtn.classList.add('visible')
+      } else {
+        this.scrollLeftBtn.classList.remove('visible')
+      }
+
+      // Show/hide right button
+      if (scrollLeft < maxScroll - 1) { // -1 for rounding issues
+        this.scrollRightBtn.classList.add('visible')
+      } else {
+        this.scrollRightBtn.classList.remove('visible')
+      }
+    }
+
+    // Initial check
+    updateScrollButtons()
+
+    // Add scroll listener
+    this.suggestionsContainer.addEventListener('scroll', updateScrollButtons)
+
+    // Check again after a small delay to ensure DOM is fully rendered
+    setTimeout(updateScrollButtons, 100)
   }
 
   override render() {

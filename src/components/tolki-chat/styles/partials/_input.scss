@@ -12,6 +12,11 @@
   position: relative;
   width: 100%;
 
+  // Remove outline when suggestions are present
+  &--with-suggestions {
+    outline: none;
+  }
+
   textarea {
     background-color: transparent;
     border-radius: 0;
@@ -118,7 +123,7 @@
     }
 
     &--with-suggestions {
-      top: -95px;
+      top: -90px;
     }
   }
 }

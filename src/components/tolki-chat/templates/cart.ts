@@ -2,7 +2,9 @@ import { html, TemplateResult } from 'lit'
 import { msg, str } from '@lit/localize'
 import { navigateTo } from '../../../utils/navigation'
 import { actionButtonTemplate, actionContainerTemplate } from './actions'
+import { renderTemplate } from '../../../utils/templates'
 import { productWithPlaceholderTemplate } from './product-placeholder'
+import { cartIconTemplate } from './cart-icon'
 import '../../../types/global' // Import global types
 
 export interface CartItem {
@@ -49,7 +51,10 @@ export const cartSummaryTemplate = (items: CartItem[], total?: string) => {
   const hasItems = items && items.length > 0
 
   if (!hasItems) {
-    return html`<div class="tk__cart-empty">${msg('Your cart is empty')}</div>`
+    return html`<div class="tk__action-prompt tk__action-prompt--with-icon">
+      ${cartIconTemplate()}
+      <div class="tk__action-prompt-text tk__cart-loading">${msg('Your cart is empty.')}</div>
+    </div>`
   }
 
   const maxDisplayItems = 3
@@ -74,7 +79,7 @@ export const cartSummaryTemplate = (items: CartItem[], total?: string) => {
               <span class="tk__cart-total-text">${msg('Total')}: ${total}</span>
               ${hasMoreItems
                 ? html`<span class="tk__cart-more" @click=${handleShowMore}>
-                    &nbsp;(${msg(str`${remainingCount} more items`)}...)
+                    &nbsp;(${msg(str`${remainingCount} more ${remainingCount === 1 ? 'item' : 'items'}`)}...)
                   </span>`
                 : ''}
             </div>
@@ -90,20 +95,70 @@ export const cartResponseTemplate = (): TemplateResult => {
   // Always get fresh cart data from window.tolki.cart instead of using stale data from item
   const cartData = window.tolki?.cart
   const items = cartData?.items || []
+  const status = cartData?.status
+
+  // Handle different cart states - only show "empty" message when cart is actually loaded
+  if (status === 'loading' || status === 'idle') {
+    return actionContainerTemplate(
+      html`<div class="tk__action-prompt tk__action-prompt--with-icon">
+        ${cartIconTemplate()}
+        <div class="tk__action-prompt-text tk__cart-loading">${msg('Loading cart...')}</div>
+      </div>`
+    )
+  }
+
+  if (status === 'error') {
+    return actionContainerTemplate(
+      html`<div class="tk__action-prompt tk__action-prompt--with-icon">
+        ${cartIconTemplate()}
+        <div class="tk__action-prompt-text tk__cart-loading">${msg('Error loading cart.')}</div>
+      </div>`
+    )
+  }
 
   const handleGoToCart = (e: Event) => {
     e.preventDefault()
-    if (cartLink) {
+    // If cart is empty, navigate to shop instead
+    if (items.length === 0) {
+      const shopLink = window.tolki?.links?.shop
+      if (shopLink) {
+        navigateTo(shopLink)
+      }
+    } else if (cartLink) {
       navigateTo(cartLink)
     }
   }
 
-  const buttons = cartLink
-    ? [actionButtonTemplate(msg('Go to Cart'), handleGoToCart, true)]
-    : undefined
+  const handleCheckout = (e: Event) => {
+    e.preventDefault()
+    const checkoutLink = window.tolki?.links?.checkout
+    if (checkoutLink) {
+      navigateTo(checkoutLink)
+    }
+  }
+
+  // Create buttons array based on available links and cart state
+  const buttons = []
+  const checkoutLink = window.tolki?.links?.checkout
+  const hasCheckout = checkoutLink && items.length > 0 && status === 'loaded'
+  
+  // Add "Go to Cart" or "Go to Shop" button if links exist
+  // Make it primary only if there's no checkout button
+  const isEmpty = items.length === 0
+  const shopLink = window.tolki?.links?.shop
+  
+  if ((isEmpty && shopLink) || (!isEmpty && cartLink)) {
+    const buttonText = isEmpty ? renderTemplate('go_to_shop') : msg('Go to Cart')
+    buttons.push(actionButtonTemplate(buttonText, handleGoToCart, !hasCheckout))
+  }
+  
+  // Add "Checkout" button if checkout link exists, items are present, and cart is loaded
+  if (hasCheckout) {
+    buttons.push(actionButtonTemplate(msg('Checkout'), handleCheckout, true))
+  }
 
   return actionContainerTemplate(
     cartSummaryTemplate(items, cartData?.total),
-    buttons
+    buttons.length > 0 ? buttons : undefined
   )
 }

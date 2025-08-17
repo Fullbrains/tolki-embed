@@ -79,13 +79,13 @@
       text-overflow: ellipsis;
 
       &-price {
-        color: $price-color;
+        color: $link-color;
       }
     }
   }
 
   &-more {
-    color: $price-color;
+    color: $link-color;
     font-size: $text-small;
     font-weight: $weight-normal;
     cursor: pointer;
@@ -94,7 +94,7 @@
     width: max-content;
 
     &:hover {
-      color: darken($price-color, 10%);
+      color: darken($link-color, 10%);
     }
   }
 

@@ -1,6 +1,10 @@
 import { html, TemplateResult } from 'lit'
+import { msg, str } from '@lit/localize'
+import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 import { actionButtonTemplate, actionContainerTemplate } from './actions'
 import { renderTemplate } from '../../../utils/templates'
+import { cartIconTemplate } from './cart-icon'
+import { navigateTo } from '../../../utils/navigation'
 
 // Template: Cart notification with dynamic content
 export const cartNotificationTemplate = (): TemplateResult => {
@@ -10,6 +14,7 @@ export const cartNotificationTemplate = (): TemplateResult => {
   // Handle different cart states
   switch (cartData?.status) {
     case 'loading':
+    case 'idle':
       return actionContainerTemplate(
         html`<div class="tk__action-prompt">
           ${renderTemplate('loading_cart')}
@@ -23,51 +28,76 @@ export const cartNotificationTemplate = (): TemplateResult => {
         </div>`
       )
 
-    case 'idle':
     case 'loaded':
-    default:
-      // Continue with normal cart display logic
+      // Continue with normal cart display logic for loaded state only
       break
+      
+    default:
+      // If status is undefined, don't show notification
+      return html``
   }
 
   // Get item count
   const itemCount = cartData?.items?.length || 0
 
-  // Create message based on item count
-  const message =
-    itemCount > 0
-      ? renderTemplate('cart_items_count', { count: itemCount })
-      : renderTemplate('cart_empty')
+  // If cart is loaded but empty, don't show notification at all
+  if (itemCount === 0) {
+    return html``
+  }
 
-  // Only show View Cart button if there are items
-  const buttons =
-    itemCount > 0
-      ? [
-          actionButtonTemplate(
-            renderTemplate('view_cart'),
-            (e: Event) => {
-              e.preventDefault()
-              if (
-                window.ActionCommands &&
-                window.ActionCommands.showCartAndRemoveNotification
-              ) {
-                window.ActionCommands.showCartAndRemoveNotification()
-              }
-            },
-            true // primary button
-          ),
-        ]
-      : []
+  // Create message based on item count (only when items > 0)
+  const handleCartLinkClick = (e: Event) => {
+    e.preventDefault()
+    if (
+      window.ActionCommands &&
+      window.ActionCommands.showCartAndRemoveNotification
+    ) {
+      window.ActionCommands.showCartAndRemoveNotification()
+    }
+  }
+
+  const template = renderTemplate('cart_items_count', { count: itemCount })
+  const countText = template.match(/\d+ \w+/)![0] // Extract "1 articolo" or "2 articoli"
+  
+  const message = unsafeHTML(template.replace(countText, `<span class="tk__link" onclick="if(window.ActionCommands && window.ActionCommands.showCartAndRemoveNotification) window.ActionCommands.showCartAndRemoveNotification()">${countText}</span>`))
+
+  // Create buttons array based on available links and cart state
+  const buttons = []
+  const checkoutLink = window.tolki?.links?.checkout
+  const cartStatus = cartData?.status
+  const hasCheckout = checkoutLink && cartStatus === 'loaded' && itemCount > 0
+  
+  // Add "View Cart" button
+  // Make it primary only if there's no checkout button
+  buttons.push(actionButtonTemplate(
+    renderTemplate('view_cart'),
+    (e: Event) => {
+      e.preventDefault()
+      if (
+        window.ActionCommands &&
+        window.ActionCommands.showCartAndRemoveNotification
+      ) {
+        window.ActionCommands.showCartAndRemoveNotification()
+      }
+    },
+    !hasCheckout // primary if no checkout
+  ))
+  
+  // Add "Checkout" button if checkout link exists and cart is loaded
+  if (hasCheckout) {
+    buttons.push(actionButtonTemplate(
+      renderTemplate('checkout'),
+      (e: Event) => {
+        e.preventDefault()
+        navigateTo(checkoutLink)
+      },
+      true // primary button
+    ))
+  }
 
   return actionContainerTemplate(
     html`<div class="tk__action-prompt tk__action-prompt--with-icon">
-      <div class="tk__cart-notification-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40">
-          <path
-            d="m30.3 26.6-1.33-11.25a1.32 1.32 0 0 0-1.32-1.16h-3.34V14a4.31 4.31 0 1 0-8.62 0v.19h-3.35a1.32 1.32 0 0 0-1.3 1.16L9.68 26.6A1.31 1.31 0 0 0 11 28.06h17.98a1.31 1.31 0 0 0 1.32-1.46ZM16.81 14a3.19 3.19 0 1 1 6.38 0v.19H16.8V14Zm12.33 12.87a.2.2 0 0 1-.15.07H11.01a.2.2 0 0 1-.19-.13.18.18 0 0 1 0-.08l1.33-11.25a.19.19 0 0 1 .2-.17h3.34v2.44a.56.56 0 0 0 1.12 0v-2.44h6.38v2.44a.56.56 0 1 0 1.12 0v-2.44h3.35a.19.19 0 0 1 .19.17l1.34 11.25a.18.18 0 0 1-.05.14Z"
-          />
-        </svg>
-      </div>
+      ${cartIconTemplate()}
       <div class="tk__action-prompt-text">${message}</div>
     </div>`,
     buttons

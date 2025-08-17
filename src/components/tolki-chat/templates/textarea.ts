@@ -5,7 +5,10 @@ import { scrollDown } from './scroll-down'
 import { msg } from '@lit/localize'
 
 export const textareaTemplate = (pending: boolean, showScrollDown: boolean, hasSuggestions: boolean = false) => {
-  return html` <div class="tk__input">
+  return html` <div class=${classMap({
+    'tk__input': true,
+    'tk__input--with-suggestions': hasSuggestions,
+  })}>
     <div
       class=${classMap({
         'tk__scroll-down-container': true,

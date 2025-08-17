@@ -17,6 +17,7 @@ export default {
     template(),
     resolve({
       browser: true,
+      preferBuiltins: false,
     }),
     commonjs(),
     typescript(),
@@ -26,6 +27,16 @@ export default {
     }),
     litcss(),
     terser({
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+        pure_funcs: ['console.log', 'console.info', 'console.debug'],
+      },
+      mangle: {
+        properties: {
+          regex: /^_/,
+        },
+      },
       output: {
         comments: false,
       },

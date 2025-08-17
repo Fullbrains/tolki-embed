@@ -4,7 +4,7 @@ import { msg, str } from '@lit/localize'
 export const TRANSLATION_TEMPLATES = {
   // Cart notification template
   cart_items_count: (params: { count: number }) => 
-    msg(str`You have ${params.count} items in cart.`),
+    msg(str`You have ${params.count} ${params.count === 1 ? msg('item') : msg('items')} in cart.`),
   
   // Language changed template
   language_changed: () => 
@@ -25,6 +25,12 @@ export const TRANSLATION_TEMPLATES = {
   // Action button labels
   view_cart: () => 
     msg('View Cart'),
+  
+  checkout: () =>
+    msg('Checkout'),
+  
+  go_to_shop: () =>
+    msg('Start Shopping'),
   
   reset: () => 
     msg('Reset'),

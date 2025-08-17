@@ -20,10 +20,10 @@ export const cardTemplate = (
 
   // For products, always show image or placeholder. For cards, only show if image exists
   const showImageArea = isProduct || (image && image.trim())
-  
+
   const content = html`
-    ${showImageArea 
-      ? isProduct 
+    ${showImageArea
+      ? isProduct
         ? productWithPlaceholderTemplate(image, '')
         : html`<img src="${image}" alt="" />`
       : ''}
@@ -50,16 +50,34 @@ export const cardResponseTemplate = (item: CardResponse): TemplateResult => {
 }
 
 // Template: Product response with price and click handler
-export const productResponseTemplate = (item: ProductResponse): TemplateResult => {
+export const productResponseTemplate = (
+  item: ProductResponse
+): TemplateResult => {
+  console.log('Product debug:', {
+    hasurl: !!item.url,
+    url: item.url,
+    urlTrimmed: item.url?.trim(),
+    productName: item.name,
+  })
+
   const handleClick = (e: Event) => {
     e.preventDefault()
-    navigateTo(item.Url)
+    console.log('Product clicked:', item.url)
+    if (item.url && item.url.trim()) {
+      navigateTo(item.url)
+    } else {
+      console.warn('No valid URL for product:', item.name)
+    }
   }
+
+  // Only make it clickable if there's a valid URL
+  const clickHandler = item.url && item.url.trim() ? handleClick : undefined
+
   return cardTemplate(
     item.image,
     item.name,
     html`&euro;${item.price}`,
-    handleClick,
+    clickHandler,
     true // isProduct
   )
 }
