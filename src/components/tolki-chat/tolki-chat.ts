@@ -28,10 +28,12 @@ import { Api } from '../../services/api'
 import { ItemBuilder } from '../../services/item-builder'
 import { ChatCommandService, createActionCommands } from '../../services/chat-commands'
 import { ScrollManager } from '../../services/scroll-manager'
-import { EventManager } from '../../services/event-manager'
+import { ScrollStateManager } from '../../services/scroll-state-manager'
+import { HistoryManager } from '../../services/history-manager'
+import { SuggestionManager } from '../../services/suggestion-manager'
 
 // Tolki Types
-import { Item, ItemType, ActionResponse } from '../../types/item'
+import { Item, ItemType } from '../../types/item'
 import { BotInitResult, BotStatus } from '../../types/bot'
 import { ApiMessageResponse, ApiMessageResponseStatus } from '../../types/api'
 
@@ -44,7 +46,7 @@ import { chatItemTemplate } from './templates/item'
 import { suggestionsTemplate } from './templates/suggestions'
 
 // Utils
-import { ChatHelpers } from '../../utils/chat-helpers'
+import { CartHelpers, StyleHelpers } from '../../utils/chat-helpers'
 
 const TOLKI_CHAT: string = `tolki-chat`
 const TOLKI_PREFIX: string = `tolki`
@@ -114,7 +116,9 @@ export class TolkiChat extends LitElement {
   // Services
   private commandService!: ChatCommandService
   private scrollManager!: ScrollManager
-  private eventManager!: EventManager
+  private scrollStateManager!: ScrollStateManager
+  private historyManager!: HistoryManager
+  private suggestionManager!: SuggestionManager
 
   static get observedAttributes() {
     return ['bot', 'inline', 'unclosable', 'lang']
@@ -133,10 +137,10 @@ export class TolkiChat extends LitElement {
     super()
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     slef = this
-    
+
     // Initialize services
     this.initializeServices()
-    
+
     // Check for lang attribute immediately
     const langAttr = this.getAttribute('lang')
     if (langAttr) {
@@ -161,9 +165,45 @@ export class TolkiChat extends LitElement {
    * Initialize all services used by the component
    */
   private initializeServices(): void {
-    // Initialize command service
-    this.commandService = new ChatCommandService(this, state)
+    // Initialize history manager
+    this.historyManager = new HistoryManager(
+      () => state.history,
+      (history) => { state.history = history },
+      (history) => this.saveSetting('history', history)
+    )
+
+    // Initialize scroll state manager
+    this.scrollStateManager = new ScrollStateManager()
     
+    // Subscribe to scroll state changes
+    this.scrollStateManager.onStateChange((scrollState) => {
+      state.showScrollDown = scrollState.showScrollDown
+      state.atBottom = scrollState.atBottom
+    })
+
+    // Initialize command service with new interface
+    this.commandService = new ChatCommandService(
+      {
+        addHeadingMessages: () => this.addHeadingMessages(),
+        saveSetting: (key, value) => this.saveSetting(key, value),
+        scrollToLastMessage: (timeout) => this.scrollToLastMessage(timeout),
+        updateComplete: this.updateComplete,
+        setChatId: (chatId) => { state.chat = chatId }
+      },
+      this.historyManager
+    )
+
+    // Initialize suggestion manager
+    this.suggestionManager = new SuggestionManager({
+      executeCommand: (command) => this.executeCommand(command),
+      sendMessage: (text) => {
+        if (this.textarea) {
+          this.textarea.value = text
+        }
+        return this.sendMessage()
+      }
+    })
+
     // Create and expose global ActionCommands
     ActionCommands = createActionCommands(this.commandService)
     window.ActionCommands = ActionCommands
@@ -219,21 +259,30 @@ export class TolkiChat extends LitElement {
   }
 
   public async addHeadingMessages() {
-    const privacyMessage = ItemBuilder.info('By using this chat, you agree to our <a target="_blank" href="https://tolki.ai/privacy">privacy policy</a>.')
+    const items: Item[] = []
+
+    // Add privacy message
+    const privacyMessage = ItemBuilder.info(
+      'By using this chat, you agree to our <a target="_blank" href="https://tolki.ai/privacy">privacy policy</a>.'
+    )
     if (privacyMessage) {
       privacyMessage.templateKey = 'privacy_policy'
+      items.push(privacyMessage)
     }
-    
-    state.history = privacyMessage ? [privacyMessage] : []
+
+    // Add welcome message
     if (state.bot?.props?.welcomeMessage) {
-      state.history.push(ItemBuilder.assistant(state.bot.props.welcomeMessage))
+      items.push(ItemBuilder.assistant(state.bot.props.welcomeMessage))
     }
 
     // Add cart notification using helper
-    const cartNotification = ChatHelpers.createCartNotification()
+    const cartNotification = CartHelpers.createCartNotification()
     if (cartNotification) {
-      state.history.push(cartNotification)
+      items.push(cartNotification)
     }
+
+    // Replace entire history using history manager
+    this.historyManager.replaceHistory(items)
 
     await this.processHistoryLocales()
   }
@@ -319,10 +368,10 @@ export class TolkiChat extends LitElement {
         },
       ]
     )
-    
+
     // Add template data
     resetAction.templateKey = 'reset_confirmation'
-    
+
     state.history = [...state.history, resetAction]
     slef.scrollToBottom(100)
   }
@@ -428,7 +477,9 @@ export class TolkiChat extends LitElement {
 
   clearHistory(): Item[] {
     const filteredHistory: Item[] = state.history.filter(
-      (item) => item.type !== ItemType.thinking && item.type !== ItemType.cartNotification
+      (item) =>
+        item.type !== ItemType.thinking &&
+        item.type !== ItemType.cartNotification
     )
     state.history = filteredHistory
     return filteredHistory
@@ -632,7 +683,7 @@ export class TolkiChat extends LitElement {
     if (changeMessage) {
       changeMessage.templateKey = 'language_changed'
     }
-    
+
     // Add locale property to track language changes
     if (changeMessage) {
       changeMessage.locale = locale
@@ -658,7 +709,7 @@ export class TolkiChat extends LitElement {
     // Update render key to force complete re-render of all templates
     state.renderKey = Date.now()
 
-    // Force re-render  
+    // Force re-render
     this.requestUpdate()
 
     // Scroll to the new message
@@ -729,7 +780,7 @@ export class TolkiChat extends LitElement {
           if (existingHandler) {
             suggestion.removeEventListener('click', existingHandler)
           }
-          
+
           // Create new handler
           const clickHandler = () => {
             const originalText =
@@ -745,7 +796,7 @@ export class TolkiChat extends LitElement {
               this.sendMessage().then()
             }
           }
-          
+
           // Store handler reference and add listener
           suggestion._tolkiClickHandler = clickHandler
           suggestion.addEventListener('click', clickHandler)
@@ -782,7 +833,11 @@ export class TolkiChat extends LitElement {
                 tk__log: true,
               })}
             >
-              ${state.history.filter(item => item && item.type).map((item, index) => keyed(`${state.renderKey}-${index}`, chatItemTemplate(item)))}
+              ${state.history
+                .filter((item) => item && item.type)
+                .map((item, index) =>
+                  keyed(`${state.renderKey}-${index}`, chatItemTemplate(item))
+                )}
             </div>
             ${suggestionsTemplate(
               state.bot.props.suggestions,

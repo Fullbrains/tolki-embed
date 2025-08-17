@@ -1,23 +1,29 @@
+import { ScrollStateManager } from './scroll-state-manager'
+
 /**
- * Service class to handle all scroll-related functionality
- * Extracted from TolkiChat component for better separation of concerns
+ * Service class to handle scroll operations on DOM elements
+ * Focused purely on DOM manipulation, state is managed separately
  */
 export class ScrollManager {
+  private readonly CHAT_ITEM_SELECTOR = '.tk__chat-item'
+  private readonly BOTTOM_OFFSET = 80 // Space from bottom
+  private readonly MESSAGE_PADDING = 20 // Padding around messages
+  private readonly EXTRA_SPACE = 60 // Extra space for smooth scrolling
+
   constructor(
-    private logElement: HTMLDivElement,
-    private getAtBottomState: () => boolean,
-    private setScrollState: (showScrollDown: boolean, atBottom: boolean) => void
+    private container: HTMLElement,
+    private scrollStateManager: ScrollStateManager
   ) {}
 
   /**
-   * Scroll to the bottom of the chat log
+   * Scroll to the bottom of the container
    */
-  scrollToBottom(timeout: number = 500): void {
+  scrollToBottom(timeout: number = 500, smooth: boolean = true): void {
     setTimeout(() => {
-      const top = this.logElement.scrollHeight - (this.logElement.clientHeight - 80)
-      this.logElement.scrollTo({
+      const top = this.container.scrollHeight - (this.container.clientHeight - this.BOTTOM_OFFSET)
+      this.container.scrollTo({
         top,
-        behavior: 'smooth',
+        behavior: smooth ? 'smooth' : 'auto',
       })
     }, timeout)
   }
@@ -27,11 +33,11 @@ export class ScrollManager {
    */
   scrollToLastMessage(timeout: number = 500, animated: boolean = true): void {
     setTimeout(() => {
-      const chatItems = this.logElement.querySelectorAll('.tk__chat-item')
+      const chatItems = this.container.querySelectorAll(this.CHAT_ITEM_SELECTOR)
       if (chatItems.length > 0) {
         const lastMessage = chatItems[chatItems.length - 1] as HTMLElement
-        const messageTop = lastMessage.offsetTop - 20 - 60 // 20px log padding + 60px extra space
-        this.logElement.scrollTo({
+        const messageTop = lastMessage.offsetTop - this.MESSAGE_PADDING - this.EXTRA_SPACE
+        this.container.scrollTo({
           top: Math.max(0, messageTop),
           behavior: animated ? 'smooth' : 'auto',
         })
@@ -40,35 +46,67 @@ export class ScrollManager {
   }
 
   /**
-   * Auto-scroll to bottom if user is already at bottom
+   * Scroll to a specific element within the container
    */
-  autoScrollToBottom(updateComplete: Promise<void>): void {
-    if (this.getAtBottomState()) {
-      updateComplete.then(() => {
-        this.scrollToLastMessage()
-      })
+  scrollToElement(element: HTMLElement, animated: boolean = true, offset: number = 0): void {
+    const elementTop = element.offsetTop - offset
+    this.container.scrollTo({
+      top: Math.max(0, elementTop),
+      behavior: animated ? 'smooth' : 'auto',
+    })
+  }
+
+  /**
+   * Auto-scroll to bottom if user is at bottom (conditional scroll)
+   */
+  autoScrollToBottom(delay: number = 0): void {
+    if (this.scrollStateManager.isAtBottom()) {
+      setTimeout(() => {
+        this.scrollToLastMessage(0)
+      }, delay)
     }
   }
 
   /**
-   * Handle log scroll events to update scroll state
+   * Handle scroll events and update state manager
    */
-  handleLogScroll(): void {
-    const scrollHeight = this.logElement.scrollHeight
-    const scrollTop = this.logElement.scrollTop
-    const clientHeight = this.logElement.clientHeight
-    const offsetFromBottom = scrollHeight - (scrollTop + clientHeight)
-    
-    const showScrollDown = offsetFromBottom > 200
-    const atBottom = offsetFromBottom <= 50
-    
-    this.setScrollState(showScrollDown, atBottom)
+  handleScroll(): void {
+    const { scrollTop, scrollHeight, clientHeight } = this.container
+    this.scrollStateManager.updateState(scrollTop, scrollHeight, clientHeight)
   }
 
   /**
-   * Create scroll event handler that can be used with addEventListener
+   * Create bound scroll event handler
    */
-  createScrollHandler(): () => void {
-    return () => this.handleLogScroll()
+  createScrollHandler(): (event: Event) => void {
+    return (event: Event) => {
+      event.preventDefault()
+      this.handleScroll()
+    }
+  }
+
+  /**
+   * Get current scroll position info
+   */
+  getScrollInfo(): {
+    scrollTop: number
+    scrollHeight: number
+    clientHeight: number
+    offsetFromBottom: number
+  } {
+    const { scrollTop, scrollHeight, clientHeight } = this.container
+    return {
+      scrollTop,
+      scrollHeight,
+      clientHeight,
+      offsetFromBottom: scrollHeight - (scrollTop + clientHeight)
+    }
+  }
+
+  /**
+   * Check if container is scrollable
+   */
+  isScrollable(): boolean {
+    return this.container.scrollHeight > this.container.clientHeight
   }
 }
