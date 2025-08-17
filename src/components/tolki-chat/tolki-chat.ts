@@ -105,9 +105,12 @@ export const ActionCommands = {
   },
 
   showCartAndRemoveNotification: () => {
-    // Remove cart notification actions from history
+    // Remove cart notification from history (both old action type and new cartNotification type)
     state.history = state.history.filter((item) => {
-      return !(item.type === ItemType.action && item.data?.isCartNotification)
+      return !(
+        (item.type === ItemType.action && item.data?.isCartNotification) ||
+        item.type === ItemType.cartNotification
+      )
     })
     state.history.push(ItemBuilder.cart())
     slef.clearHistory()
@@ -238,29 +241,12 @@ export class TolkiChat extends LitElement {
       state.history.push(ItemBuilder.assistant(state.bot.props.welcomeMessage))
     }
 
-    // Add cart notification if cart has items
+    // Add cart notification (will be rendered dynamically based on current cart state)
     const cartData = window.tolki?.cart
     const itemCount = cartData?.items?.length || 0
-    if (itemCount > 0) {
-      const cartNotification = ItemBuilder.action(
-        `You have ${itemCount} items in cart.`,
-        [
-          {
-            label: 'View Cart',
-            primary: true,
-            command: 'showCartAndRemoveNotification',
-            templateKey: 'view_cart',
-          },
-        ],
-        { isCartNotification: true, itemCount },
-        true
-      )
-      
-      // Add template data
-      cartNotification.templateKey = 'cart_items_count'
-      cartNotification.templateParams = { count: itemCount }
-      
-      state.history.push(cartNotification)
+    const isLoading = cartData?.status === 'loading'
+    if (itemCount > 0 || isLoading) {
+      state.history.push(ItemBuilder.cartNotification())
     }
 
     await this.processHistoryLocales()
@@ -456,7 +442,7 @@ export class TolkiChat extends LitElement {
 
   clearHistory(): Item[] {
     const filteredHistory: Item[] = state.history.filter(
-      (item) => item.type !== ItemType.thinking
+      (item) => item.type !== ItemType.thinking && item.type !== ItemType.cartNotification
     )
     state.history = filteredHistory
     return filteredHistory

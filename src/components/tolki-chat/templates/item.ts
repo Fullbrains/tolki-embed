@@ -7,11 +7,13 @@ import { cardResponseTemplate, productResponseTemplate } from './cards'
 import { markdownResponseTemplate, userInputTemplate, thinkingResponseTemplate } from './messages'
 import { cartResponseTemplate } from './cart'
 import { ordersResponseTemplate } from './orders'
+import { cartNotificationTemplate } from './cart-notification'
 
 // Import type-specific interfaces for type safety
 import { 
   ActionResponse, 
   CardResponse, 
+  CartNotificationResponse,
   MarkdownResponse, 
   ProductResponse, 
   UserInput 
@@ -32,6 +34,7 @@ export const chatItemTemplate = (item: Item): TemplateResult => {
     [ItemType.orders]: () => ordersResponseTemplate(),
     [ItemType.thinking]: () => thinkingResponseTemplate(),
     [ItemType.userInput]: () => userInputTemplate(item as UserInput),
+    [ItemType.cartNotification]: () => cartNotificationTemplate(item as CartNotificationResponse),
   }
 
   // Get the appropriate template function and render it

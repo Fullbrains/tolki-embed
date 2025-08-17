@@ -35,5 +35,6 @@
 'sdc7bf9df037d009f': str`Sie haben ${0} Artikel im Warenkorb.`,
 'sed8ec5e3c64fa25d': `Gesamt`,
 'sf0937c46689e829e': str`Warenkorb (${0})`,
+'sfbd40db33f87611b': `Warenkorb laden...`,
     };
   

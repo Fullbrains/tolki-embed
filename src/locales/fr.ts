@@ -35,5 +35,6 @@
 'sdc7bf9df037d009f': str`Vous avez ${0} articles dans le panier.`,
 'sed8ec5e3c64fa25d': `Total`,
 'sf0937c46689e829e': str`Panier (${0})`,
+'sfbd40db33f87611b': `Chargement du panier...`,
     };
   

@@ -185,7 +185,8 @@ export const ordersResponseTemplate = (): TemplateResult => {
     }
   }
 
-  const buttons = ordersLink
+  // Show button if there are orders and we have a link to navigate to
+  const buttons = ordersLink && allOrders.length > 0
     ? [actionButtonTemplate(msg('View Orders'), handleGoToOrders, true)]
     : undefined
 

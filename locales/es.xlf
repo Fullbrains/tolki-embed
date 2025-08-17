@@ -106,6 +106,10 @@
   <source>Sorry, there was an error processing your message.</source>
   <target>Lo siento, hubo un error al procesar tu mensaje.</target>
 </trans-unit>
+<trans-unit id="sfbd40db33f87611b">
+  <source>Loading cart...</source>
+  <target>Cargando carrito...</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

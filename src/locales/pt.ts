@@ -35,5 +35,6 @@
 'sdc7bf9df037d009f': str`Você tem ${0} itens no carrinho.`,
 'sed8ec5e3c64fa25d': `Total`,
 'sf0937c46689e829e': str`Carrinho (${0})`,
+'sfbd40db33f87611b': `Carregando carrinho...`,
     };
   

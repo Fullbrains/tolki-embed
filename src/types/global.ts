@@ -14,6 +14,7 @@ declare global {
         total: string
         subtotal: string
         item_count: number
+        status?: 'loading' | 'loaded'
       }
       links?: {
         [key: string]: string | undefined

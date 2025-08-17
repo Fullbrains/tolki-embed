@@ -13,6 +13,7 @@ export enum ItemType {
   userInput = 'userInput',
   cart = 'show_cart',
   orders = 'show_orders',
+  cartNotification = 'cart_notification',
 }
 
 export interface Action {
@@ -80,6 +81,11 @@ export interface UserInput {
   content: string
 }
 
+export interface CartNotificationResponse {
+  type: ItemType.cartNotification
+  // This type is dynamically rendered and not persisted in history
+}
+
 export type Item =
   | ActionResponse
   | CardResponse
@@ -89,3 +95,4 @@ export type Item =
   | OrdersResponse
   | ThinkingResponse
   | UserInput
+  | CartNotificationResponse

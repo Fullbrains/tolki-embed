@@ -3,6 +3,7 @@ import {
   Action,
   ActionResponse,
   CartResponse,
+  CartNotificationResponse,
   ItemType,
   MarkdownResponse,
   MarkdownResponseLevel,
@@ -101,6 +102,12 @@ export class ItemBuilder {
   static orders(): OrdersResponse {
     return {
       type: ItemType.orders,
+    }
+  }
+
+  static cartNotification(): CartNotificationResponse {
+    return {
+      type: ItemType.cartNotification,
     }
   }
 

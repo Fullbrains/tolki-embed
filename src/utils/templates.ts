@@ -35,6 +35,10 @@ export const TRANSLATION_TEMPLATES = {
   // Simple cart message without count
   cart_items: () => 
     msg('You have items in cart.'),
+  
+  // Loading cart message
+  loading_cart: () =>
+    msg('Loading cart...'),
 }
 
 // Helper function to render template with parameters
