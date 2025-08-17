@@ -11,7 +11,6 @@ import {
   ThinkingResponse,
   UserInput,
 } from '../types/item'
-import { msg } from '@lit/localize'
 
 export class ItemBuilder {
   static thinking(): ThinkingResponse {
@@ -25,7 +24,10 @@ export class ItemBuilder {
     actions?: Action[],
     data?: { [key: string]: unknown },
     translate: boolean = true,
-    templateData?: { templateKey?: string, templateParams?: { [key: string]: any } }
+    templateData?: {
+      templateKey?: string
+      templateParams?: { [key: string]: unknown }
+    }
   ): ActionResponse {
     const result: ActionResponse = {
       type: ItemType.action,
@@ -34,12 +36,12 @@ export class ItemBuilder {
       data,
       translate,
     }
-    
+
     if (templateData) {
       result.templateKey = templateData.templateKey
       result.templateParams = templateData.templateParams
     }
-    
+
     return result
   }
 
@@ -84,8 +86,18 @@ export class ItemBuilder {
     return ItemBuilder.markdown(message, MarkdownResponseLevel.default)
   }
 
-  static info(message: string, templateData?: { templateKey?: string, templateParams?: { [key: string]: any } }): MarkdownResponse | undefined {
-    const result = ItemBuilder.markdown(message, MarkdownResponseLevel.info, true)
+  static info(
+    message: string,
+    templateData?: {
+      templateKey?: string
+      templateParams?: { [key: string]: unknown }
+    }
+  ): MarkdownResponse | undefined {
+    const result = ItemBuilder.markdown(
+      message,
+      MarkdownResponseLevel.info,
+      true
+    )
     if (result && templateData) {
       result.templateKey = templateData.templateKey
       result.templateParams = templateData.templateParams
@@ -121,5 +133,4 @@ export class ItemBuilder {
     }
     return languageNames[locale] || locale
   }
-
 }

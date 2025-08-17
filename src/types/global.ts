@@ -14,7 +14,7 @@ declare global {
         total: string
         subtotal: string
         item_count: number
-        status?: 'loading' | 'loaded'
+        status?: 'idle' | 'loading' | 'loaded' | 'error'
       }
       links?: {
         [key: string]: string | undefined
@@ -42,7 +42,7 @@ declare global {
       update?: () => void
     }
     ActionCommands?: {
-      [commandName: string]: (data?: any, item?: any) => void | Promise<void>
+      [commandName: string]: (data?: unknown, item?: unknown) => void | Promise<void>
     }
   }
 }

@@ -39,6 +39,10 @@ export const TRANSLATION_TEMPLATES = {
   // Loading cart message
   loading_cart: () =>
     msg('Loading cart...'),
+  
+  // Cart error message
+  cart_error: () =>
+    msg('Error loading cart.'),
 }
 
 // Helper function to render template with parameters

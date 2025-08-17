@@ -54,9 +54,9 @@ export class ChatCommandService {
   /**
    * Cancel an action and optionally remove it from history
    */
-  cancelAction(_data?: any, actionToRemove?: ActionResponse): void {
+  cancelAction(_data?: unknown, actionToRemove?: ActionResponse): void {
     if (actionToRemove) {
-      this.historyManager.removeItems(item => item === actionToRemove)
+      this.historyManager.removeItems((item) => item === actionToRemove)
     }
   }
 
@@ -80,9 +80,10 @@ export class ChatCommandService {
 export function createActionCommands(commandService: ChatCommandService) {
   return {
     showCart: () => commandService.showCart(),
-    showCartAndRemoveNotification: () => commandService.showCartAndRemoveNotification(),
+    showCartAndRemoveNotification: () =>
+      commandService.showCartAndRemoveNotification(),
     resetChat: () => commandService.resetChat(),
-    cancelAction: (data?: any, actionToRemove?: ActionResponse) => 
+    cancelAction: (data?: unknown, actionToRemove?: ActionResponse) =>
       commandService.cancelAction(data, actionToRemove),
   }
 }

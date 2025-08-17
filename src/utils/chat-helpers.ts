@@ -12,9 +12,10 @@ export class CartHelpers {
   static createCartNotification(): Item | null {
     const cartData = window.tolki?.cart
     const itemCount = cartData?.items?.length || 0
-    const isLoading = cartData?.status === 'loading'
+    const status = cartData?.status
     
-    if (itemCount > 0 || isLoading) {
+    // Show notification if there are items or if cart is in loading/error state
+    if (itemCount > 0 || status === 'loading' || status === 'error') {
       return ItemBuilder.cartNotification()
     }
     
@@ -33,6 +34,34 @@ export class CartHelpers {
    */
   static isCartLoading(): boolean {
     return window.tolki?.cart?.status === 'loading'
+  }
+
+  /**
+   * Check if cart is in error state
+   */
+  static isCartError(): boolean {
+    return window.tolki?.cart?.status === 'error'
+  }
+
+  /**
+   * Check if cart is in idle state
+   */
+  static isCartIdle(): boolean {
+    return window.tolki?.cart?.status === 'idle'
+  }
+
+  /**
+   * Check if cart is loaded
+   */
+  static isCartLoaded(): boolean {
+    return window.tolki?.cart?.status === 'loaded'
+  }
+
+  /**
+   * Get current cart status
+   */
+  static getCartStatus(): 'idle' | 'loading' | 'loaded' | 'error' | undefined {
+    return window.tolki?.cart?.status
   }
 
   /**

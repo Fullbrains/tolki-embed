@@ -7,13 +7,27 @@ export const cartNotificationTemplate = (): TemplateResult => {
   // Get cart data from window.tolki
   const cartData = window.tolki?.cart
 
-  // Handle loading state
-  if (cartData?.status === 'loading') {
-    return actionContainerTemplate(
-      html`<div class="tk__action-prompt">
-        ${renderTemplate('loading_cart')}
-      </div>`
-    )
+  // Handle different cart states
+  switch (cartData?.status) {
+    case 'loading':
+      return actionContainerTemplate(
+        html`<div class="tk__action-prompt">
+          ${renderTemplate('loading_cart')}
+        </div>`
+      )
+    
+    case 'error':
+      return actionContainerTemplate(
+        html`<div class="tk__action-prompt">
+          ${renderTemplate('cart_error')}
+        </div>`
+      )
+    
+    case 'idle':
+    case 'loaded':
+    default:
+      // Continue with normal cart display logic
+      break
   }
 
   // Get item count

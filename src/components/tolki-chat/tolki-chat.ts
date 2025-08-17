@@ -26,11 +26,12 @@ import { UUID, validateUUID } from '../../utils/uuid'
 import { Bot } from '../../services/bot'
 import { Api } from '../../services/api'
 import { ItemBuilder } from '../../services/item-builder'
-import { ChatCommandService, createActionCommands } from '../../services/chat-commands'
-import { ScrollManager } from '../../services/scroll-manager'
+import {
+  ChatCommandService,
+  createActionCommands,
+} from '../../services/chat-commands'
 import { ScrollStateManager } from '../../services/scroll-state-manager'
 import { HistoryManager } from '../../services/history-manager'
-import { SuggestionManager } from '../../services/suggestion-manager'
 
 // Tolki Types
 import { Item, ItemType } from '../../types/item'
@@ -46,7 +47,7 @@ import { chatItemTemplate } from './templates/item'
 import { suggestionsTemplate } from './templates/suggestions'
 
 // Utils
-import { CartHelpers, StyleHelpers } from '../../utils/chat-helpers'
+import { CartHelpers } from '../../utils/chat-helpers'
 
 const TOLKI_CHAT: string = `tolki-chat`
 const TOLKI_PREFIX: string = `tolki`
@@ -103,7 +104,7 @@ class ChatState extends State {
 const state = new ChatState()
 let slef = null
 
-// Global command registry will be initialized when component is created
+// Global command registry will be initialized when the component is created
 export let ActionCommands: ReturnType<typeof createActionCommands>
 
 @customElement(TOLKI_CHAT)
@@ -115,10 +116,8 @@ export class TolkiChat extends LitElement {
 
   // Services
   private commandService!: ChatCommandService
-  private scrollManager!: ScrollManager
   private scrollStateManager!: ScrollStateManager
   private historyManager!: HistoryManager
-  private suggestionManager!: SuggestionManager
 
   static get observedAttributes() {
     return ['bot', 'inline', 'unclosable', 'lang']
@@ -141,7 +140,7 @@ export class TolkiChat extends LitElement {
     // Initialize services
     this.initializeServices()
 
-    // Check for lang attribute immediately
+    // Check for the lang attribute immediately
     const langAttr = this.getAttribute('lang')
     if (langAttr) {
       this.requestedLang = langAttr
@@ -152,7 +151,7 @@ export class TolkiChat extends LitElement {
       this.requestUpdate()
     })
 
-    // Add update function to window.tolki
+    // Add the update function to window.tolki
     if (!window.tolki) {
       window.tolki = {}
     }
@@ -168,13 +167,15 @@ export class TolkiChat extends LitElement {
     // Initialize history manager
     this.historyManager = new HistoryManager(
       () => state.history,
-      (history) => { state.history = history },
+      (history) => {
+        state.history = history
+      },
       (history) => this.saveSetting('history', history)
     )
 
     // Initialize scroll state manager
     this.scrollStateManager = new ScrollStateManager()
-    
+
     // Subscribe to scroll state changes
     this.scrollStateManager.onStateChange((scrollState) => {
       state.showScrollDown = scrollState.showScrollDown
@@ -188,21 +189,12 @@ export class TolkiChat extends LitElement {
         saveSetting: (key, value) => this.saveSetting(key, value),
         scrollToLastMessage: (timeout) => this.scrollToLastMessage(timeout),
         updateComplete: this.updateComplete,
-        setChatId: (chatId) => { state.chat = chatId }
+        setChatId: (chatId) => {
+          state.chat = chatId
+        },
       },
       this.historyManager
     )
-
-    // Initialize suggestion manager
-    this.suggestionManager = new SuggestionManager({
-      executeCommand: (command) => this.executeCommand(command),
-      sendMessage: (text) => {
-        if (this.textarea) {
-          this.textarea.value = text
-        }
-        return this.sendMessage()
-      }
-    })
 
     // Create and expose global ActionCommands
     ActionCommands = createActionCommands(this.commandService)
@@ -588,7 +580,7 @@ export class TolkiChat extends LitElement {
     command: string | null
     displayText: string
   } {
-    const commandMatch = suggestionText.match(/\[([^\]]+)\]/)
+    const commandMatch = suggestionText.match(/\[([^\]]+)]/)
 
     if (!commandMatch) {
       return { command: null, displayText: suggestionText }
