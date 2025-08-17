@@ -21,14 +21,19 @@ import steel from '@fullbrains/iride/steel.js'
 // Styles
 import styles from './styles/tolki-chat.scss'
 
-// Tolki
+// Tolki Services
 import { UUID, validateUUID } from '../../utils/uuid'
 import { Bot } from '../../services/bot'
 import { Api } from '../../services/api'
+import { ItemBuilder } from '../../services/item-builder'
+import { ChatCommandService, createActionCommands } from '../../services/chat-commands'
+import { ScrollManager } from '../../services/scroll-manager'
+import { EventManager } from '../../services/event-manager'
+
+// Tolki Types
 import { Item, ItemType, ActionResponse } from '../../types/item'
 import { BotInitResult, BotStatus } from '../../types/bot'
 import { ApiMessageResponse, ApiMessageResponseStatus } from '../../types/api'
-import { ItemBuilder } from '../../services/item-builder'
 
 // Templates
 import { headerTemplate } from './templates/header'
@@ -37,6 +42,9 @@ import { textareaTemplate } from './templates/textarea'
 import { toggleTemplate } from './templates/toggle'
 import { chatItemTemplate } from './templates/item'
 import { suggestionsTemplate } from './templates/suggestions'
+
+// Utils
+import { ChatHelpers } from '../../utils/chat-helpers'
 
 const TOLKI_CHAT: string = `tolki-chat`
 const TOLKI_PREFIX: string = `tolki`
@@ -93,46 +101,8 @@ class ChatState extends State {
 const state = new ChatState()
 let slef = null
 
-// Global command registry for action buttons
-export const ActionCommands = {
-  showCart: () => {
-    state.history.push(ItemBuilder.cart())
-    slef.clearHistory()
-    slef.saveHistory()
-    slef.updateComplete.then(() => {
-      slef.scrollToLastMessage(100)
-    })
-  },
-
-  showCartAndRemoveNotification: () => {
-    // Remove cart notification from history (both old action type and new cartNotification type)
-    state.history = state.history.filter((item) => {
-      return !(
-        (item.type === ItemType.action && item.data?.isCartNotification) ||
-        item.type === ItemType.cartNotification
-      )
-    })
-    state.history.push(ItemBuilder.cart())
-    slef.clearHistory()
-    slef.saveHistory()
-    slef.updateComplete.then(() => {
-      slef.scrollToLastMessage(100)
-    })
-  },
-
-  resetChat: async () => {
-    state.chat = UUID()
-    slef.saveSetting('chat', state.chat)
-    await slef.addHeadingMessages()
-    slef.saveSetting('history', state.history)
-  },
-
-  cancelAction: (data?: any, actionToRemove?: ActionResponse) => {
-    if (actionToRemove) {
-      state.history = state.history.filter((item) => item !== actionToRemove)
-    }
-  },
-}
+// Global command registry will be initialized when component is created
+export let ActionCommands: ReturnType<typeof createActionCommands>
 
 @customElement(TOLKI_CHAT)
 export class TolkiChat extends LitElement {
@@ -140,6 +110,11 @@ export class TolkiChat extends LitElement {
   stateController = new StateController(this, state)
   suggestionsListenersAdded = false
   requestedLang?: string
+
+  // Services
+  private commandService!: ChatCommandService
+  private scrollManager!: ScrollManager
+  private eventManager!: EventManager
 
   static get observedAttributes() {
     return ['bot', 'inline', 'unclosable', 'lang']
@@ -158,6 +133,10 @@ export class TolkiChat extends LitElement {
     super()
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     slef = this
+    
+    // Initialize services
+    this.initializeServices()
+    
     // Check for lang attribute immediately
     const langAttr = this.getAttribute('lang')
     if (langAttr) {
@@ -169,9 +148,6 @@ export class TolkiChat extends LitElement {
       this.requestUpdate()
     })
 
-    // Expose ActionCommands globally for action buttons
-    window.ActionCommands = ActionCommands
-
     // Add update function to window.tolki
     if (!window.tolki) {
       window.tolki = {}
@@ -179,6 +155,18 @@ export class TolkiChat extends LitElement {
     window.tolki.update = () => {
       window.dispatchEvent(new Event('tolki:update'))
     }
+  }
+
+  /**
+   * Initialize all services used by the component
+   */
+  private initializeServices(): void {
+    // Initialize command service
+    this.commandService = new ChatCommandService(this, state)
+    
+    // Create and expose global ActionCommands
+    ActionCommands = createActionCommands(this.commandService)
+    window.ActionCommands = ActionCommands
   }
 
   get botUUID() {
@@ -241,12 +229,10 @@ export class TolkiChat extends LitElement {
       state.history.push(ItemBuilder.assistant(state.bot.props.welcomeMessage))
     }
 
-    // Add cart notification (will be rendered dynamically based on current cart state)
-    const cartData = window.tolki?.cart
-    const itemCount = cartData?.items?.length || 0
-    const isLoading = cartData?.status === 'loading'
-    if (itemCount > 0 || isLoading) {
-      state.history.push(ItemBuilder.cartNotification())
+    // Add cart notification using helper
+    const cartNotification = ChatHelpers.createCartNotification()
+    if (cartNotification) {
+      state.history.push(cartNotification)
     }
 
     await this.processHistoryLocales()

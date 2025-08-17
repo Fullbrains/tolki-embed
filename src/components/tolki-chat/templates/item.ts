@@ -34,7 +34,7 @@ export const chatItemTemplate = (item: Item): TemplateResult => {
     [ItemType.orders]: () => ordersResponseTemplate(),
     [ItemType.thinking]: () => thinkingResponseTemplate(),
     [ItemType.userInput]: () => userInputTemplate(item as UserInput),
-    [ItemType.cartNotification]: () => cartNotificationTemplate(item as CartNotificationResponse),
+    [ItemType.cartNotification]: () => cartNotificationTemplate(),
   }
 
   // Get the appropriate template function and render it
