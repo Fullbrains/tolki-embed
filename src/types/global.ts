@@ -38,6 +38,10 @@ declare global {
         }>
       }
       loaded?: boolean
+      update?: () => void
+    }
+    ActionCommands?: {
+      [commandName: string]: (data?: any, item?: any) => void | Promise<void>
     }
   }
 }

@@ -3,6 +3,8 @@ import { classMap } from 'lit/directives/class-map.js'
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 import { MarkdownResponse, MarkdownResponseLevel, UserInput } from '../../../types/item'
 import { resolveMarkdown } from 'lit-markdown'
+import { msg } from '@lit/localize'
+import { renderTemplate } from '../../../utils/templates'
 
 // Helper: Decode HTML entities
 const decodeHtmlEntities = (text: string): string => {
@@ -18,13 +20,18 @@ export const markdownResponseTemplate = (item: MarkdownResponse): TemplateResult
     return html``
   }
 
+  // Use template system if templateKey is provided
+  const processedContent = item.templateKey 
+    ? renderTemplate(item.templateKey, item.templateParams)
+    : item.content
+
   // Per messaggi info con HTML entities (privacy notice), decodifica e usa unsafeHTML
   const hasHtmlEntities =
-    item.content.includes('&lt;') || item.content.includes('&gt;')
+    processedContent.includes('&lt;') || processedContent.includes('&gt;')
   const content =
     item.level === MarkdownResponseLevel.info && hasHtmlEntities
-      ? html`<p>${unsafeHTML(decodeHtmlEntities(item.content))}</p>`
-      : resolveMarkdown(item.content, {
+      ? html`<p>${unsafeHTML(decodeHtmlEntities(processedContent))}</p>`
+      : resolveMarkdown(processedContent, {
           includeImages: true,
           includeCodeBlockClassNames: true,
         })

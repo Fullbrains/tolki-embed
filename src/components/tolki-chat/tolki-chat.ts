@@ -3,6 +3,7 @@ import { property, State, StateController, storage } from '@lit-app/state'
 import { html, LitElement } from 'lit'
 import { customElement, query, queryAll } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
+import { keyed } from 'lit/directives/keyed.js'
 
 // Libs
 import { msg, str } from '@lit/localize'
@@ -24,7 +25,7 @@ import styles from './styles/tolki-chat.scss'
 import { UUID, validateUUID } from '../../utils/uuid'
 import { Bot } from '../../services/bot'
 import { Api } from '../../services/api'
-import { Item, ItemType } from '../../types/item'
+import { Item, ItemType, ActionResponse } from '../../types/item'
 import { BotInitResult, BotStatus } from '../../types/bot'
 import { ApiMessageResponse, ApiMessageResponseStatus } from '../../types/api'
 import { ItemBuilder } from '../../services/item-builder'
@@ -39,6 +40,13 @@ import { suggestionsTemplate } from './templates/suggestions'
 
 const TOLKI_CHAT: string = `tolki-chat`
 const TOLKI_PREFIX: string = `tolki`
+
+// Extend HTMLButtonElement to include custom properties
+declare global {
+  interface HTMLButtonElement {
+    _tolkiClickHandler?: () => void
+  }
+}
 
 class ChatState extends State {
   @storage({ key: 'settings', prefix: TOLKI_PREFIX })
@@ -77,10 +85,51 @@ class ChatState extends State {
 
   @property({ value: [] })
   history: Item[]
+
+  @property({ value: 0 })
+  renderKey: number
 }
 
 const state = new ChatState()
 let slef = null
+
+// Global command registry for action buttons
+export const ActionCommands = {
+  showCart: () => {
+    state.history.push(ItemBuilder.cart())
+    slef.clearHistory()
+    slef.saveHistory()
+    slef.updateComplete.then(() => {
+      slef.scrollToLastMessage(100)
+    })
+  },
+
+  showCartAndRemoveNotification: () => {
+    // Remove cart notification actions from history
+    state.history = state.history.filter((item) => {
+      return !(item.type === ItemType.action && item.data?.isCartNotification)
+    })
+    state.history.push(ItemBuilder.cart())
+    slef.clearHistory()
+    slef.saveHistory()
+    slef.updateComplete.then(() => {
+      slef.scrollToLastMessage(100)
+    })
+  },
+
+  resetChat: async () => {
+    state.chat = UUID()
+    slef.saveSetting('chat', state.chat)
+    await slef.addHeadingMessages()
+    slef.saveSetting('history', state.history)
+  },
+
+  cancelAction: (data?: any, actionToRemove?: ActionResponse) => {
+    if (actionToRemove) {
+      state.history = state.history.filter((item) => item !== actionToRemove)
+    }
+  },
+}
 
 @customElement(TOLKI_CHAT)
 export class TolkiChat extends LitElement {
@@ -91,12 +140,6 @@ export class TolkiChat extends LitElement {
 
   static get observedAttributes() {
     return ['bot', 'inline', 'unclosable', 'lang']
-  }
-
-  static get privacyNotice() {
-    return msg(
-      str`By using this chat, you agree to our <a target="_blank" href="https://tolki.ai/privacy">privacy policy</a>.`
-    )
   }
 
   @query('.tk__close') close: HTMLButtonElement
@@ -116,6 +159,22 @@ export class TolkiChat extends LitElement {
     const langAttr = this.getAttribute('lang')
     if (langAttr) {
       this.requestedLang = langAttr
+    }
+
+    // Listen for tolki:update event to force re-rendering
+    window.addEventListener('tolki:update', () => {
+      this.requestUpdate()
+    })
+
+    // Expose ActionCommands globally for action buttons
+    window.ActionCommands = ActionCommands
+
+    // Add update function to window.tolki
+    if (!window.tolki) {
+      window.tolki = {}
+    }
+    window.tolki.update = () => {
+      window.dispatchEvent(new Event('tolki:update'))
     }
   }
 
@@ -169,7 +228,12 @@ export class TolkiChat extends LitElement {
   }
 
   public async addHeadingMessages() {
-    state.history = [ItemBuilder.info(TolkiChat.privacyNotice)]
+    const privacyMessage = ItemBuilder.info('By using this chat, you agree to our <a target="_blank" href="https://tolki.ai/privacy">privacy policy</a>.')
+    if (privacyMessage) {
+      privacyMessage.templateKey = 'privacy_policy'
+    }
+    
+    state.history = privacyMessage ? [privacyMessage] : []
     if (state.bot?.props?.welcomeMessage) {
       state.history.push(ItemBuilder.assistant(state.bot.props.welcomeMessage))
     }
@@ -179,24 +243,23 @@ export class TolkiChat extends LitElement {
     const itemCount = cartData?.items?.length || 0
     if (itemCount > 0) {
       const cartNotification = ItemBuilder.action(
-        msg(str`You have ${itemCount} items in cart.`),
+        `You have ${itemCount} items in cart.`,
         [
           {
-            label: msg('Show Cart'),
+            label: 'View Cart',
             primary: true,
-            click() {
-              // Remove this action from history
-              state.history = state.history.filter((item) => item !== cartNotification)
-              state.history.push(ItemBuilder.cart())
-              slef.clearHistory()
-              slef.saveHistory()
-              slef.updateComplete.then(() => {
-                slef.scrollToLastMessage(100)
-              })
-            },
+            command: 'showCartAndRemoveNotification',
+            templateKey: 'view_cart',
           },
-        ]
+        ],
+        { isCartNotification: true, itemCount },
+        true
       )
+      
+      // Add template data
+      cartNotification.templateKey = 'cart_items_count'
+      cartNotification.templateParams = { count: itemCount }
+      
       state.history.push(cartNotification)
     }
 
@@ -269,28 +332,25 @@ export class TolkiChat extends LitElement {
 
   public resetChat() {
     const resetAction = ItemBuilder.action(
-      msg(
-        'Do you want to start a new chat? You will lose the current messages.'
-      ),
+      'Do you want to start a new chat? You will lose the current messages.',
       [
         {
-          label: msg('Reset'),
+          label: 'Reset',
           primary: true,
-          async click() {
-            state.chat = UUID()
-            slef.saveSetting('chat', state.chat)
-            await slef.addHeadingMessages()
-            slef.saveSetting('history', state.history)
-          },
+          command: 'resetChat',
+          templateKey: 'reset',
         },
         {
-          label: msg('Cancel'),
-          click() {
-            state.history = state.history.filter((item) => item !== resetAction)
-          },
+          label: 'Cancel',
+          command: 'cancelAction',
+          templateKey: 'cancel',
         },
       ]
     )
+    
+    // Add template data
+    resetAction.templateKey = 'reset_confirmation'
+    
     state.history = [...state.history, resetAction]
     slef.scrollToBottom(100)
   }
@@ -435,9 +495,7 @@ export class TolkiChat extends LitElement {
 
       if (lastLocale !== previousLocale) {
         await TolkiChat.setLanguage(lastLocale)
-        // Force re-render by triggering state change
-        const currentHistory = state.history
-        state.history = [...currentHistory] // Create new array reference to trigger reactivity
+        slef.saveHistory()
       }
     }
   }
@@ -514,6 +572,7 @@ export class TolkiChat extends LitElement {
     }
 
     const command = commandMatch[1]
+    console.log('Extracted command:', command, 'from:', suggestionText)
     const textBeforeCommand = suggestionText
       .substring(0, commandMatch.index)
       .trim()
@@ -529,7 +588,12 @@ export class TolkiChat extends LitElement {
 
   // Helper: Get localized display name for command
   getCommandDisplayName(command: string): string {
-    switch (command) {
+    // Handle commands with parameters
+    const commandParts = command.split(' ')
+    const commandName = commandParts[0]
+    const commandParam = commandParts[1]
+
+    switch (commandName) {
       case 'show_cart': {
         const cartData = window.tolki?.cart
         const itemCount = cartData?.items?.length || 0
@@ -542,6 +606,13 @@ export class TolkiChat extends LitElement {
           : 0
         return msg(str`My Orders (${orderCount})`)
       }
+      case 'set_locale': {
+        if (commandParam) {
+          const languageName = ItemBuilder.getLanguageName(commandParam)
+          return `Set language to ${languageName}`
+        }
+        return 'Set language'
+      }
       default:
         return command
     }
@@ -549,13 +620,28 @@ export class TolkiChat extends LitElement {
 
   // Helper: Execute command from suggestion
   executeCommand(command: string): void {
-    switch (command) {
+    console.log('Executing command:', command)
+    // Handle commands with parameters
+    const commandParts = command.split(' ')
+    const commandName = commandParts[0]
+    const commandParam = commandParts[1]
+
+    switch (commandName) {
       case 'show_cart':
         state.history.push(ItemBuilder.cart())
         break
       case 'show_orders':
         state.history.push(ItemBuilder.orders())
         break
+      case 'set_locale':
+        if (commandParam) {
+          console.log('Changing language to:', commandParam)
+          this.changeLanguage(commandParam).catch(console.error)
+          return // Don't update history for language changes
+        } else {
+          console.warn('set_locale command requires a locale parameter')
+          return
+        }
       default:
         console.warn('Unknown command:', command)
         return
@@ -563,6 +649,50 @@ export class TolkiChat extends LitElement {
 
     this.clearHistory()
     this.saveHistory()
+    this.updateComplete.then(() => {
+      this.scrollToLastMessage(100)
+    })
+  }
+
+  async changeLanguage(locale: string): Promise<void> {
+    // Set the new language first
+    await TolkiChat.setLanguage(locale)
+
+    // Create language change message using template system
+    const changeMessage = ItemBuilder.info('Language changed.')
+    if (changeMessage) {
+      changeMessage.templateKey = 'language_changed'
+    }
+    
+    // Add locale property to track language changes
+    if (changeMessage) {
+      changeMessage.locale = locale
+      state.history.push(changeMessage)
+    }
+
+    // Save the updated history
+    this.clearHistory()
+    this.saveHistory()
+
+    // Remove existing suggestion listeners before re-translation
+    if (this.suggestions?.length) {
+      this.suggestions.forEach((suggestion) => {
+        const existingHandler = suggestion._tolkiClickHandler
+        if (existingHandler) {
+          suggestion.removeEventListener('click', existingHandler)
+          delete suggestion._tolkiClickHandler
+        }
+      })
+    }
+    this.suggestionsListenersAdded = false
+
+    // Update render key to force complete re-render of all templates
+    state.renderKey = Date.now()
+
+    // Force re-render  
+    this.requestUpdate()
+
+    // Scroll to the new message
     this.updateComplete.then(() => {
       this.scrollToLastMessage(100)
     })
@@ -625,9 +755,17 @@ export class TolkiChat extends LitElement {
     if (this.suggestions?.length) {
       if (slef.suggestionsListenersAdded === false) {
         this.suggestions.forEach((suggestion) => {
-          suggestion.addEventListener('click', () => {
+          // Remove any existing listeners first
+          const existingHandler = suggestion._tolkiClickHandler
+          if (existingHandler) {
+            suggestion.removeEventListener('click', existingHandler)
+          }
+          
+          // Create new handler
+          const clickHandler = () => {
             const originalText =
               suggestion.getAttribute('data-original') || suggestion.textContent
+            console.log('Suggestion clicked, originalText:', originalText)
             const { command } = this.extractCommand(originalText)
 
             if (command) {
@@ -638,7 +776,11 @@ export class TolkiChat extends LitElement {
               this.textarea.value = suggestion.textContent
               this.sendMessage().then()
             }
-          })
+          }
+          
+          // Store handler reference and add listener
+          suggestion._tolkiClickHandler = clickHandler
+          suggestion.addEventListener('click', clickHandler)
         })
         slef.suggestionsListenersAdded = true
       }
@@ -672,13 +814,17 @@ export class TolkiChat extends LitElement {
                 tk__log: true,
               })}
             >
-              ${state.history.map((item) => chatItemTemplate(item))}
+              ${state.history.filter(item => item && item.type).map((item, index) => keyed(`${state.renderKey}-${index}`, chatItemTemplate(item)))}
             </div>
             ${suggestionsTemplate(
               state.bot.props.suggestions,
               this.extractCommand.bind(this)
             )}
-            ${textareaTemplate(state.pending, state.showScrollDown, !!(state.bot.props.suggestions?.length))}
+            ${textareaTemplate(
+              state.pending,
+              state.showScrollDown,
+              !!state.bot.props.suggestions?.length
+            )}
             ${state.bot?.props?.unbranded ? '' : brandingTemplate}
           </div>
           ${state.inline

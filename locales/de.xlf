@@ -2,10 +2,6 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
     <file target-language="de" source-language="en" original="lit-localize-inputs" datatype="plaintext">
         <body>
-            <trans-unit id="s29aa7ed001f47bcf">
-                <source>Sorry, there was an error processing your message.</source>
-                <target>Entschuldigung, es gab einen Fehler bei der Verarbeitung Ihrer Nachricht.</target>
-            </trans-unit>
             <trans-unit id="s012582738c349bb5">
                 <source>Your cart is empty</source>
                 <target>Ihr Warenkorb ist leer</target>
@@ -18,18 +14,6 @@
                 <source>Go to Cart</source>
                 <target>Zum Warenkorb</target>
             </trans-unit>
-            <trans-unit id="sd3bb9b94928481f8">
-                <source>Do you want to start a new chat? You will lose the current messages.</source>
-                <target>Möchten Sie einen neuen Chat starten? Sie verlieren die aktuellen Nachrichten.</target>
-            </trans-unit>
-            <trans-unit id="s255857544a9d5ec0">
-                <source>Reset</source>
-                <target>Zurücksetzen</target>
-            </trans-unit>
-            <trans-unit id="s2ceb11be2290bb1b">
-                <source>Cancel</source>
-                <target>Abbrechen</target>
-            </trans-unit>
             <trans-unit id="s2b2ef7ded2e422ce">
                 <source><x id="0" equiv-text="${remainingCount}"/> more items</source>
                 <target><x id="0" equiv-text="${remainingCount}"/> weitere Artikel</target>
@@ -37,10 +21,6 @@
             <trans-unit id="s16430e1864d70df9">
                 <source>Type a message...</source>
                 <target>Nachricht eingeben...</target>
-            </trans-unit>
-            <trans-unit id="sc88802102d8774bf">
-                <source>By using this chat, you agree to our &lt;a target="_blank" href="https://tolki.ai/privacy"&gt;privacy policy&lt;/a&gt;.</source>
-                <target>Durch die Nutzung dieses Chats stimmen Sie unserer &lt;a target="_blank" href="https://tolki.ai/privacy"&gt;Datenschutzrichtlinie&lt;/a&gt; zu.</target>
             </trans-unit>
             <trans-unit id="sd0eb9d5b0f609a49">
                 <source>View Orders</source>
@@ -91,12 +71,40 @@
   <target>Meine Bestellungen (<x id="0" equiv-text="${orderCount}"/>)</target>
 </trans-unit>
 <trans-unit id="sdc7bf9df037d009f">
-  <source>You have <x id="0" equiv-text="${itemCount}"/> items in cart.</source>
+  <source>You have <x id="0" equiv-text="${params.count}"/> items in cart.</source>
   <target>Sie haben <x id="0" equiv-text="${itemCount}"/> Artikel im Warenkorb.</target>
 </trans-unit>
-<trans-unit id="sa61e95276c2e2e5a">
-  <source>Show Cart</source>
-  <target>Warenkorb Anzeigen</target>
+<trans-unit id="s27ac935473f90d03">
+  <source>Language changed.</source>
+  <target>Sprache geändert.</target>
+</trans-unit>
+<trans-unit id="s32748bd47443e416">
+  <source>View Cart</source>
+  <target>Warenkorb anzeigen</target>
+</trans-unit>
+<trans-unit id="s255857544a9d5ec0">
+  <source>Reset</source>
+  <target>Zurücksetzen</target>
+</trans-unit>
+<trans-unit id="s2ceb11be2290bb1b">
+  <source>Cancel</source>
+  <target>Abbrechen</target>
+</trans-unit>
+<trans-unit id="s1b9b0f519f1e0891">
+  <source>You have items in cart.</source>
+  <target>Sie haben Artikel im Warenkorb.</target>
+</trans-unit>
+<trans-unit id="sd3bb9b94928481f8">
+  <source>Do you want to start a new chat? You will lose the current messages.</source>
+  <target>Möchten Sie einen neuen Chat starten? Sie verlieren die aktuellen Nachrichten.</target>
+</trans-unit>
+<trans-unit id="sc88802102d8774bf">
+  <source>By using this chat, you agree to our &lt;a target="_blank" href="https://tolki.ai/privacy"&gt;privacy policy&lt;/a&gt;.</source>
+  <target>Durch die Nutzung dieses Chats stimmen Sie unserer &lt;a target="_blank" href="https://tolki.ai/privacy"&gt;Datenschutzrichtlinie&lt;/a&gt; zu.</target>
+</trans-unit>
+<trans-unit id="s29aa7ed001f47bcf">
+  <source>Sorry, there was an error processing your message.</source>
+  <target>Entschuldigung, es gab einen Fehler bei der Verarbeitung Ihrer Nachricht.</target>
 </trans-unit>
         </body>
     </file>

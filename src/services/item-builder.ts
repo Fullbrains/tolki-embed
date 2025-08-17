@@ -22,14 +22,24 @@ export class ItemBuilder {
   static action(
     message: string,
     actions?: Action[],
-    data?: { [key: string]: unknown }
+    data?: { [key: string]: unknown },
+    translate: boolean = true,
+    templateData?: { templateKey?: string, templateParams?: { [key: string]: any } }
   ): ActionResponse {
-    return {
+    const result: ActionResponse = {
       type: ItemType.action,
       text: message,
       actions,
       data,
+      translate,
     }
+    
+    if (templateData) {
+      result.templateKey = templateData.templateKey
+      result.templateParams = templateData.templateParams
+    }
+    
+    return result
   }
 
   static userInput(message: string): UserInput | undefined {
@@ -43,23 +53,28 @@ export class ItemBuilder {
   }
 
   static error(): MarkdownResponse {
-    return {
-      type: ItemType.markdown,
-      content: msg('Sorry, there was an error processing your message.'),
-      level: MarkdownResponseLevel.error,
-    }
+    return ItemBuilder.markdown(
+      'Sorry, there was an error processing your message.',
+      MarkdownResponseLevel.error,
+      true
+    )
   }
 
   static markdown(
     message: string,
-    level: MarkdownResponseLevel = MarkdownResponseLevel.default
+    level: MarkdownResponseLevel = MarkdownResponseLevel.default,
+    translate: boolean = false
   ): MarkdownResponse | undefined {
     if (message && message.trim()) {
-      return {
+      const result: MarkdownResponse = {
         type: ItemType.markdown,
         content: message.trim(),
         level,
       }
+      if (translate) {
+        result.translate = translate
+      }
+      return result
     }
     return undefined
   }
@@ -68,8 +83,13 @@ export class ItemBuilder {
     return ItemBuilder.markdown(message, MarkdownResponseLevel.default)
   }
 
-  static info(message: string): MarkdownResponse | undefined {
-    return ItemBuilder.markdown(message, MarkdownResponseLevel.info)
+  static info(message: string, templateData?: { templateKey?: string, templateParams?: { [key: string]: any } }): MarkdownResponse | undefined {
+    const result = ItemBuilder.markdown(message, MarkdownResponseLevel.info, true)
+    if (result && templateData) {
+      result.templateKey = templateData.templateKey
+      result.templateParams = templateData.templateParams
+    }
+    return result
   }
 
   static cart(): CartResponse {
@@ -95,37 +115,4 @@ export class ItemBuilder {
     return languageNames[locale] || locale
   }
 
-  static setLocale(
-    locale: string,
-    showMessage: boolean = true
-  ): MarkdownResponse {
-    const languageName = ItemBuilder.getLanguageName(locale)
-
-    // Se non vogliamo mostrare il messaggio, restituisci un messaggio vuoto con locale
-    if (!showMessage) {
-
-      return {
-        type: ItemType.markdown,
-        content: '',
-        level: MarkdownResponseLevel.info,
-        locale: locale,
-      }
-    }
-
-    // Messaggi localizzati per ogni lingua
-    const localizedMessages: { [key: string]: string } = {
-      en: `Language set to ${languageName}`,
-      it: `Lingua impostata su ${languageName}`,
-      es: `Idioma establecido en ${languageName}`,
-      fr: `Langue définie sur ${languageName}`,
-      de: `Sprache auf ${languageName} eingestellt`,
-    }
-
-    const messageText = localizedMessages[locale] || localizedMessages['en']
-    const message = ItemBuilder.info(messageText)
-    if (message) {
-      message.locale = locale
-    }
-    return message
-  }
 }

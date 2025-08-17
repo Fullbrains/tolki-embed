@@ -2,10 +2,6 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
 <file target-language="es" source-language="en" original="lit-localize-inputs" datatype="plaintext">
 <body>
-<trans-unit id="s29aa7ed001f47bcf">
-  <source>Sorry, there was an error processing your message.</source>
-  <target>Lo siento, hubo un error procesando tu mensaje.</target>
-</trans-unit>
 <trans-unit id="s012582738c349bb5">
   <source>Your cart is empty</source>
   <target>Tu carrito está vacío</target>
@@ -18,18 +14,6 @@
   <source>Go to Cart</source>
   <target>Ir al Carrito</target>
 </trans-unit>
-<trans-unit id="sd3bb9b94928481f8">
-  <source>Do you want to start a new chat? You will lose the current messages.</source>
-  <target>¿Quieres iniciar un nuevo chat? Perderás los mensajes actuales.</target>
-</trans-unit>
-<trans-unit id="s255857544a9d5ec0">
-  <source>Reset</source>
-  <target>Reiniciar</target>
-</trans-unit>
-<trans-unit id="s2ceb11be2290bb1b">
-  <source>Cancel</source>
-  <target>Cancelar</target>
-</trans-unit>
 <trans-unit id="s2b2ef7ded2e422ce">
   <source><x id="0" equiv-text="${remainingCount}"/> more items</source>
   <target><x id="0" equiv-text="${remainingCount}"/> artículos más</target>
@@ -37,10 +21,6 @@
 <trans-unit id="s16430e1864d70df9">
   <source>Type a message...</source>
   <target>Escribe un mensaje...</target>
-</trans-unit>
-<trans-unit id="sc88802102d8774bf">
-  <source>By using this chat, you agree to our &lt;a target="_blank" href="https://tolki.ai/privacy"&gt;privacy policy&lt;/a&gt;.</source>
-  <target>Al usar este chat, aceptas nuestra &lt;a target="_blank" href="https://tolki.ai/privacy"&gt;política de privacidad&lt;/a&gt;.</target>
 </trans-unit>
 <trans-unit id="sd0eb9d5b0f609a49">
   <source>View Orders</source>
@@ -91,12 +71,40 @@
   <target>Mis Pedidos (<x id="0" equiv-text="${orderCount}"/>)</target>
 </trans-unit>
 <trans-unit id="sdc7bf9df037d009f">
-  <source>You have <x id="0" equiv-text="${itemCount}"/> items in cart.</source>
+  <source>You have <x id="0" equiv-text="${params.count}"/> items in cart.</source>
   <target>Tienes <x id="0" equiv-text="${itemCount}"/> artículos en el carrito.</target>
 </trans-unit>
-<trans-unit id="sa61e95276c2e2e5a">
-  <source>Show Cart</source>
-  <target>Mostrar Carrito</target>
+<trans-unit id="s27ac935473f90d03">
+  <source>Language changed.</source>
+  <target>Idioma cambiado.</target>
+</trans-unit>
+<trans-unit id="s32748bd47443e416">
+  <source>View Cart</source>
+  <target>Ver Carrito</target>
+</trans-unit>
+<trans-unit id="s255857544a9d5ec0">
+  <source>Reset</source>
+  <target>Restablecer</target>
+</trans-unit>
+<trans-unit id="s2ceb11be2290bb1b">
+  <source>Cancel</source>
+  <target>Cancelar</target>
+</trans-unit>
+<trans-unit id="s1b9b0f519f1e0891">
+  <source>You have items in cart.</source>
+  <target>Tienes artículos en el carrito.</target>
+</trans-unit>
+<trans-unit id="sd3bb9b94928481f8">
+  <source>Do you want to start a new chat? You will lose the current messages.</source>
+  <target>¿Quieres iniciar un nuevo chat? Perderás los mensajes actuales.</target>
+</trans-unit>
+<trans-unit id="sc88802102d8774bf">
+  <source>By using this chat, you agree to our &lt;a target="_blank" href="https://tolki.ai/privacy"&gt;privacy policy&lt;/a&gt;.</source>
+  <target>Al usar este chat, aceptas nuestra &lt;a target="_blank" href="https://tolki.ai/privacy"&gt;política de privacidad&lt;/a&gt;.</target>
+</trans-unit>
+<trans-unit id="s29aa7ed001f47bcf">
+  <source>Sorry, there was an error processing your message.</source>
+  <target>Lo siento, hubo un error al procesar tu mensaje.</target>
 </trans-unit>
 </body>
 </file>

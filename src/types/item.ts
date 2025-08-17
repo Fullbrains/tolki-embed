@@ -18,7 +18,10 @@ export enum ItemType {
 export interface Action {
   label: string
   primary?: boolean
-  click: () => void
+  command: string // Command name that will be mapped to a function
+  data?: { [key: string]: unknown } // Optional data to pass to the command
+  templateKey?: string // Template key for translatable labels
+  templateParams?: { [key: string]: any } // Parameters for template
 }
 
 export interface ActionResponse {
@@ -26,6 +29,9 @@ export interface ActionResponse {
   text: string
   actions: Action[]
   data?: { [key: string]: unknown }
+  translate?: boolean // Whether text should be translated instead of displayed
+  templateKey?: string // Template key for translatable text
+  templateParams?: { [key: string]: any } // Parameters for template
 }
 
 export interface CartResponse {
@@ -50,6 +56,9 @@ export interface MarkdownResponse {
   caption?: string
   level?: MarkdownResponseLevel
   locale?: string // For setLocale messages
+  translate?: boolean // Whether content should be translated instead of displayed
+  templateKey?: string // Template key for translatable content
+  templateParams?: { [key: string]: any } // Parameters for template
 }
 
 export interface ProductResponse {
