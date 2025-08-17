@@ -14,16 +14,14 @@ export class CartHelpers {
     const itemCount = cartData?.items?.length || 0
     const status = cartData?.status
     
-    // Show notification if:
+    // Show notification only if:
     // - Cart has items (any status)
-    // - Cart is loading 
-    // - Cart is in error state
-    // - Cart is loaded but empty (to show "empty" message)
-    if (itemCount > 0 || status === 'loading' || status === 'error' || status === 'loaded') {
+    // - Cart is loading (to show loading message)
+    if (itemCount > 0 || status === 'loading') {
       return ItemBuilder.cartNotification()
     }
     
-    // Don't show notification if cart is in idle state or status is undefined
+    // Don't show notification if cart is empty, in error, idle, or status is undefined
     return null
   }
 

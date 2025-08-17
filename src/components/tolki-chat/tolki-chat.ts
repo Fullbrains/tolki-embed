@@ -241,7 +241,7 @@ export class TolkiChat extends LitElement {
       item.type === ItemType.cartNotification
     )
 
-    // Create new cart notification
+    // Create new cart notification (will be null if cart is empty or error)
     const cartNotification = CartHelpers.createCartNotification()
     
     if (cartNotification && !hasCartNotification) {
@@ -252,7 +252,7 @@ export class TolkiChat extends LitElement {
         this.scrollToLastMessage(100)
       })
     } else if (!cartNotification && hasCartNotification) {
-      // Remove cart notification if it should no longer be shown
+      // Remove cart notification if it should no longer be shown (cart became empty or error)
       state.history = state.history.filter(item => 
         item.type !== ItemType.cartNotification
       )
