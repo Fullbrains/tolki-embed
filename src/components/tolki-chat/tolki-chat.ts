@@ -730,9 +730,13 @@ export class TolkiChat extends LitElement {
 
     switch (commandName) {
       case 'show_cart':
+        // Remove any existing cart messages (singleton behavior)
+        state.history = state.history.filter(item => item.type !== ItemType.cart)
         state.history.push(ItemBuilder.cart())
         break
       case 'show_orders':
+        // Remove any existing orders messages (singleton behavior)
+        state.history = state.history.filter(item => item.type !== ItemType.orders)
         state.history.push(ItemBuilder.orders())
         break
       case 'set_locale':
@@ -768,6 +772,10 @@ export class TolkiChat extends LitElement {
     // Add locale property to track language changes
     if (changeMessage) {
       changeMessage.locale = locale
+      // Remove any existing language changed messages (singleton behavior)
+      state.history = state.history.filter(item => 
+        !(item.type === ItemType.markdown && item.templateKey === 'language_changed')
+      )
       state.history.push(changeMessage)
     }
 
