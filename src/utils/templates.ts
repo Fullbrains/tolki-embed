@@ -32,6 +32,12 @@ export const TRANSLATION_TEMPLATES = {
   go_to_shop: () =>
     msg('Start Shopping'),
   
+  login: () =>
+    msg('Login'),
+  
+  login_to_view_orders: () =>
+    msg('Login to view your orders.'),
+  
   reset: () => 
     msg('Reset'),
   

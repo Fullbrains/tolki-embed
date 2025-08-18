@@ -19,6 +19,9 @@ declare global {
       links?: {
         [key: string]: string | undefined
       }
+      user?: {
+        [key: string]: unknown
+      } | null
       orders?: {
         [status: string]: Array<{
           order_id?: number | string

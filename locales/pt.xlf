@@ -131,6 +131,14 @@
   <source>Start Shopping</source>
   <target>Começar a Comprar</target>
 </trans-unit>
+<trans-unit id="sc8da3cc71de63832">
+  <source>Login</source>
+  <target>Entrar</target>
+</trans-unit>
+<trans-unit id="s2fb4c0400af3783e">
+  <source>Login to view your orders.</source>
+  <target>Faça login para ver seus pedidos.</target>
+</trans-unit>
         </body>
     </file>
 </xliff>

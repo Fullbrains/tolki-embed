@@ -5,6 +5,7 @@ import { actionButtonTemplate, actionContainerTemplate } from './actions'
 import { orderWithPlaceholderTemplate } from './order-placeholder'
 import { orderIconTemplate } from './order-icon'
 import { navigateTo } from '../../../utils/navigation'
+import { renderTemplate } from '../../../utils/templates'
 import '../../../types/global' // Import global types
 
 // Helper: Format order date
@@ -193,6 +194,35 @@ export const ordersSummaryTemplate = (
 // Template: Orders response using existing orders summary
 export const ordersResponseTemplate = (): TemplateResult => {
   const ordersLink = window.tolki?.links?.orders
+  const loginLink = window.tolki?.links?.login
+  const user = window.tolki?.user
+  
+  // Check if user is logged in (user exists and is not null/empty)
+  const isLoggedIn = user && Object.keys(user).length > 0
+
+  // If user is not logged in, show login prompt
+  if (!isLoggedIn) {
+    const handleLogin = (e: Event) => {
+      e.preventDefault()
+      if (loginLink) {
+        navigateTo(loginLink)
+      }
+    }
+
+    const loginButton = loginLink 
+      ? [actionButtonTemplate(renderTemplate('login'), handleLogin, true)]
+      : undefined
+
+    return actionContainerTemplate(
+      html`<div class="tk__action-prompt tk__action-prompt--with-icon">
+        ${orderIconTemplate()}
+        <div class="tk__action-prompt-text tk__login-prompt">${renderTemplate('login_to_view_orders')}</div>
+      </div>`,
+      loginButton
+    )
+  }
+
+  // User is logged in, show orders as usual
   // Get fresh orders data from window.tolki.orders
   const ordersData = window.tolki?.orders
 
