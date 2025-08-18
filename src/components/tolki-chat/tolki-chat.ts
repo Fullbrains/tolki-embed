@@ -134,7 +134,7 @@ export class TolkiChat extends LitElement {
   @query('.tk__suggestions') suggestionsContainer: HTMLElement
   @query('.tk__suggestions-scroll-left') scrollLeftBtn: HTMLButtonElement
   @query('.tk__suggestions-scroll-right') scrollRightBtn: HTMLButtonElement
-  
+
   private resizeObserver?: ResizeObserver
 
   constructor() {
@@ -169,30 +169,42 @@ export class TolkiChat extends LitElement {
       window.dispatchEvent(new Event('tolki:update'))
     }
 
-    // Ensure font loading on Chrome mobile
-    this.ensureFontLoading()
+    // Ensure Google Fonts preconnect for better loading
+    this.ensureFontPreconnect()
   }
 
   /**
-   * Ensure font loading works properly on Chrome mobile
+   * Ensure Google Fonts preconnect links are added to document head for better font loading
    */
-  private ensureFontLoading(): void {
-    // Force font loading using document.fonts API if available
-    if ('fonts' in document) {
-      const fontFace = new FontFace(
-        'Funnel Sans',
-        'url(https://fonts.gstatic.com/s/funnelsans/v8/VuJS2lhKlC_NvrdTfTmz_ew3PGXiL_o.woff2) format("woff2")',
-        { weight: '300 800', display: 'swap' }
-      )
-      
-      fontFace.load().then(() => {
-        document.fonts.add(fontFace)
-        // Force re-render after font loads
-        this.requestUpdate()
-      }).catch(() => {
-        // Font loading failed, component will use fallback
-        console.warn('Tolki: Font loading failed, using fallback')
-      })
+  private ensureFontPreconnect(): void {
+    const head = document.head
+
+    // Check if preconnect links already exist
+    const existingPreconnects = Array.from(
+      head.querySelectorAll('link[rel="preconnect"]')
+    )
+    const hasGoogleFonts = existingPreconnects.some(
+      (link) => link.getAttribute('href') === 'https://fonts.googleapis.com'
+    )
+    const hasGoogleFontsStatic = existingPreconnects.some(
+      (link) => link.getAttribute('href') === 'https://fonts.gstatic.com'
+    )
+
+    // Add preconnect to fonts.googleapis.com if not present
+    if (!hasGoogleFonts) {
+      const preconnect1 = document.createElement('link')
+      preconnect1.rel = 'preconnect'
+      preconnect1.href = 'https://fonts.googleapis.com'
+      head.appendChild(preconnect1)
+    }
+
+    // Add preconnect to fonts.gstatic.com if not present
+    if (!hasGoogleFontsStatic) {
+      const preconnect2 = document.createElement('link')
+      preconnect2.rel = 'preconnect'
+      preconnect2.href = 'https://fonts.gstatic.com'
+      preconnect2.crossOrigin = 'anonymous'
+      head.appendChild(preconnect2)
     }
   }
 
@@ -241,20 +253,19 @@ export class TolkiChat extends LitElement {
     return state.bot?.uuid
   }
 
-
   /**
    * Handle tolki update event - re-render and manage scroll for dynamic content
    */
   private handleTolkiUpdate(): void {
     const wasAtBottom = state.atBottom
     const scrollHeight = this.log?.scrollHeight || 0
-    
+
     this.requestUpdate()
-    
+
     // After update, check if we need to maintain scroll position
     this.updateComplete.then(() => {
       const newScrollHeight = this.log?.scrollHeight || 0
-      
+
       // If content height changed and user was at bottom, scroll to new bottom
       if (wasAtBottom && newScrollHeight !== scrollHeight) {
         this.scrollToLastMessage(100) // Animated scroll for better UX
@@ -273,8 +284,8 @@ export class TolkiChat extends LitElement {
   private handleCartLoaded(): void {
     // First, remove any existing cart notifications from history
     const initialHistoryLength = state.history.length
-    state.history = state.history.filter(item => 
-      item.type !== ItemType.cartNotification
+    state.history = state.history.filter(
+      (item) => item.type !== ItemType.cartNotification
     )
     const removedNotifications = initialHistoryLength !== state.history.length
 
@@ -282,9 +293,9 @@ export class TolkiChat extends LitElement {
     const lastMessage = state.history[state.history.length - 1]
     const isLastMessageCart = lastMessage && lastMessage.type === ItemType.cart
 
-    // Create new cart notification (will be null if cart is empty or error)
+    // Create a new cart notification (will be null if the cart is empty or error)
     const cartNotification = CartHelpers.createCartNotification()
-    
+
     if (cartNotification && !isLastMessageCart) {
       // Add cart notification to history only if last message is not a cart
       state.history.push(cartNotification)
@@ -298,7 +309,7 @@ export class TolkiChat extends LitElement {
         this.saveHistory()
       }
     }
-    
+
     // Force update to reflect any cart data changes
     this.handleTolkiUpdate()
   }
@@ -520,26 +531,32 @@ export class TolkiChat extends LitElement {
     }, timeout)
   }
 
-  scrollToLastMessage(timeout: number = 500, animated: boolean = true, retryCount: number = 0) {
+  scrollToLastMessage(
+    timeout: number = 500,
+    animated: boolean = true,
+    retryCount: number = 0
+  ) {
     setTimeout(() => {
       const chatItems = this.log.querySelectorAll('.tk__chat-item')
       if (chatItems.length > 0) {
         const lastMessage = chatItems[chatItems.length - 1] as HTMLElement
         const initialHeight = this.log.scrollHeight
         const messageTop = lastMessage.offsetTop - 20 - 60 // 20px log padding + 60px extra space
-        
+
         this.log.scrollTo({
           top: Math.max(0, messageTop),
           behavior: animated ? 'smooth' : 'auto',
         })
-        
+
         // For dynamic content (cart/orders), check if height changed after scroll
         // and retry if needed (up to 3 times)
         if (retryCount < 3) {
           setTimeout(() => {
             const newHeight = this.log.scrollHeight
-            const hasCartOrOrders = this.log.querySelector('.tk__message--show_cart, .tk__message--show_orders')
-            
+            const hasCartOrOrders = this.log.querySelector(
+              '.tk__message--show_cart, .tk__message--show_orders'
+            )
+
             // If height changed significantly and we have dynamic content, retry
             if (hasCartOrOrders && Math.abs(newHeight - initialHeight) > 20) {
               this.scrollToLastMessage(200, animated, retryCount + 1)
@@ -758,12 +775,16 @@ export class TolkiChat extends LitElement {
     switch (commandName) {
       case 'show_cart':
         // Remove any existing cart messages (singleton behavior)
-        state.history = state.history.filter(item => item.type !== ItemType.cart)
+        state.history = state.history.filter(
+          (item) => item.type !== ItemType.cart
+        )
         state.history.push(ItemBuilder.cart())
         break
       case 'show_orders':
         // Remove any existing orders messages (singleton behavior)
-        state.history = state.history.filter(item => item.type !== ItemType.orders)
+        state.history = state.history.filter(
+          (item) => item.type !== ItemType.orders
+        )
         state.history.push(ItemBuilder.orders())
         break
       case 'set_locale':
@@ -800,8 +821,12 @@ export class TolkiChat extends LitElement {
     if (changeMessage) {
       changeMessage.locale = locale
       // Remove any existing language changed messages (singleton behavior)
-      state.history = state.history.filter(item => 
-        !(item.type === ItemType.markdown && item.templateKey === 'language_changed')
+      state.history = state.history.filter(
+        (item) =>
+          !(
+            item.type === ItemType.markdown &&
+            item.templateKey === 'language_changed'
+          )
       )
       state.history.push(changeMessage)
     }
@@ -918,18 +943,22 @@ export class TolkiChat extends LitElement {
           suggestion.addEventListener('click', clickHandler)
         })
         this.suggestionsListenersAdded = true
-        
+
         // Setup scroll button visibility logic
         this.setupSuggestionsScrollButtons()
       }
     }
-    
+
     // Setup ResizeObserver for dynamic content (cart/orders)
     this.setupDynamicContentObserver()
   }
 
   private setupSuggestionsScrollButtons() {
-    if (!this.suggestionsContainer || !this.scrollLeftBtn || !this.scrollRightBtn) {
+    if (
+      !this.suggestionsContainer ||
+      !this.scrollLeftBtn ||
+      !this.scrollRightBtn
+    ) {
       return
     }
 
@@ -948,7 +977,8 @@ export class TolkiChat extends LitElement {
       }
 
       // Show/hide right button
-      if (scrollLeft < maxScroll - 1) { // -1 for rounding issues
+      if (scrollLeft < maxScroll - 1) {
+        // -1 for rounding issues
         this.scrollRightBtn.classList.add('visible')
       } else {
         this.scrollRightBtn.classList.remove('visible')
@@ -974,17 +1004,19 @@ export class TolkiChat extends LitElement {
     // Create new ResizeObserver for cart and orders content
     this.resizeObserver = new ResizeObserver((entries) => {
       let shouldUpdateScroll = false
-      
+
       for (const entry of entries) {
         const target = entry.target as HTMLElement
-        
+
         // Check if this is a cart or orders element that changed size
-        if (target.closest('.tk__message--show_cart, .tk__message--show_orders')) {
+        if (
+          target.closest('.tk__message--show_cart, .tk__message--show_orders')
+        ) {
           shouldUpdateScroll = true
           break
         }
       }
-      
+
       // If dynamic content changed size and user was at bottom, maintain scroll
       if (shouldUpdateScroll && state.atBottom) {
         this.scrollToLastMessage(100, false) // No animation for resize updates
@@ -992,15 +1024,17 @@ export class TolkiChat extends LitElement {
     })
 
     // Observe all cart and orders elements
-    const dynamicElements = this.log?.querySelectorAll('.tk__message--show_cart, .tk__message--show_orders')
-    dynamicElements?.forEach(element => {
+    const dynamicElements = this.log?.querySelectorAll(
+      '.tk__message--show_cart, .tk__message--show_orders'
+    )
+    dynamicElements?.forEach((element) => {
       this.resizeObserver?.observe(element)
     })
   }
 
   disconnectedCallback() {
     super.disconnectedCallback()
-    
+
     // Clean up ResizeObserver
     if (this.resizeObserver) {
       this.resizeObserver.disconnect()
