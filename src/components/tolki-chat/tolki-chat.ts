@@ -134,6 +134,8 @@ export class TolkiChat extends LitElement {
   @query('.tk__suggestions') suggestionsContainer: HTMLElement
   @query('.tk__suggestions-scroll-left') scrollLeftBtn: HTMLButtonElement
   @query('.tk__suggestions-scroll-right') scrollRightBtn: HTMLButtonElement
+  
+  private resizeObserver?: ResizeObserver
 
   constructor() {
     super()
@@ -151,7 +153,7 @@ export class TolkiChat extends LitElement {
 
     // Listen for tolki:update event to force re-rendering
     window.addEventListener('tolki:update', () => {
-      this.requestUpdate()
+      this.handleTolkiUpdate()
     })
 
     // Listen for cart loaded event to update cart notification
@@ -215,6 +217,31 @@ export class TolkiChat extends LitElement {
 
 
   /**
+   * Handle tolki update event - re-render and manage scroll for dynamic content
+   */
+  private handleTolkiUpdate(): void {
+    const wasAtBottom = state.atBottom
+    const scrollHeight = this.log?.scrollHeight || 0
+    
+    this.requestUpdate()
+    
+    // After update, check if we need to maintain scroll position
+    this.updateComplete.then(() => {
+      const newScrollHeight = this.log?.scrollHeight || 0
+      
+      // If content height changed and user was at bottom, scroll to new bottom
+      if (wasAtBottom && newScrollHeight !== scrollHeight) {
+        this.scrollToLastMessage(100, false) // No animation for dynamic content
+      }
+      // If content height changed significantly, update scroll state
+      else if (Math.abs(newScrollHeight - scrollHeight) > 50) {
+        // Check if we should show scroll down button
+        this.logScroll()
+      }
+    })
+  }
+
+  /**
    * Handle cart loaded event - update cart notification regardless of chat state
    */
   private handleCartLoaded(): void {
@@ -245,6 +272,9 @@ export class TolkiChat extends LitElement {
         this.saveHistory()
       }
     }
+    
+    // Force update to reflect any cart data changes
+    this.handleTolkiUpdate()
   }
 
   getSetting(key: string): string | boolean | unknown | undefined {
@@ -463,16 +493,32 @@ export class TolkiChat extends LitElement {
     }, timeout)
   }
 
-  scrollToLastMessage(timeout: number = 500, animated: boolean = true) {
+  scrollToLastMessage(timeout: number = 500, animated: boolean = true, retryCount: number = 0) {
     setTimeout(() => {
       const chatItems = this.log.querySelectorAll('.tk__chat-item')
       if (chatItems.length > 0) {
         const lastMessage = chatItems[chatItems.length - 1] as HTMLElement
+        const initialHeight = this.log.scrollHeight
         const messageTop = lastMessage.offsetTop - 20 - 60 // 20px log padding + 60px extra space
+        
         this.log.scrollTo({
           top: Math.max(0, messageTop),
           behavior: animated ? 'smooth' : 'auto',
         })
+        
+        // For dynamic content (cart/orders), check if height changed after scroll
+        // and retry if needed (up to 3 times)
+        if (retryCount < 3) {
+          setTimeout(() => {
+            const newHeight = this.log.scrollHeight
+            const hasCartOrOrders = this.log.querySelector('.tk__message--show_cart, .tk__message--show_orders')
+            
+            // If height changed significantly and we have dynamic content, retry
+            if (hasCartOrOrders && Math.abs(newHeight - initialHeight) > 20) {
+              this.scrollToLastMessage(200, animated, retryCount + 1)
+            }
+          }, 300)
+        }
       }
     }, timeout)
   }
@@ -527,6 +573,7 @@ export class TolkiChat extends LitElement {
         item.type === ItemType.markdown ||
         item.type === ItemType.product ||
         item.type === ItemType.cart ||
+        item.type === ItemType.orders ||
         item.type === ItemType.userInput
       )
     })
@@ -841,6 +888,9 @@ export class TolkiChat extends LitElement {
         this.setupSuggestionsScrollButtons()
       }
     }
+    
+    // Setup ResizeObserver for dynamic content (cart/orders)
+    this.setupDynamicContentObserver()
   }
 
   private setupSuggestionsScrollButtons() {
@@ -878,6 +928,49 @@ export class TolkiChat extends LitElement {
 
     // Check again after a small delay to ensure DOM is fully rendered
     setTimeout(updateScrollButtons, 100)
+  }
+
+  private setupDynamicContentObserver() {
+    // Clean up existing observer
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+    }
+
+    // Create new ResizeObserver for cart and orders content
+    this.resizeObserver = new ResizeObserver((entries) => {
+      let shouldUpdateScroll = false
+      
+      for (const entry of entries) {
+        const target = entry.target as HTMLElement
+        
+        // Check if this is a cart or orders element that changed size
+        if (target.closest('.tk__message--show_cart, .tk__message--show_orders')) {
+          shouldUpdateScroll = true
+          break
+        }
+      }
+      
+      // If dynamic content changed size and user was at bottom, maintain scroll
+      if (shouldUpdateScroll && state.atBottom) {
+        this.scrollToLastMessage(100, false) // No animation for resize updates
+      }
+    })
+
+    // Observe all cart and orders elements
+    const dynamicElements = this.log?.querySelectorAll('.tk__message--show_cart, .tk__message--show_orders')
+    dynamicElements?.forEach(element => {
+      this.resizeObserver?.observe(element)
+    })
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    
+    // Clean up ResizeObserver
+    if (this.resizeObserver) {
+      this.resizeObserver.disconnect()
+      this.resizeObserver = undefined
+    }
   }
 
   override render() {
