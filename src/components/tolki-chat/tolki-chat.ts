@@ -174,6 +174,46 @@ export class TolkiChat extends LitElement {
   }
 
   /**
+   * Handle body scroll lock on mobile when chat is open
+   */
+  private handleMobileBodyScroll(isOpen: boolean): void {
+    // Only apply on mobile
+    if (window.innerWidth > 480) return
+
+    const body = document.body
+    const html = document.documentElement
+
+    if (isOpen) {
+      // Store current scroll position
+      const scrollY = window.scrollY
+      
+      // Apply scroll lock styles
+      body.style.position = 'fixed'
+      body.style.top = `-${scrollY}px`
+      body.style.width = '100%'
+      body.style.overflow = 'hidden'
+      html.style.overflow = 'hidden'
+      
+      // Store scroll position for restoration
+      body.setAttribute('data-scroll-y', scrollY.toString())
+    } else {
+      // Restore scroll position and remove lock
+      const scrollY = body.getAttribute('data-scroll-y')
+      
+      body.style.position = ''
+      body.style.top = ''
+      body.style.width = ''
+      body.style.overflow = ''
+      html.style.overflow = ''
+      
+      if (scrollY) {
+        window.scrollTo(0, parseInt(scrollY, 10))
+        body.removeAttribute('data-scroll-y')
+      }
+    }
+  }
+
+  /**
    * Ensure Google Fonts load in Shadow DOM (Chrome mobile fix)
    */
   private ensureFontLoading(): void {
@@ -426,6 +466,9 @@ export class TolkiChat extends LitElement {
           state.open = ''
         }
 
+        // Handle initial body scroll lock if opening on mobile
+        this.handleMobileBodyScroll(state.open === 'true')
+
         setTimeout(() => {
           const top = this.log.scrollHeight - (this.log.clientHeight - 80)
           this.log.scrollTo({
@@ -489,6 +532,9 @@ export class TolkiChat extends LitElement {
     const wasOpen = state.open === 'true'
     state.open = state.open === 'true' ? '' : 'true'
     slef.saveSetting('open', state.open === 'true' ? 'true' : 'false')
+
+    // Handle body scroll lock on mobile
+    this.handleMobileBodyScroll(state.open === 'true')
 
     // Focus input only when user manually opens window
     if (!wasOpen && state.open === 'true') {
@@ -1027,6 +1073,9 @@ export class TolkiChat extends LitElement {
       this.resizeObserver.disconnect()
       this.resizeObserver = undefined
     }
+
+    // Clean up body scroll lock if component is removed while open
+    this.handleMobileBodyScroll(false)
   }
 
   override render() {
