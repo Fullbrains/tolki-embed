@@ -22,9 +22,9 @@
 .tk__suggestions {
   align-items: end;
   display: flex;
-  height: 25px;
+  height: 30px;
   overflow-x: auto;
-  padding: 5px 15px 0 15px;
+  padding: 8px 20px 0 20px;
   border-radius: 15px 15px 0 0;
   flex: 1;
 
@@ -54,8 +54,8 @@
 
 .tk__suggestions-scroll-btn {
   position: absolute;
-  top: 4px;
-  width: 30px;
+  top: 12px;
+  width: 40px;
   bottom: 0;
   border: none;
   color: $eigen-45;
