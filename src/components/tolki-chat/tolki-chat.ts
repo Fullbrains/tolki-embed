@@ -390,12 +390,13 @@ export class TolkiChat extends LitElement {
         }
 
         const savedOpen = this.getSetting('open') as string
+        const isMobile = window.innerWidth <= 480 // Using same breakpoint as CSS
 
         if (savedOpen === 'false') {
           state.open = ''
         } else if (savedOpen === 'true') {
           state.open = 'true'
-        } else if (state.bot.props.defaultOpen === true) {
+        } else if (state.bot.props.defaultOpen === true && !isMobile) {
           state.open = 'true'
         } else {
           state.open = ''
