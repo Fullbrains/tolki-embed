@@ -231,7 +231,7 @@ export class TolkiChat extends LitElement {
       
       // If content height changed and user was at bottom, scroll to new bottom
       if (wasAtBottom && newScrollHeight !== scrollHeight) {
-        this.scrollToLastMessage(100, false) // No animation for dynamic content
+        this.scrollToLastMessage(100) // Animated scroll for better UX
       }
       // If content height changed significantly, update scroll state
       else if (Math.abs(newScrollHeight - scrollHeight) > 50) {
