@@ -174,7 +174,7 @@ export class TolkiChat extends LitElement {
   }
 
   /**
-   * Handle body scroll lock on mobile when chat is open
+   * Robust mobile scroll lock inspired by body-scroll-lock libraries
    */
   private handleMobileBodyScroll(isOpen: boolean): void {
     // Only apply on mobile
@@ -184,31 +184,102 @@ export class TolkiChat extends LitElement {
     const html = document.documentElement
 
     if (isOpen) {
-      // Store current scroll position
+      // Store initial state
       const scrollY = window.scrollY
+      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth
       
-      // Apply scroll lock styles
-      body.style.position = 'fixed'
-      body.style.top = `-${scrollY}px`
-      body.style.width = '100%'
-      body.style.overflow = 'hidden'
-      html.style.overflow = 'hidden'
+      // Get computed styles to preserve them
+      const bodyStyle = getComputedStyle(body)
+      const htmlStyle = getComputedStyle(html)
       
-      // Store scroll position for restoration
-      body.setAttribute('data-scroll-y', scrollY.toString())
+      // Store original styles
+      body.setAttribute('data-tolki-scroll-y', scrollY.toString())
+      body.setAttribute('data-tolki-original-overflow', body.style.overflow || '')
+      body.setAttribute('data-tolki-original-position', body.style.position || '')
+      body.setAttribute('data-tolki-original-top', body.style.top || '')
+      body.setAttribute('data-tolki-original-width', body.style.width || '')
+      html.setAttribute('data-tolki-original-overflow', html.style.overflow || '')
+      
+      // Apply robust scroll lock
+      body.style.setProperty('overflow', 'hidden', 'important')
+      body.style.setProperty('position', 'fixed', 'important')
+      body.style.setProperty('top', `-${scrollY}px`, 'important')
+      body.style.setProperty('width', '100%', 'important')
+      body.style.setProperty('height', '100%', 'important')
+      
+      // Handle scrollbar compensation
+      if (scrollBarWidth > 0) {
+        body.style.setProperty('padding-right', `${scrollBarWidth}px`, 'important')
+      }
+      
+      html.style.setProperty('overflow', 'hidden', 'important')
+      html.style.setProperty('height', '100%', 'important')
+      
+      // iOS specific fixes
+      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+        body.style.setProperty('-webkit-overflow-scrolling', 'auto', 'important')
+        html.style.setProperty('-webkit-overflow-scrolling', 'auto', 'important')
+      }
+      
+      // Prevent zoom on iOS
+      const viewport = document.querySelector('meta[name="viewport"]')
+      if (viewport) {
+        viewport.setAttribute('data-tolki-original-content', viewport.getAttribute('content') || '')
+        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
+      }
+      
     } else {
-      // Restore scroll position and remove lock
-      const scrollY = body.getAttribute('data-scroll-y')
+      // Restore all original styles
+      const scrollY = body.getAttribute('data-tolki-scroll-y')
+      const originalOverflow = body.getAttribute('data-tolki-original-overflow')
+      const originalPosition = body.getAttribute('data-tolki-original-position')
+      const originalTop = body.getAttribute('data-tolki-original-top')
+      const originalWidth = body.getAttribute('data-tolki-original-width')
+      const htmlOriginalOverflow = html.getAttribute('data-tolki-original-overflow')
       
-      body.style.position = ''
-      body.style.top = ''
-      body.style.width = ''
-      body.style.overflow = ''
-      html.style.overflow = ''
+      // Remove all applied styles
+      body.style.removeProperty('overflow')
+      body.style.removeProperty('position')
+      body.style.removeProperty('top')
+      body.style.removeProperty('width')
+      body.style.removeProperty('height')
+      body.style.removeProperty('padding-right')
+      body.style.removeProperty('-webkit-overflow-scrolling')
       
+      html.style.removeProperty('overflow')
+      html.style.removeProperty('height')
+      html.style.removeProperty('-webkit-overflow-scrolling')
+      
+      // Restore original values
+      if (originalOverflow) body.style.overflow = originalOverflow
+      if (originalPosition) body.style.position = originalPosition
+      if (originalTop) body.style.top = originalTop
+      if (originalWidth) body.style.width = originalWidth
+      if (htmlOriginalOverflow) html.style.overflow = htmlOriginalOverflow
+      
+      // Restore viewport
+      const viewport = document.querySelector('meta[name="viewport"]')
+      if (viewport) {
+        const originalContent = viewport.getAttribute('data-tolki-original-content')
+        if (originalContent) {
+          viewport.setAttribute('content', originalContent)
+          viewport.removeAttribute('data-tolki-original-content')
+        }
+      }
+      
+      // Clean up attributes
+      body.removeAttribute('data-tolki-scroll-y')
+      body.removeAttribute('data-tolki-original-overflow')
+      body.removeAttribute('data-tolki-original-position')
+      body.removeAttribute('data-tolki-original-top')
+      body.removeAttribute('data-tolki-original-width')
+      html.removeAttribute('data-tolki-original-overflow')
+      
+      // Restore scroll position with animation frame to ensure DOM is ready
       if (scrollY) {
-        window.scrollTo(0, parseInt(scrollY, 10))
-        body.removeAttribute('data-scroll-y')
+        requestAnimationFrame(() => {
+          window.scrollTo(0, parseInt(scrollY, 10))
+        })
       }
     }
   }

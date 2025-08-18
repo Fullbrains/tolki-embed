@@ -51,6 +51,25 @@
       width: 100dvw; /* Dynamic viewport width for mobile */
       isolation: isolate;
       overscroll-behavior: none;
+      
+      /* Prevent any scrolling or bounce effects */
+      -webkit-overflow-scrolling: auto;
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
+      
+      /* Ensure highest z-index */
+      z-index: 2147483647;
+      
+      /* Prevent touch scrolling on iOS */
+      touch-action: manipulation;
+      
+      /* Force full coverage */
+      max-height: none;
+      max-width: none;
+      min-height: 100vh;
+      min-height: 100dvh;
+      min-width: 100vw;
+      min-width: 100dvw;
     }
   }
 
