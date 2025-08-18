@@ -169,42 +169,29 @@ export class TolkiChat extends LitElement {
       window.dispatchEvent(new Event('tolki:update'))
     }
 
-    // Ensure Google Fonts preconnect for better loading
-    this.ensureFontPreconnect()
+    // Ensure Google Fonts load in Shadow DOM
+    this.ensureFontLoading()
   }
 
   /**
-   * Ensure Google Fonts preconnect links are added to document head for better font loading
+   * Ensure Google Fonts load in Shadow DOM (Chrome mobile fix)
    */
-  private ensureFontPreconnect(): void {
+  private ensureFontLoading(): void {
     const head = document.head
+    
+    // Check if font stylesheet already exists
+    const existingFontLinks = Array.from(head.querySelectorAll('link[rel="stylesheet"]'))
+    const hasFunnelSansLink = existingFontLinks.some(link => {
+      const href = link.getAttribute('href') || ''
+      return href.includes('fonts.googleapis.com') && href.includes('Funnel+Sans')
+    })
 
-    // Check if preconnect links already exist
-    const existingPreconnects = Array.from(
-      head.querySelectorAll('link[rel="preconnect"]')
-    )
-    const hasGoogleFonts = existingPreconnects.some(
-      (link) => link.getAttribute('href') === 'https://fonts.googleapis.com'
-    )
-    const hasGoogleFontsStatic = existingPreconnects.some(
-      (link) => link.getAttribute('href') === 'https://fonts.gstatic.com'
-    )
-
-    // Add preconnect to fonts.googleapis.com if not present
-    if (!hasGoogleFonts) {
-      const preconnect1 = document.createElement('link')
-      preconnect1.rel = 'preconnect'
-      preconnect1.href = 'https://fonts.googleapis.com'
-      head.appendChild(preconnect1)
-    }
-
-    // Add preconnect to fonts.gstatic.com if not present
-    if (!hasGoogleFontsStatic) {
-      const preconnect2 = document.createElement('link')
-      preconnect2.rel = 'preconnect'
-      preconnect2.href = 'https://fonts.gstatic.com'
-      preconnect2.crossOrigin = 'anonymous'
-      head.appendChild(preconnect2)
+    // Add font stylesheet to document head (required for Shadow DOM compatibility)
+    if (!hasFunnelSansLink) {
+      const fontLink = document.createElement('link')
+      fontLink.rel = 'stylesheet'
+      fontLink.href = 'https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap'
+      head.appendChild(fontLink)
     }
   }
 
