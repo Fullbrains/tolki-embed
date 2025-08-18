@@ -168,6 +168,32 @@ export class TolkiChat extends LitElement {
     window.tolki.update = () => {
       window.dispatchEvent(new Event('tolki:update'))
     }
+
+    // Ensure font loading on Chrome mobile
+    this.ensureFontLoading()
+  }
+
+  /**
+   * Ensure font loading works properly on Chrome mobile
+   */
+  private ensureFontLoading(): void {
+    // Force font loading using document.fonts API if available
+    if ('fonts' in document) {
+      const fontFace = new FontFace(
+        'Funnel Sans',
+        'url(https://fonts.gstatic.com/s/funnelsans/v8/VuJS2lhKlC_NvrdTfTmz_ew3PGXiL_o.woff2) format("woff2")',
+        { weight: '300 800', display: 'swap' }
+      )
+      
+      fontFace.load().then(() => {
+        document.fonts.add(fontFace)
+        // Force re-render after font loads
+        this.requestUpdate()
+      }).catch(() => {
+        // Font loading failed, component will use fallback
+        console.warn('Tolki: Font loading failed, using fallback')
+      })
+    }
   }
 
   /**
