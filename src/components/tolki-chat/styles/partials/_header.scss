@@ -1,17 +1,17 @@
 @import "../base/colors";
-@import "../base/variables";
 @import "../base/typography";
+@import "../base/variables";
 
 .tk__header {
   align-items: center;
   background: white;
-  outline: 1px solid rgba(black, 0.1);
-  z-index: $z-header;
   display: flex;
   font-size: $text-base;
   font-weight: $weight-bold;
   justify-content: space-between;
+  outline: 1px solid rgba(black, 0.1);
   padding: 10px;
+  z-index: $z-header;
 
   @media screen and (min-width: 768px) {
     font-size: $text-large;
@@ -19,16 +19,16 @@
 }
 
 .tk__title {
-  padding-left: 10px;
-  margin-right: auto;
   line-height: $circle-btn-size;
+  margin-right: auto;
+  padding-left: 10px;
 }
 
 .tk__avatar {
-  width: $circle-btn-size;
-  height: $circle-btn-size;
   border-radius: $circle-btn-size;
+  height: $circle-btn-size;
   overflow: hidden;
+  width: $circle-btn-size;
 }
 
 .tk__close,

@@ -1,24 +1,24 @@
 @import "../base/colors";
-@import "../base/variables";
 @import "../base/typography";
+@import "../base/variables";
 
 .tk__cart {
   &-empty {
+    color: $steel-30;
     padding: 15px;
     text-align: center;
-    color: $steel-30;
   }
 
   &-item {
-    display: flex;
     align-items: flex-start;
-    position: relative;
+    display: flex;
     margin-bottom: -1px;
+    position: relative;
 
     &--clickable {
       cursor: pointer;
-      transition: background-color 150ms;
       padding: 10px;
+      transition: background-color 150ms;
 
       &:hover {
         background-color: mix($sky-06, $cobalt-06);
@@ -49,11 +49,11 @@
     }
 
     &-image {
-      width: 40px;
+      border-radius: 4px;
       height: 40px;
       margin-right: 10px;
       object-fit: cover;
-      border-radius: 4px;
+      width: 40px;
     }
 
     &-details {
@@ -62,21 +62,21 @@
     }
 
     &-title {
-      font-weight: $weight-bold;
-      font-size: $text-small;
       color: $eigen-45;
-      white-space: nowrap;
+      font-size: $text-small;
+      font-weight: $weight-bold;
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     &-info {
-      font-size: $text-small;
       color: $steel-50;
+      font-size: $text-small;
       margin-top: 2px;
-      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      white-space: nowrap;
 
       &-price {
         color: $link-color;
@@ -86,9 +86,9 @@
 
   &-more {
     color: $link-color;
+    cursor: pointer;
     font-size: $text-small;
     font-weight: $weight-normal;
-    cursor: pointer;
     text-align: left;
     transition: color $transition-default;
     width: max-content;
@@ -99,17 +99,17 @@
   }
 
   &-total {
-    padding: 10px;
-    font-weight: $weight-bold;
-    font-size: $text-small;
-    display: flex;
     align-items: center;
+    display: flex;
+    font-size: $text-small;
+    font-weight: $weight-bold;
     justify-content: space-between;
+    padding: 10px;
 
     &-text {
-      font-weight: $weight-bold;
-      font-size: $text-small;
       color: $eigen-45;
+      font-size: $text-small;
+      font-weight: $weight-bold;
     }
   }
 }

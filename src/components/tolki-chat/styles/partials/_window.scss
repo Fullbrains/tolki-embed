@@ -2,16 +2,16 @@
 @import "../base/variables";
 
 .tk__window {
-  overflow: hidden;
   background-color: white;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
   pointer-events: auto;
 
   &--inline {
+    flex-grow: 1;
     height: 100%;
     width: 100%;
-    flex-grow: 1;
 
     .tk__close {
       display: none;
@@ -58,24 +58,25 @@
 }
 
 .tk__log {
-  display: flex;
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-  flex-direction: row;
-  justify-items: start;
   align-content: start;
+  display: flex;
+  flex-direction: row;
   flex-wrap: wrap;
+  flex: 1;
+  justify-items: start;
+  overflow-y: auto;
+  padding: 20px;
   position: relative;
 
   // Custom scrollbar for the main log area
-  scrollbar-width: thin; /* Firefox - thin scrollbar */
   scrollbar-color: $steel-20 transparent; /* Firefox - thumb and track colors */
+  scrollbar-width: thin; /* Firefox - thin scrollbar */
 
-  // WebKit browsers (Chrome, Safari)
   &::-webkit-scrollbar {
     width: 6px; /* Thin scrollbar */
   }
+
+  // WebKit browsers (Chrome, Safari)
 
   &::-webkit-scrollbar-track {
     background: transparent; /* Invisible track */

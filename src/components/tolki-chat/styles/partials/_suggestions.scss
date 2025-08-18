@@ -1,72 +1,70 @@
 @import "../base/colors";
-@import "../base/variables";
 @import "../base/typography";
+@import "../base/variables";
 
 .tk__suggestions-container {
-  position: relative;
-  display: flex;
   align-items: center;
+  display: flex;
+  position: relative;
 
   &::after {
+    background: linear-gradient(to bottom, rgba(white, 0), white);
+    height: 10px;
+    left: 0;
+    pointer-events: none;
     position: absolute;
     top: -10px;
-    left: 0;
     width: 100%;
-    height: 10px;
-    pointer-events: none;
     z-index: 9999;
-    background: linear-gradient(to bottom, rgba(white, 0), white);
   }
 }
 
 .tk__suggestions {
   align-items: end;
+  border-radius: 15px 15px 0 0;
   display: flex;
+  flex: 1;
   height: 30px;
   overflow-x: auto;
   padding: 8px 20px 0 20px;
-  border-radius: 15px 15px 0 0;
-  flex: 1;
 
+  -ms-overflow-style: none; /* Internet Explorer 10+ */
   // Hide scrollbar completely on suggestions
   scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer 10+ */
 
-  // Hide scrollbar for WebKit browsers (Chrome, Safari)
   &::-webkit-scrollbar {
     display: none;
   }
 
   &:after {
+    border-radius: 15px 15px 0 0;
     content: "";
+    height: 150px;
+    left: 0;
+    outline: 1px solid rgba(black, 0.1);
+    pointer-events: none;
     position: absolute;
     top: 0;
-    left: 0;
     width: 100%;
-    height: 150px;
-    pointer-events: none;
-    border-radius: 15px 15px 0 0;
     z-index: 9999;
-    outline: 1px solid rgba(black, 0.1);
   }
-
 }
 
 .tk__suggestions-scroll-btn {
-  position: absolute;
-  top: 12px;
-  width: 40px;
-  bottom: 0;
+  align-items: center;
   border: none;
+  bottom: 0;
   color: $eigen-45;
   cursor: pointer;
   display: flex;
-  align-items: center;
   justify-content: center;
-  z-index: 10;
   opacity: 0;
-  visibility: hidden;
+  position: absolute;
+  top: 12px;
   transition: opacity 0.2s ease, visibility 0.2s ease, color 0.2s ease;
+  visibility: hidden;
+  width: 40px;
+  z-index: 10;
 
   &:hover {
     color: $cobalt-35;
@@ -79,39 +77,39 @@
 
   svg {
     fill: currentColor;
-    width: 15px;
     height: 15px;
+    width: 15px;
   }
 }
 
 .tk__suggestions-scroll-left {
-  left: 0;
   background: linear-gradient(90deg, white 75%, rgba(255, 255, 255, 0) 100%);
+  left: 0;
 }
 
 .tk__suggestions-scroll-right {
-  right: 0;
   background: linear-gradient(270deg, white 75%, rgba(255, 255, 255, 0) 100%);
+  right: 0;
 }
 
 .tk__suggestion {
   align-items: center;
   background-color: rgba($cobalt-30, 0.1);
-  border: 0;
   border-radius: 15px 6px 15px 15px;
+  border: 0;
   color: $cobalt-30;
   cursor: pointer;
   display: flex;
-  font-family: $font-base;
   flex-shrink: 0;
+  font-family: $font-base;
   font-size: 13px;
+  letter-spacing: -0.03em;
   line-height: 20px;
   margin-right: 5px;
   padding: 3px 10px;
+  transition-duration: 300ms;
   transition-property: color, background-color;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
-  letter-spacing: -0.03em;
 
   &:hover {
     background-color: rgba($cobalt-30, 0.15);

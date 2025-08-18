@@ -1,25 +1,27 @@
 @import "../base/colors";
 @import "../base/variables";
 
-// Image placeholder component
 .tk__image-placeholder {
+  align-items: flex-start;
   background-color: $steel-20;
   border-radius: 4px;
   display: flex;
-  align-items: flex-start;
   justify-content: center;
-  
-  // Inherit dimensions from parent context
+
   &.tk__cart-item-image {
-    width: 40px;
     height: 40px;
+    width: 40px;
   }
-  
+
+  // Inherit dimensions from parent context
+
   .tk__placeholder-icon {
-    width: 50%;
-    height: 50%;
+    // Placeholder for future SVG icon
     background-color: $steel-35;
     border-radius: 2px;
-    // Placeholder for future SVG icon
+    height: 50%;
+    width: 50%;
   }
 }
+
+// Image placeholder component

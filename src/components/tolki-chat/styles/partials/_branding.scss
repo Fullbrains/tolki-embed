@@ -1,16 +1,16 @@
 @import "../base/colors";
-@import "../base/variables";
 @import "../base/typography";
+@import "../base/variables";
 
 .tk__branding {
-  background: white;
-  z-index: $z-branding;
   align-items: center;
+  background: white;
   color: $steel-30;
   display: flex;
   font-size: $text-tiny;
   justify-content: center;
   padding-bottom: env(safe-area-inset-bottom);
+  z-index: $z-branding;
 
   a {
     color: $steel-30;

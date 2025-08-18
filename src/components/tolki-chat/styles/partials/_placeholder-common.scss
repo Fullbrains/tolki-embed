@@ -1,32 +1,35 @@
 @import "../base/colors";
 @import "../base/variables";
 
-// Common placeholder styles for order, product, and other placeholders
 .tk__placeholder-base {
-  transition: background-color 150ms, color 150ms;
+  align-items: center;
   background-color: $steel-10;
   border-radius: 4px;
   display: flex;
-  align-items: center;
   justify-content: center;
-  
-  // Inherit dimensions from parent context
+  transition: background-color 150ms, color 150ms;
+
   &.tk__cart-item-image {
-    width: 40px;
     height: 40px;
+    width: 40px;
   }
-  
+
+  // Inherit dimensions from parent context
+
   svg {
     fill: $steel-50;
-    width: 100%;
     height: 100%;
+    width: 100%;
   }
 }
 
-// Specific placeholder classes extending the base
+// Common placeholder styles for order, product, and other placeholders
+
 .tk__order-placeholder {
   @extend .tk__placeholder-base;
 }
+
+// Specific placeholder classes extending the base
 
 .tk__product-placeholder {
   @extend .tk__placeholder-base;

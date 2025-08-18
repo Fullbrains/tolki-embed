@@ -1,35 +1,36 @@
 @import "../base/colors";
-@import "../base/variables";
 @import "../base/typography";
+@import "../base/variables";
 
 .tk__input {
-  outline: 1px solid rgba(black, 0.1);
+  border-radius: 15px 15px 0 0;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
+  outline: 1px solid rgba(black, 0.1);
   padding: 0;
-  border-radius: 15px 15px 0 0;
   position: relative;
   width: 100%;
 
-  // Remove outline when suggestions are present
   &--with-suggestions {
     outline: none;
   }
+
+  // Remove outline when suggestions are present
 
   textarea {
     background-color: transparent;
     border-radius: 0;
     border: none;
-    font-family: inherit;
-    resize: none;
-    font-size: $text-base;
+    box-sizing: content-box;
     flex-grow: 1;
+    font-family: inherit;
+    font-size: $text-base;
     margin: 0;
     min-height: 40px;
     outline: none;
     padding: 15px 60px 20px 20px;
-    box-sizing: content-box;
+    resize: none;
     transition: height $transition-default;
 
     &::placeholder {
@@ -52,11 +53,11 @@
   justify-content: center;
   outline: none;
   pointer-events: auto;
+  position: absolute;
+  right: 10px;
+  top: 10px;
   transition: background-color $transition-default, color $transition-default;
   width: $circle-btn-size;
-  position: absolute;
-  top: 10px;
-  right: 10px;
 
   &:hover {
     background-color: $steel-10;
@@ -75,9 +76,9 @@
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   align-items: center;
   background-color: white;
-  box-shadow: 0 5px 10px 0 rgba(black, 0.20), 0 0 0 1px rgba(black, 0.1);
   border-radius: $circle-btn-size;
   border: none;
+  box-shadow: 0 5px 10px 0 rgba(black, 0.20), 0 0 0 1px rgba(black, 0.1);
   color: $eigen-45;
   cursor: pointer;
   display: flex;
@@ -101,25 +102,25 @@
   }
 
   &-container {
+    align-items: center;
     box-sizing: border-box;
     display: flex;
-    align-items: center;
     justify-content: center;
     left: 0;
     opacity: 0;
     padding: 10px;
     pointer-events: none;
     position: absolute;
+    top: -60px;
     transform: translateY(5px) scale(0.8);
     transition: opacity $transition-default, visibility $transition-default, transform $transition-default, top $transition-default;
-    top: -60px;
     visibility: hidden;
     width: 100%;
 
     &--visible {
       opacity: 1;
-      visibility: visible;
       transform: translateY(0) scale(1);
+      visibility: visible;
     }
 
     &--with-suggestions {

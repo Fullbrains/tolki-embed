@@ -53,8 +53,8 @@
     border-radius: $brand-dot-size;
     height: $brand-dot-size;
     margin: $brand-dot-size * 0.33;
-    width: $brand-dot-size;
     pointer-events: none;
+    width: $brand-dot-size;
 
     &:nth-child(2) {
       animation-delay: 0.1s;

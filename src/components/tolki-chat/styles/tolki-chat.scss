@@ -1,7 +1,20 @@
 // Base styles
 @import "base/colors";
-@import "base/variables";
 @import "base/typography";
+@import "base/variables";
+
+// Partial imports
+@import "partials/branding";
+@import "partials/cart";
+@import "partials/header";
+@import "partials/image-placeholder";
+@import "partials/input";
+@import "partials/messages";
+@import "partials/orders";
+@import "partials/placeholder-common";
+@import "partials/suggestions";
+@import "partials/toggle";
+@import "partials/window";
 
 // Host styles
 :host {
@@ -12,8 +25,8 @@
   display: flex;
   flex-direction: column;
   font-family: $font-base;
-  font-weight: $weight-normal;
   font-size: $text-base;
+  font-weight: $weight-normal;
   letter-spacing: $tracking-base;
   pointer-events: none;
   right: $margin;
@@ -22,16 +35,3 @@
     fill: white;
   }
 }
-
-// Partial imports
-@import "partials/window";
-@import "partials/header";
-@import "partials/branding";
-@import "partials/suggestions";
-@import "partials/input";
-@import "partials/toggle";
-@import "partials/messages";
-@import "partials/cart";
-@import "partials/orders";
-@import "partials/image-placeholder";
-@import "partials/placeholder-common";

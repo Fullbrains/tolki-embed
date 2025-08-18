@@ -1,19 +1,19 @@
-// Sizes
+$toggle-btn-size: 60px;
+$brand-dot-size: $toggle-btn-size * 0.12;
 $circle-btn-size: 40px;
 $margin: 20px;
-$mobile-breakpoint: 480px;
-$toggle-btn-size: 60px;
-$window-border-radius: 10px;
 $message-radius: 15px;
-$brand-dot-size: $toggle-btn-size * 0.12;
+$mobile-breakpoint: 480px;
+$window-border-radius: 10px;
+// Sizes
 
-// Z-index layers
-$z-header: 10;
 $z-branding: 10;
+$z-header: 10;
 $z-window-floating: 9999999;
+// Z-index layers
 
-// Animation timings
 $transition-default: 0.3s ease-out;
 $transition-fast: 0.2s ease-out;
+// Animation timings
 
 $link-color: mix($sky-50, $cobalt-30);
