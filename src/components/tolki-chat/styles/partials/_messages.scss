@@ -72,6 +72,7 @@
   &--product {
     cursor: pointer;
     transition: border-color $transition-default, background-color $transition-default;
+    width: 100%;
 
     &:hover {
       background-color: $steel-01;
