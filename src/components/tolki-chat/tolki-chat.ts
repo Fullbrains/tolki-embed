@@ -136,11 +136,17 @@ export class TolkiChat extends LitElement {
   @query('.tk__suggestions-scroll-right') scrollRightBtn: HTMLButtonElement
 
   private resizeObserver?: ResizeObserver
+  private boundToggleWindow?: () => void
+  private boundResetChat?: () => void
 
   constructor() {
     super()
     // eslint-disable-next-line @typescript-eslint/no-this-alias
     slef = this
+
+    // Bind event handlers
+    this.boundToggleWindow = () => this.toggleWindow()
+    this.boundResetChat = () => this.resetChat()
 
     // Initialize services
     this.initializeServices()
@@ -539,7 +545,7 @@ export class TolkiChat extends LitElement {
         }
 
         // Handle initial body scroll lock if opening on mobile
-        this.handleMobileBodyScroll(state.open === 'true')
+        slef.handleMobileBodyScroll(state.open === 'true')
 
         setTimeout(() => {
           const top = this.log.scrollHeight - (this.log.clientHeight - 80)
@@ -606,7 +612,7 @@ export class TolkiChat extends LitElement {
     slef.saveSetting('open', state.open === 'true' ? 'true' : 'false')
 
     // Handle body scroll lock on mobile
-    this.handleMobileBodyScroll(state.open === 'true')
+    slef.handleMobileBodyScroll(state.open === 'true')
 
     // Focus input only when user manually opens window
     if (!wasOpen && state.open === 'true') {
@@ -1020,17 +1026,17 @@ export class TolkiChat extends LitElement {
       this.textarea.addEventListener('autosize:resized', scrollToBottom)
       this.textarea.addEventListener('keydown', enterSendMessage)
     }
-    if (this.toggle) {
-      this.toggle.removeEventListener('click', this.toggleWindow)
-      this.toggle.addEventListener('click', this.toggleWindow)
+    if (this.toggle && this.boundToggleWindow) {
+      this.toggle.removeEventListener('click', this.boundToggleWindow)
+      this.toggle.addEventListener('click', this.boundToggleWindow)
     }
-    if (this.close) {
-      this.close.removeEventListener('click', this.toggleWindow)
-      this.close.addEventListener('click', this.toggleWindow)
+    if (this.close && this.boundToggleWindow) {
+      this.close.removeEventListener('click', this.boundToggleWindow)
+      this.close.addEventListener('click', this.boundToggleWindow)
     }
-    if (this.reset) {
-      this.reset.removeEventListener('click', this.resetChat)
-      this.reset.addEventListener('click', this.resetChat)
+    if (this.reset && this.boundResetChat) {
+      this.reset.removeEventListener('click', this.boundResetChat)
+      this.reset.addEventListener('click', this.boundResetChat)
     }
     if (this.send) {
       this.send.removeEventListener('click', sendMessage)
@@ -1173,7 +1179,7 @@ export class TolkiChat extends LitElement {
     }
 
     // Clean up body scroll lock if component is removed while open
-    this.handleMobileBodyScroll(false)
+    slef.handleMobileBodyScroll(false)
   }
 
   override render() {
