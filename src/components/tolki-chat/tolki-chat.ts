@@ -394,7 +394,8 @@ export class TolkiChat extends LitElement {
     // Create a new cart notification (will be null if the cart is empty or error)
     const cartNotification = CartHelpers.createCartNotification()
 
-    if (cartNotification && !isLastMessageCart) {
+    // Only add cart notification if it actually has content to show
+    if (cartNotification && !isLastMessageCart && CartHelpers.hasCartItems()) {
       // Add cart notification to history only if last message is not a cart
       state.history.push(cartNotification)
       this.saveHistory()
@@ -638,17 +639,30 @@ export class TolkiChat extends LitElement {
   scrollToLastMessage(
     timeout: number = 500,
     animated: boolean = true,
-    retryCount: number = 0
+    retryCount: number = 0,
+    targetMessageIndex?: number
   ) {
     setTimeout(() => {
+      if (!this.log) return
+      
       const chatItems = this.log.querySelectorAll('.tk__chat-item')
       if (chatItems.length > 0) {
-        const lastMessage = chatItems[chatItems.length - 1] as HTMLElement
+        // Use target index if provided, otherwise scroll to last message
+        const targetIndex = targetMessageIndex !== undefined ? targetMessageIndex : chatItems.length - 1
+        const targetMessage = chatItems[Math.min(targetIndex, chatItems.length - 1)] as HTMLElement
+        
+        if (!targetMessage) return
+        
         const initialHeight = this.log.scrollHeight
-        const messageTop = lastMessage.offsetTop - 20 - 60 // 20px log padding + 60px extra space
+        // Get the actual position of the target message relative to the log container
+        const messageTop = targetMessage.offsetTop
+        
+        // Scroll to position the message at the top of the visible area
+        // The log has padding-top: 20px, minus 10px to show the message slightly lower
+        const scrollPosition = messageTop - 20 + 10
 
         this.log.scrollTo({
-          top: Math.max(0, messageTop),
+          top: Math.max(0, scrollPosition),
           behavior: animated ? 'smooth' : 'auto',
         })
 
@@ -663,7 +677,7 @@ export class TolkiChat extends LitElement {
 
             // If height changed significantly and we have dynamic content, retry
             if (hasCartOrOrders && Math.abs(newHeight - initialHeight) > 20) {
-              this.scrollToLastMessage(200, animated, retryCount + 1)
+              this.scrollToLastMessage(200, animated, retryCount + 1, targetMessageIndex)
             }
           }, 300)
         }
@@ -683,6 +697,13 @@ export class TolkiChat extends LitElement {
     state.pending = false
     this.updateComplete.then(() => {
       this.scrollToLastMessage(100)
+    })
+  }
+
+  afterReceiveWithTarget(targetMessageIndex: number) {
+    state.pending = false
+    this.updateComplete.then(() => {
+      this.scrollToLastMessage(100, true, 0, targetMessageIndex)
     })
   }
 
@@ -779,6 +800,13 @@ export class TolkiChat extends LitElement {
         .then(async ({ data }: ApiMessageResponse) => {
           if (Array.isArray(data)) {
             const items: Item[] = data
+            
+            // First remove thinking indicator
+            this.clearHistory()
+            
+            // Now track the index of the first new message for scrolling
+            // This will be the correct index after thinking is removed
+            const firstNewMessageIndex = state.history.length
 
             for (const item of items) {
               state.history.push(item)
@@ -787,9 +815,8 @@ export class TolkiChat extends LitElement {
             // Process any setLocale messages that were added
             await this.processHistoryLocales()
 
-            this.clearHistory()
             this.saveHistory()
-            this.afterReceive()
+            this.afterReceiveWithTarget(firstNewMessageIndex)
           }
         })
         .catch(({ status, data, response, error }: ApiMessageResponse) => {
