@@ -1,0 +1,7 @@
+/* Import Iride color system */
+@import "@fullbrains/iride/cobalt.css";
+@import "@fullbrains/iride/eigen.css";
+@import "@fullbrains/iride/jade.css";
+@import "@fullbrains/iride/ruby.css";
+@import "@fullbrains/iride/sky.css";
+@import "@fullbrains/iride/steel.css";

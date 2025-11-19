@@ -1,0 +1,117 @@
+@import "../base/colors.css";
+@import "../base/variables.css";
+
+.tk__window {
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  pointer-events: auto;
+
+  &--inline {
+    flex-grow: 1;
+    height: 100%;
+    width: 100%;
+
+    .tk__close {
+      display: none;
+    }
+  }
+
+  &--unclosable {
+    .tk__close {
+      display: none;
+    }
+  }
+
+  &--floating {
+    opacity: 0;
+    transform: translateY(calc(var(--margin) * 0.25));
+    transition: transform var(--transition-default), opacity var(--transition-default), visibility var(--transition-default);
+    visibility: hidden;
+    z-index: var(--z-window-floating);
+
+    @media screen and (min-width: 480px) {
+      border-radius: var(--window-border-radius);
+      box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(0, 0, 0, 0.1);
+      height: calc(90vh - var(--toggle-btn-size) - var(--margin) - var(--margin));
+      margin-bottom: calc(var(--margin) * 0.5);
+      max-height: 728px;
+      max-width: 450px;
+      width: calc(100vw - var(--margin) - var(--margin));
+    }
+
+    @media screen and (max-width: 479px) {
+      height: 100vh;
+      height: 100dvh; /* Dynamic viewport height for mobile */
+      left: 0;
+      position: fixed;
+      top: 0;
+      width: 100vw;
+      width: 100dvw; /* Dynamic viewport width for mobile */
+      isolation: isolate;
+      overscroll-behavior: none;
+      
+      /* Prevent any scrolling or bounce effects */
+      -webkit-overflow-scrolling: auto;
+      -webkit-transform: translate3d(0, 0, 0);
+      transform: translate3d(0, 0, 0);
+      
+      /* Ensure highest z-index */
+      z-index: 2147483647;
+      
+      /* Prevent touch scrolling on iOS */
+      touch-action: manipulation;
+      
+      /* Force full coverage */
+      max-height: none;
+      max-width: none;
+      min-height: 100vh;
+      min-height: 100dvh;
+      min-width: 100vw;
+      min-width: 100dvw;
+    }
+  }
+
+  &--open {
+    opacity: 1;
+    transform: translateY(0);
+    visibility: visible;
+  }
+}
+
+.tk__log {
+  align-content: start;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  flex: 1;
+  justify-items: start;
+  overflow-y: auto;
+  padding: 20px;
+  position: relative;
+
+  /* Custom scrollbar for the main log area */
+  scrollbar-color: var(--steel-20) transparent; /* Firefox - thumb and track colors */
+  scrollbar-width: thin; /* Firefox - thin scrollbar */
+
+  &::-webkit-scrollbar {
+    width: 6px; /* Thin scrollbar */
+  }
+
+  /* WebKit browsers (Chrome, Safari) */
+
+  &::-webkit-scrollbar-track {
+    background: transparent; /* Invisible track */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: var(--steel-20); /* Light thumb */
+    border-radius: 3px;
+    transition: background-color var(--transition-default);
+
+    &:hover {
+      background-color: var(--steel-30); /* Darker on hover */
+    }
+  }
+}

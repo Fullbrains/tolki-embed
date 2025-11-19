@@ -1,0 +1,115 @@
+@import "../base/colors.css";
+@import "../base/typography.css";
+@import "../base/variables.css";
+
+.tk__cart {
+  &-empty {
+    color: var(--steel-30);
+    padding: 15px;
+    text-align: center;
+  }
+
+  &-item {
+    align-items: flex-start;
+    display: flex;
+    margin-bottom: -1px;
+    position: relative;
+
+    &--clickable {
+      cursor: pointer;
+      padding: 10px;
+      transition: background-color 150ms;
+
+      &:hover {
+        background-color: color-mix(in srgb, var(--sky-06) 50%, var(--cobalt-06) 50%);
+
+        &::after {
+          background-color: transparent;
+        }
+
+        .tk__placeholder-base {
+          background-color: color-mix(in srgb, var(--sky-10) 50%, var(--cobalt-10) 50%);
+
+          svg {
+            fill: color-mix(in srgb, var(--sky-35) 50%, var(--cobalt-35) 50%);
+          }
+        }
+      }
+    }
+
+    &::after {
+      background-color: var(--steel-15);
+      bottom: 0;
+      content: "";
+      height: 1px;
+      left: 10px;
+      position: absolute;
+      right: 10px;
+      transition: background-color 150ms;
+    }
+
+    &-image {
+      border-radius: 4px;
+      height: 40px;
+      margin-right: 10px;
+      object-fit: cover;
+      width: 40px;
+    }
+
+    &-details {
+      flex: 1;
+      min-width: 0; /* Allow flex item to shrink below content size */
+    }
+
+    &-title {
+      color: var(--eigen-45);
+      font-size: var(--text-small);
+      font-weight: var(--weight-bold);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    &-info {
+      color: var(--steel-50);
+      font-size: var(--text-small);
+      margin-top: 2px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &-price {
+        color: var(--link-color);
+      }
+    }
+  }
+
+  &-more {
+    color: var(--link-color);
+    cursor: pointer;
+    font-size: var(--text-small);
+    font-weight: var(--weight-normal);
+    text-align: left;
+    transition: color var(--transition-default);
+    width: max-content;
+
+    &:hover {
+      color: color-mix(in srgb, var(--link-color), black 10%);
+    }
+  }
+
+  &-total {
+    align-items: center;
+    display: flex;
+    font-size: var(--text-small);
+    font-weight: var(--weight-bold);
+    justify-content: space-between;
+    padding: 10px;
+
+    &-text {
+      color: var(--eigen-45);
+      font-size: var(--text-small);
+      font-weight: var(--weight-bold);
+    }
+  }
+}

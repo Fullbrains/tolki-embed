@@ -1,0 +1,62 @@
+@import "../base/colors.css";
+@import "../base/typography.css";
+@import "../base/variables.css";
+
+.tk__header {
+  align-items: center;
+  background: white;
+  display: flex;
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  justify-content: space-between;
+  outline: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  z-index: var(--z-header);
+
+  @media screen and (min-width: 768px) {
+    font-size: var(--text-large);
+  }
+}
+
+.tk__title {
+  line-height: var(--circle-btn-size);
+  margin-right: auto;
+  padding-left: 10px;
+}
+
+.tk__avatar {
+  border-radius: var(--circle-btn-size);
+  height: var(--circle-btn-size);
+  overflow: hidden;
+  width: var(--circle-btn-size);
+}
+
+.tk__close,
+.tk__reset {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  align-items: center;
+  background-color: transparent;
+  border-radius: var(--circle-btn-size);
+  border: none;
+  color: var(--eigen-45);
+  cursor: pointer;
+  display: flex;
+  height: var(--circle-btn-size);
+  justify-content: center;
+  outline: none;
+  pointer-events: auto;
+  transition: background-color var(--transition-default), color var(--transition-default);
+  width: var(--circle-btn-size);
+
+  &:hover {
+    background-color: var(--steel-10);
+  }
+
+  svg {
+    pointer-events: none;
+
+    line, g, path, polyline {
+      stroke: currentColor;
+    }
+  }
+}

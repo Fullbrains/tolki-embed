@@ -15,7 +15,11 @@
     "allowSyntheticDefaultImports": true
   },
   "include": [
-    "**/*.ts",
+    "src/**/*.ts",
+    "typings/**/*.ts"
   ],
-  "exclude": [],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

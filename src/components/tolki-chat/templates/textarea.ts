@@ -21,7 +21,12 @@ export const textareaTemplate = (pending: boolean, showScrollDown: boolean, hasS
     <textarea
       class=${classMap({ tk__textarea: true })}
       placeholder="${msg('Type a message...')}"
+      aria-label="${msg('Type a message...')}"
     ></textarea>
-    <button class="tk__send" ?disabled=${pending}>${send}</button>
+    <button
+      class="tk__send"
+      ?disabled=${pending}
+      aria-label="${msg('Send message')}"
+    >${send}</button>
   </div>`
 }

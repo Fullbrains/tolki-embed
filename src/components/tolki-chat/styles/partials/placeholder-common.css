@@ -1,0 +1,30 @@
+@import "../base/colors.css";
+@import "../base/variables.css";
+
+/* Base placeholder styles - shared by multiple selectors */
+.tk__placeholder-base,
+.tk__order-placeholder,
+.tk__product-placeholder {
+  align-items: center;
+  background-color: var(--steel-10);
+  border-radius: 4px;
+  display: flex;
+  justify-content: center;
+  transition: background-color 150ms, color 150ms;
+
+  &.tk__cart-item-image {
+    height: 40px;
+    width: 40px;
+  }
+
+  & svg {
+    fill: var(--steel-50);
+    height: 100%;
+    width: 100%;
+  }
+}
+
+/* Specific override for product placeholder */
+.tk__product-placeholder {
+  border-radius: 10px;
+}

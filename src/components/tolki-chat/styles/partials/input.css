@@ -1,0 +1,130 @@
+@import "../base/colors.css";
+@import "../base/typography.css";
+@import "../base/variables.css";
+
+.tk__input {
+  border-radius: 15px 15px 0 0;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  outline: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0;
+  position: relative;
+  width: 100%;
+
+  &--with-suggestions {
+    outline: none;
+  }
+
+  /* Remove outline when suggestions are present */
+
+  textarea {
+    background-color: transparent;
+    border-radius: 0;
+    border: none;
+    box-sizing: content-box;
+    flex-grow: 1;
+    font-family: inherit;
+    font-size: var(--text-base);
+    margin: 0;
+    min-height: 40px;
+    outline: none;
+    padding: 15px 60px 20px 20px;
+    resize: none;
+    transition: height var(--transition-default);
+
+    &::placeholder {
+      color: var(--steel-30);
+      opacity: 1;
+    }
+  }
+}
+
+.tk__send {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  align-items: center;
+  background-color: var(--steel-06);
+  border-radius: var(--circle-btn-size);
+  border: none;
+  color: var(--eigen-45);
+  cursor: pointer;
+  display: flex;
+  height: var(--circle-btn-size);
+  justify-content: center;
+  outline: none;
+  pointer-events: auto;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  transition: background-color var(--transition-default), color var(--transition-default);
+  width: var(--circle-btn-size);
+
+  &:hover {
+    background-color: var(--steel-10);
+  }
+
+  svg {
+    pointer-events: none;
+
+    line, g, path, polyline {
+      stroke: currentColor;
+    }
+  }
+}
+
+.tk__scroll-down {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  align-items: center;
+  background-color: white;
+  border-radius: var(--circle-btn-size);
+  border: none;
+  box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.20), 0 0 0 1px rgba(0, 0, 0, 0.1);
+  color: var(--eigen-45);
+  cursor: pointer;
+  display: flex;
+  height: var(--circle-btn-size);
+  justify-content: center;
+  outline: none;
+  pointer-events: auto;
+  transition: background-color var(--transition-default), color var(--transition-default);
+  width: var(--circle-btn-size);
+
+  &:hover {
+    background-color: var(--steel-10);
+  }
+
+  svg {
+    pointer-events: none;
+
+    line, g, path, polyline {
+      stroke: currentColor;
+    }
+  }
+
+  &-container {
+    align-items: center;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    left: 0;
+    opacity: 0;
+    padding: 10px;
+    pointer-events: none;
+    position: absolute;
+    top: -60px;
+    transform: translateY(5px) scale(0.8);
+    transition: opacity var(--transition-default), visibility var(--transition-default), transform var(--transition-default), top var(--transition-default);
+    visibility: hidden;
+    width: 100%;
+
+    &--visible {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      visibility: visible;
+    }
+
+    &--with-suggestions {
+      top: -90px;
+    }
+  }
+}

@@ -1,0 +1,313 @@
+@import "../base/colors.css";
+@import "../base/typography.css";
+@import "../base/variables.css";
+
+.tk__chat-item {
+  display: flex;
+  margin-bottom: 10px;
+  width: 100%;
+
+  &--product, &--card {
+    width: 50%;
+  }
+
+  &--show_cart, &--show_orders {
+    .tk__action {
+      max-width: 100% !important;
+      overflow: hidden;
+      width: 100%;
+
+      .tk__cart-summary {
+        margin-bottom: 10px !important;
+
+        .tk__cart-item:last-child {
+
+          &::after {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+.tk__card {
+  background-color: var(--steel-04);
+  border-radius: 10px;
+  border: 1px solid var(--steel-20);
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px;
+  overflow: hidden;
+  text-decoration: none;
+
+  & > img {
+    aspect-ratio: 1/1;
+    border-radius: 10px;
+    margin: 0;
+    max-width: 100%;
+    object-fit: contain;
+    overflow: hidden;
+  }
+
+  .tk__content {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: 10px;
+
+    .tk__name {
+      color: var(--eigen-45);
+      font-size: var(--text-small);
+      font-weight: var(--weight-bold);
+    }
+
+    .tk__description {
+      font-size: 11px;
+      padding-top: 5px;
+      text-decoration: none;
+    }
+  }
+
+  &--product {
+    cursor: pointer;
+    transition: border-color var(--transition-default), background-color var(--transition-default);
+    width: 100%;
+    border-radius: 11px;
+
+    &:hover {
+      background-color: var(--steel-01);
+      border-color: color-mix(in srgb, var(--sky-50) 50%, var(--cobalt-30) 50%);
+    }
+
+    .tk__description {
+      color: color-mix(in srgb, var(--sky-50) 50%, var(--cobalt-30) 50%);
+      font-size: var(--text-small) !important;
+      margin-top: auto;
+    }
+  }
+
+  /* Product variant with clickable behavior and price styling */
+
+  &--clickable {
+    cursor: pointer;
+  }
+
+  /* Clickable behavior for cards with click handlers */
+}
+
+.tk__price {
+  color: color-mix(in srgb, var(--sky-50) 50%, var(--cobalt-30) 50%);
+}
+
+.tk__markdown {
+  background-color: var(--steel-10);
+  border-radius: 6px 22px 22px 22px;
+  font-size: 15px;
+  line-height: var(--leading-base);
+  margin-right: auto;
+  max-width: 75%;
+  padding: 1px 15px;
+  width: max-content;
+
+  p {
+    margin: 10px 0;
+  }
+
+  img {
+    max-width: 100%;
+  }
+}
+
+.tk__user-input {
+  background-color: var(--bubble-background);
+  border-radius: 22px 6px 22px 22px;
+  color: var(--bubble-color);
+  font-size: 15px;
+  line-height: var(--leading-base);
+  margin-left: auto;
+  max-width: 75%;
+  padding: 11px 15px;
+  width: max-content;
+}
+
+.tk__thinking {
+  background-color: var(--steel-10);
+  border-radius: 6px 22px 22px 22px;
+  padding: 15px;
+
+  span {
+    background-color: var(--steel-30);
+  }
+}
+
+.tk__action {
+  background-color: var(--steel-06);
+  border-radius: 6px 22px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  font-size: 15px;
+  line-height: var(--leading-base);
+  margin-right: auto;
+  max-width: 75%;
+  text-decoration: none;
+
+  &-prompt {
+    padding: 15px;
+    white-space: pre-line;
+
+    &--with-icon {
+      align-items: center;
+      display: flex;
+      gap: 10px;
+    }
+  }
+
+  &-prompt-text {
+    flex: 1;
+  }
+
+  &-buttons {
+    display: flex;
+    padding: 0 10px 10px 10px;
+  }
+
+  &-button {
+    align-items: center;
+    background-color: var(--steel-15);
+    border-radius: 20px;
+    border: none;
+    color: var(--eigen-45);
+    cursor: pointer;
+    display: flex;
+    font-family: inherit;
+    font-size: 15px;
+    height: 30px;
+    justify-content: center;
+    margin: 3px;
+    padding: 0 20px;
+    text-decoration: none;
+    transition: background-color var(--transition-default), color var(--transition-default);
+
+    &:hover {
+      background-color: var(--steel-20);
+    }
+
+    &--primary {
+      background-color: var(--cobalt-30);
+      color: white;
+
+      &:hover {
+        background-color: var(--cobalt-35);
+      }
+    }
+  }
+}
+
+.tk__cart-notification-icon {
+  align-items: center;
+  background-color: var(--steel-10);
+  border-radius: 50%;
+  display: flex;
+  flex-shrink: 0;
+  height: 40px;
+  justify-content: center;
+  width: 40px;
+
+  svg {
+    fill: var(--steel-50);
+    height: 100%;
+    width: 100%;
+  }
+}
+
+/* Cart notification icon styling */
+
+.tk__link {
+  color: var(--link-color);
+  cursor: pointer;
+  text-decoration-color: transparent;
+  text-decoration: underline;
+  transition: color var(--transition-default), text-decoration-color var(--transition-default);
+
+  &:hover {
+    color: color-mix(in srgb, var(--link-color), black 10%);
+    text-decoration-color: color-mix(in srgb, var(--link-color), black 10%);
+  }
+}
+
+/* Link component with animated underline */
+
+.tk__cart-loading {
+  color: var(--steel-50);
+}
+
+/* Cart loading message styling */
+
+.tk__message {
+  background: white;
+  border-radius: calc(var(--message-radius) * 0.25) var(--message-radius) var(--message-radius) var(--message-radius);
+  font-size: var(--text-small);
+  line-height: var(--leading-base);
+  margin-bottom: 5px;
+  margin-right: auto;
+  max-width: 75%;
+  padding: 10px 15px;
+
+  img {
+    max-width: 100%;
+  }
+
+  &--user {
+    background-color: var(--bubble-background);
+    border-radius: var(--message-radius) calc(var(--message-radius) * 0.25) var(--message-radius) var(--message-radius);
+    color: var(--bubble-color);
+    font-weight: var(--weight-medium);
+    margin-left: auto;
+    margin-right: 0;
+  }
+
+  &--thinking {
+    background-color: var(--steel-08);
+    padding: 15px;
+
+    span {
+      background-color: var(--steel-30);
+    }
+  }
+
+  &--assistant {
+    background-color: var(--steel-08);
+    padding-bottom: 0;
+    padding-top: 0;
+
+    a {
+      color: var(--cobalt-30);
+
+      &:visited {
+        color: mix(red, var(--cobalt-30));
+      }
+    }
+  }
+
+  &--error {
+    background-color: #ffebc5;
+    color: #733d00;
+  }
+
+  &--info {
+    background-color: var(--jade-06);
+    color: var(--jade-45);
+    font-size: var(--text-xs);
+
+    p {
+      margin: 4px 0;
+    }
+
+    a {
+      color: var(--jade-45);
+    }
+  }
+}
+
+/* Legacy message styles (da rimuovere gradualmente) */

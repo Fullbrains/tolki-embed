@@ -7,6 +7,14 @@ export interface ScrollState {
 }
 
 /**
+ * Configuration for scroll thresholds
+ */
+export interface ScrollThresholds {
+  showButtonThreshold: number
+  atBottomThreshold: number
+}
+
+/**
  * Service to manage scroll state and behaviors
  * Separated from DOM manipulation for better testability
  */
@@ -18,15 +26,26 @@ export class ScrollStateManager {
 
   private listeners: Array<(state: ScrollState) => void> = []
 
+  private thresholds: ScrollThresholds = {
+    showButtonThreshold: 200,
+    atBottomThreshold: 50
+  }
+
+  constructor(thresholds?: Partial<ScrollThresholds>) {
+    if (thresholds) {
+      this.thresholds = { ...this.thresholds, ...thresholds }
+    }
+  }
+
   /**
    * Calculate scroll state based on scroll metrics
    */
   updateState(scrollTop: number, scrollHeight: number, clientHeight: number): void {
     const offsetFromBottom = scrollHeight - (scrollTop + clientHeight)
-    
+
     const newState: ScrollState = {
-      showScrollDown: offsetFromBottom > 200,
-      atBottom: offsetFromBottom <= 50
+      showScrollDown: offsetFromBottom > this.thresholds.showButtonThreshold,
+      atBottom: offsetFromBottom <= this.thresholds.atBottomThreshold
     }
 
     // Only notify if state actually changed

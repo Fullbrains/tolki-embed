@@ -1,6 +1,6 @@
 // Lit Imports
 import { property, State, StateController, storage } from '@lit-app/state'
-import { html, LitElement } from 'lit'
+import { html, LitElement, unsafeCSS } from 'lit'
 import { customElement, query, queryAll } from 'lit/decorators.js'
 import { classMap } from 'lit/directives/class-map.js'
 import { keyed } from 'lit/directives/keyed.js'
@@ -19,7 +19,7 @@ import cobalt from '@fullbrains/iride/cobalt.js'
 import steel from '@fullbrains/iride/steel.js'
 
 // Styles
-import styles from './styles/tolki-chat.scss'
+import styles from './styles/tolki-chat.css'
 
 // Tolki Services
 import { UUID, validateUUID } from '../../utils/uuid'
@@ -32,11 +32,17 @@ import {
 } from '../../services/chat-commands'
 import { ScrollStateManager } from '../../services/scroll-state-manager'
 import { HistoryManager } from '../../services/history-manager'
+import { Logger } from '../../services/logger'
+import { MobileScrollLockService } from '../../services/mobile-scroll-lock'
+import { eventBus } from '../../services/event-bus'
+import { SettingsRepository } from '../../services/settings-repository'
+import { PropsManager } from '../../services/props-manager'
 
 // Tolki Types
 import { Item, ItemType } from '../../types/item'
 import { BotInitResult, BotStatus } from '../../types/bot'
-import { ApiMessageResponse, ApiMessageResponseStatus } from '../../types/api'
+import { ApiMessageResponseStatus } from '../../types/api'
+import { TolkiChatProps } from '../../types/props'
 
 // Templates
 import { headerTemplate } from './templates/header'
@@ -48,6 +54,11 @@ import { suggestionsTemplate } from './templates/suggestions'
 
 // Utils
 import { CartHelpers } from '../../utils/chat-helpers'
+import {
+  transformBotPropsToTolkiProps,
+  isBotPro,
+} from '../../utils/props-transformer'
+import { generateHoverColor } from '../../utils/color'
 
 const TOLKI_CHAT: string = `tolki-chat`
 const TOLKI_PREFIX: string = `tolki`
@@ -102,14 +113,27 @@ class ChatState extends State {
 }
 
 const state = new ChatState()
-let slef = null
 
 // Global command registry will be initialized when the component is created
 export let ActionCommands: ReturnType<typeof createActionCommands>
 
 @customElement(TOLKI_CHAT)
 export class TolkiChat extends LitElement {
-  static styles = styles
+  static styles = unsafeCSS(styles)
+
+  // Constants
+  private static readonly MOBILE_BREAKPOINT_PX = 480
+  private static readonly SCROLL_SHOW_BUTTON_THRESHOLD_PX = 200
+  private static readonly SCROLL_AT_BOTTOM_THRESHOLD_PX = 50
+  private static readonly SCROLL_ANIMATION_SHORT_MS = 100
+  private static readonly SCROLL_ANIMATION_MEDIUM_MS = 200
+  private static readonly SCROLL_ANIMATION_LONG_MS = 500
+  private static readonly FOCUS_DELAY_MS = 300
+  private static readonly RESIZE_RETRY_DELAY_MS = 300
+  private static readonly TEXTAREA_DEFAULT_HEIGHT_PX = 43
+  private static readonly LOG_BOTTOM_OFFSET_PX = 80
+  private static readonly MAX_RESIZE_RETRIES = 3
+
   stateController = new StateController(this, state)
   suggestionsListenersAdded = false
   requestedLang?: string
@@ -118,9 +142,35 @@ export class TolkiChat extends LitElement {
   private commandService!: ChatCommandService
   private scrollStateManager!: ScrollStateManager
   private historyManager!: HistoryManager
+  private scrollLock = new MobileScrollLockService()
+  private settings = new SettingsRepository()
+  private propsManager = new PropsManager()
 
   static get observedAttributes() {
-    return ['bot', 'inline', 'unclosable', 'lang']
+    return [
+      'bot',
+      'position',
+      'placeholder',
+      'size',
+      'default-open',
+      'expandable',
+      'unclosable',
+      'dark',
+      'avatar',
+      'blur',
+      'backdrop',
+      'toggle-color',
+      'icon',
+      'unbranded',
+      'message-color',
+      'welcome-message',
+      'toasts',
+      'lang',
+      'suggestions',
+      'locales',
+      // Legacy - for backward compatibility
+      'inline',
+    ]
   }
 
   @query('.tk__close') close: HTMLButtonElement
@@ -138,11 +188,11 @@ export class TolkiChat extends LitElement {
   private resizeObserver?: ResizeObserver
   private boundToggleWindow?: () => void
   private boundResetChat?: () => void
+  private unsubscribeTolkiUpdate?: () => void
+  private unsubscribeCartLoaded?: () => void
 
   constructor() {
     super()
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    slef = this
 
     // Bind event handlers
     this.boundToggleWindow = () => this.toggleWindow()
@@ -157,137 +207,17 @@ export class TolkiChat extends LitElement {
       this.requestedLang = langAttr
     }
 
-    // Listen for tolki:update event to force re-rendering
-    window.addEventListener('tolki:update', () => {
+    // Subscribe to events via EventBus
+    this.unsubscribeTolkiUpdate = eventBus.on('tolki:update', () => {
       this.handleTolkiUpdate()
     })
 
-    // Listen for cart loaded event to update cart notification
-    window.addEventListener('tolki:cart:loaded', () => {
+    this.unsubscribeCartLoaded = eventBus.on('tolki:cart:loaded', () => {
       this.handleCartLoaded()
     })
 
-    // Add the update function to window.tolki
-    if (!window.tolki) {
-      window.tolki = {}
-    }
-    window.tolki.update = () => {
-      window.dispatchEvent(new Event('tolki:update'))
-    }
-
     // Ensure Google Fonts load in Shadow DOM
     this.ensureFontLoading()
-  }
-
-  /**
-   * Robust mobile scroll lock inspired by body-scroll-lock libraries
-   */
-  private handleMobileBodyScroll(isOpen: boolean): void {
-    // Only apply on mobile
-    if (window.innerWidth > 480) return
-
-    const body = document.body
-    const html = document.documentElement
-
-    if (isOpen) {
-      // Store initial state
-      const scrollY = window.scrollY
-      const scrollBarWidth = window.innerWidth - document.documentElement.clientWidth
-      
-      // Get computed styles to preserve them
-      const bodyStyle = getComputedStyle(body)
-      const htmlStyle = getComputedStyle(html)
-      
-      // Store original styles
-      body.setAttribute('data-tolki-scroll-y', scrollY.toString())
-      body.setAttribute('data-tolki-original-overflow', body.style.overflow || '')
-      body.setAttribute('data-tolki-original-position', body.style.position || '')
-      body.setAttribute('data-tolki-original-top', body.style.top || '')
-      body.setAttribute('data-tolki-original-width', body.style.width || '')
-      html.setAttribute('data-tolki-original-overflow', html.style.overflow || '')
-      
-      // Apply robust scroll lock
-      body.style.setProperty('overflow', 'hidden', 'important')
-      body.style.setProperty('position', 'fixed', 'important')
-      body.style.setProperty('top', `-${scrollY}px`, 'important')
-      body.style.setProperty('width', '100%', 'important')
-      body.style.setProperty('height', '100%', 'important')
-      
-      // Handle scrollbar compensation
-      if (scrollBarWidth > 0) {
-        body.style.setProperty('padding-right', `${scrollBarWidth}px`, 'important')
-      }
-      
-      html.style.setProperty('overflow', 'hidden', 'important')
-      html.style.setProperty('height', '100%', 'important')
-      
-      // iOS specific fixes
-      if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-        body.style.setProperty('-webkit-overflow-scrolling', 'auto', 'important')
-        html.style.setProperty('-webkit-overflow-scrolling', 'auto', 'important')
-      }
-      
-      // Prevent zoom on iOS
-      const viewport = document.querySelector('meta[name="viewport"]')
-      if (viewport) {
-        viewport.setAttribute('data-tolki-original-content', viewport.getAttribute('content') || '')
-        viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
-      }
-      
-    } else {
-      // Restore all original styles
-      const scrollY = body.getAttribute('data-tolki-scroll-y')
-      const originalOverflow = body.getAttribute('data-tolki-original-overflow')
-      const originalPosition = body.getAttribute('data-tolki-original-position')
-      const originalTop = body.getAttribute('data-tolki-original-top')
-      const originalWidth = body.getAttribute('data-tolki-original-width')
-      const htmlOriginalOverflow = html.getAttribute('data-tolki-original-overflow')
-      
-      // Remove all applied styles
-      body.style.removeProperty('overflow')
-      body.style.removeProperty('position')
-      body.style.removeProperty('top')
-      body.style.removeProperty('width')
-      body.style.removeProperty('height')
-      body.style.removeProperty('padding-right')
-      body.style.removeProperty('-webkit-overflow-scrolling')
-      
-      html.style.removeProperty('overflow')
-      html.style.removeProperty('height')
-      html.style.removeProperty('-webkit-overflow-scrolling')
-      
-      // Restore original values
-      if (originalOverflow) body.style.overflow = originalOverflow
-      if (originalPosition) body.style.position = originalPosition
-      if (originalTop) body.style.top = originalTop
-      if (originalWidth) body.style.width = originalWidth
-      if (htmlOriginalOverflow) html.style.overflow = htmlOriginalOverflow
-      
-      // Restore viewport
-      const viewport = document.querySelector('meta[name="viewport"]')
-      if (viewport) {
-        const originalContent = viewport.getAttribute('data-tolki-original-content')
-        if (originalContent) {
-          viewport.setAttribute('content', originalContent)
-          viewport.removeAttribute('data-tolki-original-content')
-        }
-      }
-      
-      // Clean up attributes
-      body.removeAttribute('data-tolki-scroll-y')
-      body.removeAttribute('data-tolki-original-overflow')
-      body.removeAttribute('data-tolki-original-position')
-      body.removeAttribute('data-tolki-original-top')
-      body.removeAttribute('data-tolki-original-width')
-      html.removeAttribute('data-tolki-original-overflow')
-      
-      // Restore scroll position with animation frame to ensure DOM is ready
-      if (scrollY) {
-        requestAnimationFrame(() => {
-          window.scrollTo(0, parseInt(scrollY, 10))
-        })
-      }
-    }
   }
 
   /**
@@ -295,19 +225,24 @@ export class TolkiChat extends LitElement {
    */
   private ensureFontLoading(): void {
     const head = document.head
-    
+
     // Check if font stylesheet already exists
-    const existingFontLinks = Array.from(head.querySelectorAll('link[rel="stylesheet"]'))
-    const hasFunnelSansLink = existingFontLinks.some(link => {
+    const existingFontLinks = Array.from(
+      head.querySelectorAll('link[rel="stylesheet"]')
+    )
+    const hasFunnelSansLink = existingFontLinks.some((link) => {
       const href = link.getAttribute('href') || ''
-      return href.includes('fonts.googleapis.com') && href.includes('Funnel+Sans')
+      return (
+        href.includes('fonts.googleapis.com') && href.includes('Funnel+Sans')
+      )
     })
 
     // Add font stylesheet to document head (required for Shadow DOM compatibility)
     if (!hasFunnelSansLink) {
       const fontLink = document.createElement('link')
       fontLink.rel = 'stylesheet'
-      fontLink.href = 'https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap'
+      fontLink.href =
+        'https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap'
       head.appendChild(fontLink)
     }
   }
@@ -325,8 +260,11 @@ export class TolkiChat extends LitElement {
       (history) => this.saveSetting('history', history)
     )
 
-    // Initialize scroll state manager
-    this.scrollStateManager = new ScrollStateManager()
+    // Initialize scroll state manager with thresholds
+    this.scrollStateManager = new ScrollStateManager({
+      showButtonThreshold: TolkiChat.SCROLL_SHOW_BUTTON_THRESHOLD_PX,
+      atBottomThreshold: TolkiChat.SCROLL_AT_BOTTOM_THRESHOLD_PX,
+    })
 
     // Subscribe to scroll state changes
     this.scrollStateManager.onStateChange((scrollState) => {
@@ -372,7 +310,7 @@ export class TolkiChat extends LitElement {
 
       // If content height changed and user was at bottom, scroll to new bottom
       if (wasAtBottom && newScrollHeight !== scrollHeight) {
-        this.scrollToLastMessage(100) // Animated scroll for better UX
+        this.scrollToLastMessage(TolkiChat.SCROLL_ANIMATION_SHORT_MS) // Animated scroll for better UX
       }
       // If content height changed significantly, update scroll state
       else if (Math.abs(newScrollHeight - scrollHeight) > 50) {
@@ -406,7 +344,7 @@ export class TolkiChat extends LitElement {
       state.history.push(cartNotification)
       this.saveHistory()
       this.updateComplete.then(() => {
-        this.scrollToLastMessage(100)
+        this.scrollToLastMessage(TolkiChat.SCROLL_ANIMATION_SHORT_MS)
       })
     } else {
       // Just save history if we removed notifications but don't add new one
@@ -419,15 +357,15 @@ export class TolkiChat extends LitElement {
     this.handleTolkiUpdate()
   }
 
-  getSetting(key: string): string | boolean | unknown | undefined {
+  getSetting<T = unknown>(key: string): T | undefined {
     if (!this.botUUID) return undefined
     const settings = JSON.parse(state.settings)
     if (!settings[this.botUUID]) return undefined
-    return settings[this.botUUID][key]
+    return settings[this.botUUID][key] as T
   }
 
-  saveSetting(key: string, value: unknown): void {
-    if (!this.botUUID) return undefined
+  saveSetting<T = unknown>(key: string, value: T): void {
+    if (!this.botUUID) return
     const settings = JSON.parse(state.settings)
     if (!settings[this.botUUID]) settings[this.botUUID] = {}
     settings[this.botUUID][key] = value
@@ -439,26 +377,65 @@ export class TolkiChat extends LitElement {
     oldValue?: unknown,
     newValue?: unknown
   ) {
-    if (name === 'inline') {
-      state.inline = true
-    }
-    if (name === 'unclosable') {
-      state.unclosable = true
-    }
-    if (name === 'lang' && newValue) {
-      // Store the requested language to use during initialization
-      this.requestedLang = newValue as string
-    }
+    // Handle bot attribute separately (triggers initialization)
     if (name === 'bot' && newValue) {
       this.init().then()
+      return
     }
+
+    // Handle lang attribute separately (sets locale)
+    if (name === 'lang' && newValue) {
+      this.requestedLang = newValue as string
+    }
+
+    // Convert legacy 'inline' attribute to 'position'
+    if (name === 'inline') {
+      // Legacy support: inline attribute means position="inline"
+      state.inline = true
+      this.updatePropsFromAttributes({ position: 'inline' })
+      return
+    }
+
+    // Update props manager with all current attributes
+    this.updatePropsFromAttributes()
+  }
+
+  /**
+   * Update props manager with current HTML attributes
+   */
+  private updatePropsFromAttributes(override?: { [key: string]: string | boolean | null }): void {
+    const attributes: { [key: string]: string | boolean | null } = {}
+
+    // Collect all observed attributes
+    const observedAttrs = (this.constructor as typeof TolkiChat).observedAttributes
+    observedAttrs.forEach((attr) => {
+      if (attr === 'bot' || attr === 'inline') return // Skip these
+
+      const value = this.getAttribute(attr)
+      if (value !== null) {
+        attributes[attr] = value
+      }
+    })
+
+    // Apply overrides if any
+    if (override) {
+      Object.assign(attributes, override)
+    }
+
+    // Update props manager
+    this.propsManager.setUserAttributes(attributes)
+
+    // Update legacy state properties for backward compatibility
+    const props = this.propsManager.getProps()
+    state.inline = props.position === 'inline'
+    state.unclosable = props.unclosable
   }
 
   static async setLanguage(locale: string) {
     try {
       await setLocale(locale)
     } catch (error) {
-      console.warn('Failed to set locale:', locale, error)
+      Logger.warn('Failed to set locale:', locale, error)
       // Fallback to English if locale loading fails
       await setLocale('en')
     }
@@ -511,14 +488,27 @@ export class TolkiChat extends LitElement {
 
         state.bot = bot
 
-        const chatUUID = this.getSetting('chat') as string
+        // Transform backend props and pass to props manager
+        if (bot.props) {
+          const isPro = isBotPro(bot.props)
+          const transformedProps = transformBotPropsToTolkiProps(bot.props, isPro)
+
+          // Set backend props with appropriate priority
+          if (isPro) {
+            this.propsManager.setProBackendProps(transformedProps)
+          } else {
+            this.propsManager.setStandardBackendProps(transformedProps)
+          }
+        }
+
+        const chatUUID = this.getSetting<string>('chat')
         if (!validateUUID(chatUUID)) {
           state.chat = UUID()
         } else {
           state.chat = chatUUID
         }
 
-        const history = this.getSetting('history') as Item[]
+        const history = this.getSetting<Item[]>('history')
 
         if (history) {
           state.history = history
@@ -531,8 +521,8 @@ export class TolkiChat extends LitElement {
           await this.addHeadingMessages()
         }
 
-        const savedOpen = this.getSetting('open') as string
-        const isMobile = window.innerWidth <= 480 // Using same breakpoint as CSS
+        const savedOpen = this.getSetting<string>('open')
+        const isMobile = window.innerWidth <= TolkiChat.MOBILE_BREAKPOINT_PX
 
         if (savedOpen === 'false') {
           state.open = ''
@@ -545,10 +535,14 @@ export class TolkiChat extends LitElement {
         }
 
         // Handle initial body scroll lock if opening on mobile
-        slef.handleMobileBodyScroll(state.open === 'true')
+        if (state.open === 'true') {
+          this.scrollLock.lock()
+        }
 
         setTimeout(() => {
-          const top = this.log.scrollHeight - (this.log.clientHeight - 80)
+          const top =
+            this.log.scrollHeight -
+            (this.log.clientHeight - TolkiChat.LOG_BOTTOM_OFFSET_PX)
           this.log.scrollTo({
             top,
             behavior: 'auto',
@@ -557,7 +551,7 @@ export class TolkiChat extends LitElement {
       })
       .catch((bot) => {
         state.bot = bot
-        console.error('Tolki: Bot not initialized:', bot)
+        Logger.error('Bot not initialized:', bot)
       })
   }
 
@@ -583,21 +577,37 @@ export class TolkiChat extends LitElement {
     resetAction.templateKey = 'reset_confirmation'
 
     state.history = [...state.history, resetAction]
-    slef.scrollToBottom(100)
+    this.scrollToBottom(TolkiChat.SCROLL_ANIMATION_SHORT_MS)
   }
 
   get colorVariables() {
-    const styles = state.bot.props.styles?.chat
+    // Get final computed props from props manager
+    const props = this.propsManager.getProps()
     const map: { [key: string]: string } = {}
-    map['toggle-default-background'] =
-      styles?.button?.defaultBackgroundColor || cobalt['cobalt-41']
-    map['toggle-hover-background'] =
-      styles?.button?.hoverBackgroundColor || cobalt['cobalt-35']
-    map['toggle-dots-background'] =
-      styles?.button?.foregroundColor || steel['steel-14']
-    map['bubble-background'] =
-      styles?.bubble?.backgroundColor || cobalt['cobalt-35']
-    map['bubble-color'] = styles?.bubble?.foregroundColor || steel['steel-01']
+
+    // Parse toggle color (default and hover)
+    const toggleColors = this.parseColorPair(
+      props.toggleColor,
+      cobalt['cobalt-41'],
+      cobalt['cobalt-35']
+    )
+    map['toggle-default-background'] = toggleColors.default
+    map['toggle-hover-background'] = toggleColors.hover
+
+    // Icon color (auto-generated if null)
+    map['toggle-dots-background'] = props.icon || steel['steel-14']
+
+    // Parse message color (default and hover)
+    const messageColors = this.parseColorPair(
+      props.messageColor,
+      cobalt['cobalt-35'],
+      cobalt['cobalt-30']
+    )
+    map['bubble-background'] = messageColors.default
+    // Note: We don't currently use hover for bubble, but it's available if needed
+
+    // Bubble text color (hardcoded for now, could be a prop in the future)
+    map['bubble-color'] = steel['steel-01']
 
     return Object.keys(map)
       .map((key: string) => {
@@ -606,35 +616,64 @@ export class TolkiChat extends LitElement {
       .join(';')
   }
 
+  /**
+   * Parse a color value that might be a single color or a color pair
+   * Auto-generates hover color if only a single color is provided
+   */
+  private parseColorPair(
+    value: string,
+    defaultColor: string,
+    defaultHoverColor: string
+  ): { default: string; hover: string } {
+    if (!value) {
+      return { default: defaultColor, hover: defaultHoverColor }
+    }
+
+    // Check if it's a pair (contains comma)
+    if (value.includes(',')) {
+      const [def, hover] = value.split(',').map((c) => c.trim())
+      return { default: def, hover: hover }
+    }
+
+    // Single color - auto-generate hover color
+    return { default: value, hover: generateHoverColor(value) }
+  }
+
   toggleWindow() {
     const wasOpen = state.open === 'true'
     state.open = state.open === 'true' ? '' : 'true'
-    slef.saveSetting('open', state.open === 'true' ? 'true' : 'false')
+    this.saveSetting('open', state.open === 'true' ? 'true' : 'false')
 
     // Handle body scroll lock on mobile
-    slef.handleMobileBodyScroll(state.open === 'true')
+    if (state.open === 'true') {
+      this.scrollLock.lock()
+    } else {
+      this.scrollLock.unlock()
+    }
 
     // Focus input only when user manually opens window
     if (!wasOpen && state.open === 'true') {
-      slef.updateComplete.then(() => {
+      this.updateComplete.then(() => {
         setTimeout(() => {
-          if (slef.textarea) {
-            slef.textarea.focus()
+          if (this.textarea) {
+            this.textarea.focus()
           }
-        }, 300)
+        }, TolkiChat.FOCUS_DELAY_MS)
       })
     }
   }
 
   resetMessage() {
     this.textarea.value = ''
-    this.textarea.style.height = '43px'
+    this.textarea.style.height = `${TolkiChat.TEXTAREA_DEFAULT_HEIGHT_PX}px`
     this.textarea.focus()
   }
 
-  scrollToBottom(timeout: number = 500) {
+  scrollToBottom(timeout: number = TolkiChat.SCROLL_ANIMATION_LONG_MS) {
     setTimeout(() => {
-      const top = this.log.scrollHeight - (this.log.clientHeight - 80)
+      const top =
+        this.log.scrollHeight -
+        (this.log.clientHeight - TolkiChat.LOG_BOTTOM_OFFSET_PX)
       this.log.scrollTo({
         top,
         behavior: 'smooth',
@@ -643,26 +682,31 @@ export class TolkiChat extends LitElement {
   }
 
   scrollToLastMessage(
-    timeout: number = 500,
+    timeout: number = TolkiChat.SCROLL_ANIMATION_LONG_MS,
     animated: boolean = true,
     retryCount: number = 0,
     targetMessageIndex?: number
   ) {
     setTimeout(() => {
       if (!this.log) return
-      
+
       const chatItems = this.log.querySelectorAll('.tk__chat-item')
       if (chatItems.length > 0) {
         // Use target index if provided, otherwise scroll to last message
-        const targetIndex = targetMessageIndex !== undefined ? targetMessageIndex : chatItems.length - 1
-        const targetMessage = chatItems[Math.min(targetIndex, chatItems.length - 1)] as HTMLElement
-        
+        const targetIndex =
+          targetMessageIndex !== undefined
+            ? targetMessageIndex
+            : chatItems.length - 1
+        const targetMessage = chatItems[
+          Math.min(targetIndex, chatItems.length - 1)
+        ] as HTMLElement
+
         if (!targetMessage) return
-        
+
         const initialHeight = this.log.scrollHeight
         // Get the actual position of the target message relative to the log container
         const messageTop = targetMessage.offsetTop
-        
+
         // Scroll to position the message at the top of the visible area
         // The log has padding-top: 20px, minus 10px to show the message slightly lower
         const scrollPosition = messageTop - 20 + 10
@@ -673,8 +717,8 @@ export class TolkiChat extends LitElement {
         })
 
         // For dynamic content (cart/orders), check if height changed after scroll
-        // and retry if needed (up to 3 times)
-        if (retryCount < 3) {
+        // and retry if needed
+        if (retryCount < TolkiChat.MAX_RESIZE_RETRIES) {
           setTimeout(() => {
             const newHeight = this.log.scrollHeight
             const hasCartOrOrders = this.log.querySelector(
@@ -683,9 +727,14 @@ export class TolkiChat extends LitElement {
 
             // If height changed significantly and we have dynamic content, retry
             if (hasCartOrOrders && Math.abs(newHeight - initialHeight) > 20) {
-              this.scrollToLastMessage(200, animated, retryCount + 1, targetMessageIndex)
+              this.scrollToLastMessage(
+                TolkiChat.SCROLL_ANIMATION_MEDIUM_MS,
+                animated,
+                retryCount + 1,
+                targetMessageIndex
+              )
             }
-          }, 300)
+          }, TolkiChat.RESIZE_RETRY_DELAY_MS)
         }
       }
     }, timeout)
@@ -702,14 +751,19 @@ export class TolkiChat extends LitElement {
   afterReceive() {
     state.pending = false
     this.updateComplete.then(() => {
-      this.scrollToLastMessage(100)
+      this.scrollToLastMessage(TolkiChat.SCROLL_ANIMATION_SHORT_MS)
     })
   }
 
   afterReceiveWithTarget(targetMessageIndex: number) {
     state.pending = false
     this.updateComplete.then(() => {
-      this.scrollToLastMessage(100, true, 0, targetMessageIndex)
+      this.scrollToLastMessage(
+        TolkiChat.SCROLL_ANIMATION_SHORT_MS,
+        true,
+        0,
+        targetMessageIndex
+      )
     })
   }
 
@@ -717,17 +771,18 @@ export class TolkiChat extends LitElement {
     state.pending = true
     this.resetMessage()
     this.updateComplete.then(() => {
-      this.scrollToLastMessage(100)
+      this.scrollToLastMessage(TolkiChat.SCROLL_ANIMATION_SHORT_MS)
     })
   }
 
   logScroll = () => {
-    const scrollHeight = this.log.scrollHeight
-    const scrollTop = this.log.scrollTop
-    const clientHeight = this.log.clientHeight
-    const offsetFromBottom = scrollHeight - (scrollTop + clientHeight)
-    state.showScrollDown = offsetFromBottom > 200
-    state.atBottom = offsetFromBottom <= 50
+    if (!this.log) return
+
+    this.scrollStateManager.updateState(
+      this.log.scrollTop,
+      this.log.scrollHeight,
+      this.log.clientHeight
+    )
   }
 
   clearHistory(): Item[] {
@@ -755,6 +810,13 @@ export class TolkiChat extends LitElement {
     this.saveSetting('history', serializedMessages)
   }
 
+  /**
+   * Centralized error logging using Logger service
+   */
+  private logError(message: string, error: unknown): void {
+    Logger.error(message, error)
+  }
+
   async processHistoryLocales() {
     // Find the last setLocale message in history
     let lastLocale: string | null = null
@@ -774,7 +836,7 @@ export class TolkiChat extends LitElement {
 
       if (lastLocale !== previousLocale) {
         await TolkiChat.setLanguage(lastLocale)
-        slef.saveHistory()
+        this.saveHistory()
       }
     }
   }
@@ -784,14 +846,14 @@ export class TolkiChat extends LitElement {
 
     if (!message || message === '' || state.bot?.status !== BotStatus.ok) {
       this.resetMessage()
-      this.scrollToBottom(100)
+      this.scrollToBottom(TolkiChat.SCROLL_ANIMATION_SHORT_MS)
       return
     }
 
     if (state.virtualKeyboardVisibility === 'visible') {
       setTimeout(() => {
         this.textarea.blur()
-      }, 100)
+      }, TolkiChat.SCROLL_ANIMATION_SHORT_MS)
     }
 
     const userInputItem = ItemBuilder.userInput(message)
@@ -802,45 +864,51 @@ export class TolkiChat extends LitElement {
     this.afterSend()
 
     try {
-      Api.message(state.chat, state.bot.uuid, message, state.bot.props.isAdk)
-        .then(async ({ data }: ApiMessageResponse) => {
-          if (Array.isArray(data)) {
-            const items: Item[] = data
-            
-            // First remove thinking indicator
-            this.clearHistory()
-            
-            // Now track the index of the first new message for scrolling
-            // This will be the correct index after thinking is removed
-            const firstNewMessageIndex = state.history.length
+      const response = await Api.message(
+        state.chat,
+        state.bot.uuid,
+        message,
+        state.bot.props.isAdk
+      )
 
-            for (const item of items) {
-              state.history.push(item)
-            }
+      if (
+        response.status === ApiMessageResponseStatus.error ||
+        response.status === ApiMessageResponseStatus.notOk
+      ) {
+        throw new Error(`API Error: ${response.status}`)
+      }
 
-            // Process any setLocale messages that were added
-            await this.processHistoryLocales()
+      const { data } = response
 
-            this.saveHistory()
-            this.afterReceiveWithTarget(firstNewMessageIndex)
-          }
-        })
-        .catch(({ status, data, response, error }: ApiMessageResponse) => {
-          if (
-            status === ApiMessageResponseStatus.error ||
-            status === ApiMessageResponseStatus.notOk
-          ) {
-            state.history.push(ItemBuilder.error())
-            state.history = state.history.filter(
-              (item) => item.type !== ItemType.thinking
-            )
-            this.saveHistory()
-            console.error('Tolki: error:', status, data, response, error)
-            this.afterReceive()
-          }
-        })
-    } catch (err) {
-      console.error('Tolki: error:', err)
+      if (Array.isArray(data)) {
+        const items: Item[] = data
+
+        // First remove thinking indicator
+        this.clearHistory()
+
+        // Now track the index of the first new message for scrolling
+        // This will be the correct index after thinking is removed
+        const firstNewMessageIndex = state.history.length
+
+        for (const item of items) {
+          state.history.push(item)
+        }
+
+        // Process any setLocale messages that were added
+        await this.processHistoryLocales()
+
+        this.saveHistory()
+        this.afterReceiveWithTarget(firstNewMessageIndex)
+      }
+    } catch (error) {
+      // Remove thinking indicator and add error message
+      this.clearHistory()
+      state.history.push(ItemBuilder.error())
+      this.saveHistory()
+
+      // Log error for debugging/tracking
+      this.logError('Failed to send message', error)
+
       this.afterReceive()
     }
   }
@@ -926,21 +994,21 @@ export class TolkiChat extends LitElement {
         break
       case 'set_locale':
         if (commandParam) {
-          this.changeLanguage(commandParam).catch(console.error)
+          this.changeLanguage(commandParam).catch((error) => this.logError('Failed to change language', error))
           return // Don't update history for language changes
         } else {
-          console.warn('set_locale command requires a locale parameter')
+          Logger.warn('set_locale command requires a locale parameter')
           return
         }
       default:
-        console.warn('Unknown command:', command)
+        Logger.warn('Unknown command:', command)
         return
     }
 
     this.clearHistory()
     this.saveHistory()
     this.updateComplete.then(() => {
-      this.scrollToLastMessage(100)
+      this.scrollToLastMessage(TolkiChat.SCROLL_ANIMATION_SHORT_MS)
     })
   }
 
@@ -992,7 +1060,7 @@ export class TolkiChat extends LitElement {
 
     // Scroll to the new message
     this.updateComplete.then(() => {
-      this.scrollToLastMessage(100)
+      this.scrollToLastMessage(TolkiChat.SCROLL_ANIMATION_SHORT_MS)
     })
   }
 
@@ -1012,10 +1080,10 @@ export class TolkiChat extends LitElement {
       this.autoScrollToBottom()
       setTimeout(() => {
         this.log.addEventListener('scroll', logScroll)
-      }, 500)
+      }, TolkiChat.SCROLL_ANIMATION_LONG_MS)
     }
     const scrollDown = () => {
-      this.scrollToBottom(100)
+      this.scrollToBottom(TolkiChat.SCROLL_ANIMATION_SHORT_MS)
     }
     const logScroll = () => {
       this.logScroll()
@@ -1129,7 +1197,7 @@ export class TolkiChat extends LitElement {
     this.suggestionsContainer.addEventListener('scroll', updateScrollButtons)
 
     // Check again after a small delay to ensure DOM is fully rendered
-    setTimeout(updateScrollButtons, 100)
+    setTimeout(updateScrollButtons, TolkiChat.SCROLL_ANIMATION_SHORT_MS)
   }
 
   private setupDynamicContentObserver() {
@@ -1156,7 +1224,7 @@ export class TolkiChat extends LitElement {
 
       // If dynamic content changed size and user was at bottom, maintain scroll
       if (shouldUpdateScroll && state.atBottom) {
-        this.scrollToLastMessage(100, false) // No animation for resize updates
+        this.scrollToLastMessage(TolkiChat.SCROLL_ANIMATION_SHORT_MS, false) // No animation for resize updates
       }
     })
 
@@ -1172,6 +1240,10 @@ export class TolkiChat extends LitElement {
   disconnectedCallback() {
     super.disconnectedCallback()
 
+    // Clean up event bus subscriptions
+    if (this.unsubscribeTolkiUpdate) this.unsubscribeTolkiUpdate()
+    if (this.unsubscribeCartLoaded) this.unsubscribeCartLoaded()
+
     // Clean up ResizeObserver
     if (this.resizeObserver) {
       this.resizeObserver.disconnect()
@@ -1179,7 +1251,7 @@ export class TolkiChat extends LitElement {
     }
 
     // Clean up body scroll lock if component is removed while open
-    slef.handleMobileBodyScroll(false)
+    this.scrollLock.unlock()
   }
 
   override render() {
@@ -1202,12 +1274,18 @@ export class TolkiChat extends LitElement {
               'tk__window--floating': !state.inline,
               'tk__window--unclosable': state.unclosable,
             })}
+            role="region"
+            aria-label=${state.bot?.props?.name || 'Chat'}
           >
             ${headerTemplate(state.bot.props.name, state.bot.props.avatar)}
             <div
               class=${classMap({
                 tk__log: true,
               })}
+              role="log"
+              aria-live="polite"
+              aria-atomic="false"
+              aria-label="Chat messages"
             >
               ${state.history
                 .filter((item) => item && item.type)

@@ -1,0 +1,15 @@
+:host {
+--font-base: "Funnel Sans", sans-serif;
+--weight-bold: 700;
+--weight-medium: 500;
+--weight-normal: 400;
+
+--text-base: 17px;
+--text-large: 18px;
+--text-small: 14px;
+--text-tiny: 10px;
+--text-xs: 12px;
+
+--leading-base: 1.5;
+--tracking-base: normal;
+}

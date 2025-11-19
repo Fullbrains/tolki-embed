@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tolki Chat Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .error {
+            color: #d32f2f;
+            background: #ffebee;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .success {
+            color: #2e7d32;
+            background: #e8f5e9;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="info">
+        <h1>Tolki Chat - Test Page</h1>
+        <div id="status">Caricamento in corso...</div>
+    </div>
+
+    <!-- Web Component -->
+    <tolki-chat bot-id="test"></tolki-chat>
+
+    <!-- Load the chat component -->
+    <script src="dist/chat.js"></script>
+
+    <!-- Test script -->
+    <script>
+        const statusDiv = document.getElementById('status');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const chatElement = document.querySelector('tolki-chat');
+                const computedStyles = chatElement ? window.getComputedStyle(chatElement) : null;
+
+                let html = '<h3>Diagnostica:</h3><ul>';
+
+                // Check if custom element is defined
+                html += `<li>CustomElement definito: ${customElements.get('tolki-chat') ? '✅ SI' : '❌ NO'}</li>`;
+
+                // Check if element exists
+                html += `<li>Elemento trovato nel DOM: ${chatElement ? '✅ SI' : '❌ NO'}</li>`;
+
+                if (chatElement && computedStyles) {
+                    // Check CSS variables
+                    const cobaltColor = computedStyles.getPropertyValue('--cobalt-01');
+                    const steelColor = computedStyles.getPropertyValue('--steel-01');
+                    const fontFamily = computedStyles.getPropertyValue('font-family');
+
+                    html += `<li>Variabile --cobalt-01: ${cobaltColor || '❌ Non trovata'}</li>`;
+                    html += `<li>Variabile --steel-01: ${steelColor || '❌ Non trovata'}</li>`;
+                    html += `<li>Font family applicato: ${fontFamily || '❌ Non applicato'}</li>`;
+                    html += `<li>Display: ${computedStyles.display}</li>`;
+                    html += `<li>Position: ${computedStyles.position}</li>`;
+                }
+
+                // Check for errors
+                html += '</ul>';
+
+                if (customElements.get('tolki-chat') && chatElement) {
+                    html += '<div class="success">✅ Il componente sembra caricato correttamente!</div>';
+                } else {
+                    html += '<div class="error">❌ Problema di caricamento rilevato</div>';
+                }
+
+                statusDiv.innerHTML = html;
+            }, 500);
+        });
+
+        // Catch any errors
+        window.addEventListener('error', (e) => {
+            console.error('Error:', e);
+            statusDiv.innerHTML += `<div class="error">Errore: ${e.message}</div>`;
+        });
+    </script>
+</body>
+</html>

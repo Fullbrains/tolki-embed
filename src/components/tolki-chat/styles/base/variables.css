@@ -1,0 +1,22 @@
+:host {
+  /* Sizes */
+  --toggle-btn-size: 60px;
+  --brand-dot-size: calc(var(--toggle-btn-size) * 0.12);
+  --circle-btn-size: 40px;
+  --margin: 20px;
+  --message-radius: 15px;
+  --mobile-breakpoint: 480px;
+  --window-border-radius: 10px;
+
+  /* Z-index layers */
+  --z-branding: 10;
+  --z-header: 10;
+  --z-window-floating: 9999999;
+
+  /* Animation timings */
+  --transition-default: 0.3s ease-out;
+  --transition-fast: 0.2s ease-out;
+
+  /* Colors */
+  --link-color: color-mix(in srgb, var(--sky-50) 50%, var(--cobalt-30) 50%);
+}

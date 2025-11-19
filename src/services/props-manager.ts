@@ -1,0 +1,300 @@
+import {
+  TolkiChatProps,
+  DEFAULT_PROPS,
+  ChatPosition,
+  ChatSize,
+  IconValue,
+  I18nString,
+  I18nArray,
+  isProOnlyProp,
+  isIconUrl,
+} from '../types/props'
+import {
+  parseBoolean,
+  parseString,
+  parseI18nString,
+  parseI18nArray,
+  parseStringArray,
+  parseHexColor,
+  parseEnum,
+  attrNameToPropName,
+} from '../utils/props-parser'
+import { HexColor, HexColorPair, getContrastColor } from '../utils/color'
+import { Logger } from './logger'
+
+/**
+ * Props source priority levels
+ */
+export enum PropsPriority {
+  PRO_BACKEND = 4, // Highest priority
+  USER_ATTRIBUTES = 3,
+  STANDARD_BACKEND = 2,
+  DEFAULTS = 1, // Lowest priority
+}
+
+/**
+ * Props from different sources
+ */
+interface PropsSource {
+  priority: PropsPriority
+  props: Partial<TolkiChatProps>
+  isPro?: boolean // Whether this is from PRO backend
+}
+
+/**
+ * Manages props from multiple sources with priority system
+ */
+export class PropsManager {
+  private sources: PropsSource[] = []
+  private computedProps: TolkiChatProps | null = null
+
+  /**
+   * Set props from PRO backend (highest priority)
+   */
+  setProBackendProps(props: Partial<TolkiChatProps>): void {
+    this.removeSource(PropsPriority.PRO_BACKEND)
+    this.sources.push({
+      priority: PropsPriority.PRO_BACKEND,
+      props,
+      isPro: true,
+    })
+    this.invalidateCache()
+  }
+
+  /**
+   * Set props from user attributes (HTML attributes or JS API)
+   */
+  setUserAttributes(attributes: { [key: string]: string | boolean | null }): void {
+    const props = this.parseUserAttributes(attributes)
+    this.removeSource(PropsPriority.USER_ATTRIBUTES)
+    this.sources.push({
+      priority: PropsPriority.USER_ATTRIBUTES,
+      props,
+      isPro: false,
+    })
+    this.invalidateCache()
+  }
+
+  /**
+   * Set props from standard backend
+   */
+  setStandardBackendProps(props: Partial<TolkiChatProps>): void {
+    this.removeSource(PropsPriority.STANDARD_BACKEND)
+    this.sources.push({
+      priority: PropsPriority.STANDARD_BACKEND,
+      props,
+      isPro: false,
+    })
+    this.invalidateCache()
+  }
+
+  /**
+   * Parse user attributes from HTML attributes
+   */
+  private parseUserAttributes(attributes: {
+    [key: string]: string | boolean | null
+  }): Partial<TolkiChatProps> {
+    const props: Partial<TolkiChatProps> = {}
+
+    for (const [attrName, value] of Object.entries(attributes)) {
+      const propName = attrNameToPropName(attrName)
+
+      // Skip PRO-only props from user attributes
+      if (isProOnlyProp(propName)) {
+        Logger.warn(`Cannot set PRO-only prop "${propName}" from user attributes`)
+        continue
+      }
+
+      // Parse based on property type
+      switch (propName) {
+        // Enums
+        case 'position':
+          props.position = parseEnum(value as string, [
+            'inline',
+            'left',
+            'center',
+            'right',
+          ])
+          break
+        case 'size':
+          props.size = parseEnum(value as string, ['md', 'lg', 'xl'])
+          break
+
+        // Booleans
+        case 'defaultOpen':
+        case 'expandable':
+        case 'unclosable':
+        case 'dark':
+        case 'blur':
+          props[propName] = parseBoolean(value)
+          break
+
+        // Simple strings
+        case 'placeholder':
+        case 'lang':
+          props[propName] = parseString(value as string) || undefined
+          break
+
+        // Hex colors
+        case 'backdrop':
+          props.backdrop = parseHexColor(value as string) as HexColor | null
+          break
+        case 'toggleColor':
+          props.toggleColor = parseHexColor(value as string) as
+            | HexColor
+            | HexColorPair
+            | undefined
+          break
+        case 'messageColor':
+          props.messageColor = parseHexColor(value as string) as
+            | HexColor
+            | HexColorPair
+            | undefined
+          break
+
+        // Icon (hex color or URL - but URL is PRO only)
+        case 'icon': {
+          const parsed = parseString(value as string)
+          if (parsed && isIconUrl(parsed)) {
+            Logger.warn('Icon URLs are only available in PRO plan')
+          } else {
+            props.icon = parseHexColor(value as string) as IconValue | null
+          }
+          break
+        }
+
+        // Avatar
+        case 'avatar':
+          props.avatar = parseString(value as string)
+          break
+
+        // I18n strings
+        case 'welcomeMessage':
+          props.welcomeMessage = parseI18nString(value as string)
+          break
+
+        // I18n arrays
+        case 'suggestions':
+          props.suggestions = parseI18nArray(value as string)
+          break
+        case 'toasts':
+          props.toasts = parseI18nArray(value as string)
+          break
+
+        // String arrays
+        case 'locales':
+          props.locales = parseStringArray(value as string)
+          break
+
+        default:
+          Logger.warn(`Unknown prop: ${propName}`)
+      }
+    }
+
+    return props
+  }
+
+  /**
+   * Get final computed props with all priorities applied
+   */
+  getProps(): TolkiChatProps {
+    if (this.computedProps) {
+      return this.computedProps
+    }
+
+    // Start with defaults
+    let result: TolkiChatProps = { ...DEFAULT_PROPS }
+
+    // Sort sources by priority (ascending)
+    const sortedSources = [...this.sources].sort((a, b) => a.priority - b.priority)
+
+    // Apply each source in order (lower priority first, so higher overrides)
+    for (const source of sortedSources) {
+      result = this.mergeProps(result, source.props, source.isPro || false)
+    }
+
+    // Apply auto-generation for colors
+    result = this.applyColorAutoGeneration(result)
+
+    this.computedProps = result
+    return result
+  }
+
+  /**
+   * Merge props with validation
+   */
+  private mergeProps(
+    base: TolkiChatProps,
+    incoming: Partial<TolkiChatProps>,
+    isPro: boolean
+  ): TolkiChatProps {
+    const result = { ...base }
+
+    for (const [key, value] of Object.entries(incoming)) {
+      if (value === undefined || value === null) continue
+
+      // Skip PRO-only props if not from PRO source
+      if (!isPro && isProOnlyProp(key)) {
+        continue
+      }
+
+      // Special validation for icon URLs
+      if (key === 'icon' && !isPro && typeof value === 'string' && isIconUrl(value)) {
+        continue
+      }
+
+      // Apply the value
+      ;(result as any)[key] = value
+    }
+
+    return result
+  }
+
+  /**
+   * Apply auto-generation for colors
+   */
+  private applyColorAutoGeneration(props: TolkiChatProps): TolkiChatProps {
+    const result = { ...props }
+
+    // Auto-generate icon color if not set
+    if (!result.icon) {
+      // Extract base color from toggleColor (could be a pair)
+      const toggleBaseColor = this.extractBaseColor(result.toggleColor)
+      result.icon = getContrastColor(toggleBaseColor) as IconValue
+    }
+
+    return result
+  }
+
+  /**
+   * Extract base color from a color or color pair
+   */
+  private extractBaseColor(color: HexColor | HexColorPair): HexColor {
+    if (typeof color === 'string' && color.includes(',')) {
+      return color.split(',')[0].trim() as HexColor
+    }
+    return color as HexColor
+  }
+
+  /**
+   * Remove source by priority
+   */
+  private removeSource(priority: PropsPriority): void {
+    this.sources = this.sources.filter((s) => s.priority !== priority)
+  }
+
+  /**
+   * Invalidate computed cache
+   */
+  private invalidateCache(): void {
+    this.computedProps = null
+  }
+
+  /**
+   * Reset all sources
+   */
+  reset(): void {
+    this.sources = []
+    this.invalidateCache()
+  }
+}
