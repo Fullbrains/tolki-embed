@@ -1,6 +1,6 @@
 import { BotProps } from '../types/bot'
 import { TolkiChatProps } from '../types/props'
-import { HexColor, HexColorPair } from './color'
+import { HexColor } from './color'
 
 /**
  * Transform backend BotProps to TolkiChatProps format
@@ -45,24 +45,18 @@ export function transformBotPropsToTolkiProps(
   if (botProps.styles?.chat) {
     const chatStyles = botProps.styles.chat
 
-    // Toggle colors (button)
+    // Toggle button colors
     if (chatStyles.button) {
-      const { defaultBackgroundColor, hoverBackgroundColor, foregroundColor } =
-        chatStyles.button
+      const { defaultBackgroundColor, foregroundColor } = chatStyles.button
 
-      // Toggle background color (with hover if available)
+      // Toggle background color (hover is auto-generated)
       if (defaultBackgroundColor) {
-        if (hoverBackgroundColor) {
-          props.toggleColor =
-            `${defaultBackgroundColor},${hoverBackgroundColor}` as HexColorPair
-        } else {
-          props.toggleColor = defaultBackgroundColor as HexColor
-        }
+        props.toggleBackground = defaultBackgroundColor as HexColor
       }
 
-      // Icon color (foreground color of toggle button)
+      // Toggle content color (icon/dots color)
       if (foregroundColor) {
-        props.icon = foregroundColor as HexColor
+        props.toggleContent = foregroundColor as HexColor
       }
     }
 
@@ -72,12 +66,13 @@ export function transformBotPropsToTolkiProps(
 
       // Message background color
       if (backgroundColor) {
-        props.messageColor = backgroundColor as HexColor
+        props.messageBackground = backgroundColor as HexColor
       }
 
-      // Note: foregroundColor from bubble is the text color inside the bubble,
-      // which we don't currently have in our props system
-      // We might want to add it in the future
+      // Message content color (text inside bubble)
+      if (foregroundColor) {
+        props.messageContent = foregroundColor as HexColor
+      }
     }
   }
 
@@ -92,4 +87,32 @@ export function isBotPro(botProps: BotProps): boolean {
   // Use isAdk flag to determine PRO status
   // This might need to be adjusted based on actual backend logic
   return botProps.isAdk === true
+}
+
+/**
+ * Split props into PRO-only and standard props
+ * PRO-only props: unbranded, icon (when it's a URL)
+ * Everything else goes to standard props
+ */
+export function splitPropsByPriority(props: Partial<TolkiChatProps>): {
+  proProps: Partial<TolkiChatProps>
+  standardProps: Partial<TolkiChatProps>
+} {
+  const proProps: Partial<TolkiChatProps> = {}
+  const standardProps: Partial<TolkiChatProps> = {}
+
+  for (const [key, value] of Object.entries(props)) {
+    if (value === undefined || value === null) continue
+
+    // PRO-only props: unbranded, icon (URL only)
+    if (key === 'unbranded' || key === 'icon') {
+      ;(proProps as any)[key] = value
+      continue
+    }
+
+    // Everything else is standard (including colors!)
+    ;(standardProps as any)[key] = value
+  }
+
+  return { proProps, standardProps }
 }

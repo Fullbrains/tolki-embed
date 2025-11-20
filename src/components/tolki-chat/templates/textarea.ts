@@ -4,7 +4,12 @@ import { classMap } from 'lit/directives/class-map.js'
 import { scrollDown } from './scroll-down'
 import { msg } from '@lit/localize'
 
-export const textareaTemplate = (pending: boolean, showScrollDown: boolean, hasSuggestions: boolean = false) => {
+export const textareaTemplate = (
+  pending: boolean,
+  showScrollDown: boolean,
+  hasSuggestions: boolean = false,
+  placeholder: string = 'Type a message...'
+) => {
   return html` <div class=${classMap({
     'tk__input': true,
     'tk__input--with-suggestions': hasSuggestions,
@@ -20,8 +25,8 @@ export const textareaTemplate = (pending: boolean, showScrollDown: boolean, hasS
     </div>
     <textarea
       class=${classMap({ tk__textarea: true })}
-      placeholder="${msg('Type a message...')}"
-      aria-label="${msg('Type a message...')}"
+      placeholder="${placeholder}"
+      aria-label="${placeholder}"
     ></textarea>
     <button
       class="tk__send"

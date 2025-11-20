@@ -1,7 +1,47 @@
-/* Import Iride color system */
-@import "@fullbrains/iride/cobalt.css";
-@import "@fullbrains/iride/eigen.css";
-@import "@fullbrains/iride/jade.css";
-@import "@fullbrains/iride/ruby.css";
-@import "@fullbrains/iride/sky.css";
-@import "@fullbrains/iride/steel.css";
+/* Tolki Chat Color Palette */
+/* Extracted from @fullbrains/iride */
+
+:host {
+  /* Cobalt - Primary Blue */
+  --cobalt-06: #d0d7fe;
+  --cobalt-10: #b2bdfd;
+  --cobalt-25: #4664f3;
+  --cobalt-30: #1a41f3;
+  --cobalt-35: #082fd8;
+  --cobalt-41: #0424a6;
+
+  /* Steel - Grays & Neutrals */
+  --steel-01: #ffffff;
+  --steel-04: #f6f7f8;
+  --steel-06: #f0f2f4;
+  --steel-08: #eaedef;
+  --steel-10: #e4e7ea;
+  --steel-14: #d8dde1;
+  --steel-15: #d5dadf;
+  --steel-20: #c7cdd4;
+  --steel-30: #a9b3bd;
+  --steel-35: #9aa6b1;
+  --steel-40: #8b99a6;
+  --steel-50: #6e7f8f;
+
+  /* Sky - Light Blue */
+  --sky-06: #e2f4fa;
+  --sky-10: #ceecf7;
+  --sky-30: #62c8f4;
+  --sky-35: #45bff5;
+  --sky-50: #0099e6;
+
+  /* Eigen - Dark Gray/Black */
+  --eigen-45: #2a2a37;
+
+  /* Jade - Green */
+  --jade-06: #def4e9;
+  --jade-30: #33c38c;
+  --jade-45: #1a7a54;
+
+  /* Ruby - Red */
+  --ruby-30: #f50039;
+
+  /* Computed Colors */
+  --link-color: color-mix(in srgb, var(--sky-50) 50%, var(--cobalt-30) 50%);
+}

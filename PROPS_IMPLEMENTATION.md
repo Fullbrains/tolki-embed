@@ -58,8 +58,7 @@ src/
 
 ```typescript
 // Color types
-type HexColor = `#${string}`                    // #RGB or #RRGGBB
-type HexColorPair = `${HexColor},${HexColor}`   // #hex,#hex (default,hover)
+type HexColor = `#${string}`  // #RGB or #RRGGBB
 
 // Internationalization types
 type I18nString = string | { [lang: string]: string }
@@ -68,7 +67,6 @@ type I18nArray = string[] | { [lang: string]: string }[]
 // Component-specific types
 type ChatPosition = 'inline' | 'left' | 'center' | 'right'
 type ChatSize = 'md' | 'lg' | 'xl'
-type IconValue = HexColor | HexColorPair | string  // string = URL (PRO only)
 ```
 
 ### Props Interface
@@ -88,16 +86,23 @@ interface TolkiChatProps {
   backdrop: HexColor | null           // default: null
   avatar: string | null               // default: null
 
-  // Colors
-  toggleColor: HexColor | HexColorPair  // default: '#3b82f6'
-  icon: IconValue | null                // default: null (auto-generated)
-  messageColor: HexColor | HexColorPair // default: '#2563eb'
+  // Toggle Button Colors
+  toggleBackground: HexColor          // default: '#3b82f6'
+  toggleContent: HexColor | null      // default: null (auto-generated for contrast)
+
+  // Message Bubble Colors (user messages)
+  messageBackground: HexColor         // default: '#2563eb'
+  messageContent: HexColor | null     // default: null (auto-generated for contrast)
+
+  // Icon (PRO only)
+  icon: string | null                 // URL to custom icon image (PRO only)
 
   // Branding (PRO only)
   unbranded: boolean                  // default: false
 
   // Content
-  placeholder: string                 // default: 'Ask Anything'
+  messagePlaceholder: string          // default: 'Ask Anything'
+  togglePlaceholder: string           // default: 'Chat with us'
   welcomeMessage: I18nString | null   // default: null
   suggestions: I18nArray              // default: []
   toasts: I18nArray                   // default: []
@@ -119,15 +124,24 @@ interface TolkiChatProps {
 <tolki-chat
   bot="abc-123"
   position="right"
-  toggle-color="#ff0000"
-  placeholder="Chat with us!">
+  toggle-background="#ff0000"
+  message-placeholder="Chat with us!">
 </tolki-chat>
 
-<!-- With color pairs (default,hover) -->
+<!-- Custom colors (hover auto-generated, content auto-contrasted) -->
 <tolki-chat
   bot="abc-123"
-  toggle-color="#3b82f6,#2563eb"
-  message-color="#22c55e,#16a34a">
+  toggle-background="#3b82f6"
+  message-background="#22c55e">
+</tolki-chat>
+
+<!-- Override auto-generated content colors -->
+<tolki-chat
+  bot="abc-123"
+  toggle-background="#000000"
+  toggle-content="#00ff00"
+  message-background="#ffffff"
+  message-content="#ff0000">
 </tolki-chat>
 
 <!-- With i18n (JSON format) -->
@@ -152,7 +166,8 @@ interface TolkiChatProps {
 const chat = document.querySelector('tolki-chat')
 
 // Set attributes programmatically
-chat.setAttribute('toggle-color', '#ff0000')
+chat.setAttribute('toggle-background', '#ff0000')
+chat.setAttribute('toggle-content', '#ffffff')  // Or omit for auto-generation
 chat.setAttribute('position', 'left')
 chat.setAttribute('dark', '')  // boolean attribute
 
@@ -176,56 +191,73 @@ The backend can provide props via the Bot API response:
   suggestions: ["Help", "Pricing", "Contact"],
   defaultOpen: true,
   unbranded: true,  // PRO only
+  icon: "https://example.com/custom-icon.svg",  // PRO only
   styles: {
     chat: {
       button: {
-        defaultBackgroundColor: "#3b82f6",
-        hoverBackgroundColor: "#2563eb",
-        foregroundColor: "#ffffff"
+        defaultBackgroundColor: "#3b82f6",  // → toggleBackground
+        foregroundColor: "#ffffff"          // → toggleContent
+        // hoverBackgroundColor is ignored (auto-generated)
       },
       bubble: {
-        backgroundColor: "#22c55e",
-        foregroundColor: "#ffffff"
+        backgroundColor: "#22c55e",   // → messageBackground
+        foregroundColor: "#ffffff"     // → messageContent
       }
     }
   }
 }
 
-// Automatically transformed to TolkiChatProps
+// Automatically transformed to TolkiChatProps:
+// {
+//   toggleBackground: "#3b82f6",
+//   toggleContent: "#ffffff",
+//   messageBackground: "#22c55e",
+//   messageContent: "#ffffff",
+//   unbranded: true,
+//   icon: "https://example.com/custom-icon.svg",
+//   ...
+// }
 ```
 
 ---
 
 ## Auto-Generation Features
 
-### Icon Color (Auto-Contrast)
+### Content Colors (Auto-Contrast)
 
-When `icon` prop is `null`, the color is automatically calculated for optimal contrast:
+When `toggleContent` or `messageContent` are `null`, they are automatically calculated for optimal contrast with their respective backgrounds:
 
 ```typescript
-// Algorithm
-const luminance = getLuminance(toggleColor)
-icon = luminance > 0.5 ? '#000000' : '#ffffff'  // Black for light, white for dark
+// Algorithm (using tinycolor2)
+const color = tinycolor(background)
+const isLight = color.getLuminance() > 0.5
+content = isLight ? '#000000' : '#ffffff'  // Black for light backgrounds, white for dark
 ```
 
 **Examples**:
-- `toggleColor="#3b82f6"` (blue, dark) → `icon="#ffffff"` (white)
-- `toggleColor="#fbbf24"` (yellow, light) → `icon="#000000"` (black)
+- `toggleBackground="#3b82f6"` (blue, dark) → `toggleContent="#ffffff"` (white)
+- `toggleBackground="#fbbf24"` (yellow, light) → `toggleContent="#000000"` (black)
+- `messageBackground="#22c55e"` (green, medium) → `messageContent="#ffffff"` (white)
 
-### Hover Color (Auto-Brightness)
+**User Attribute Behavior**:
+When you set a background color via HTML attribute but NOT its corresponding content color, the system explicitly sets content to `null` at User Attributes priority, overriding any backend value to trigger auto-generation.
 
-When a single color is provided (not a color pair), hover is auto-generated:
+### Hover Colors (Auto-Brightness)
+
+Hover colors are **always** auto-generated - you cannot customize them:
 
 ```typescript
-// Algorithm
-const luminance = getLuminance(color)
-const percent = luminance < 0.5 ? 15 : -15  // Lighten dark, darken light
-hoverColor = adjustBrightness(color, percent)
+// Algorithm (using tinycolor2)
+const color = tinycolor(background)
+const adjusted = color.isLight()
+  ? color.darken(8)   // Darken light colors
+  : color.brighten(8) // Brighten dark colors
+hoverColor = adjusted.toHexString()
 ```
 
 **Examples**:
-- `toggleColor="#3b82f6"` → hover: `#4d94f7` (lightened 15%)
-- `toggleColor="#fbbf24"` → hover: `#d5a21f` (darkened 15%)
+- `toggleBackground="#3b82f6"` → hover: brightened by 8 percentage points
+- `toggleBackground="#fbbf24"` → hover: darkened by 8 percentage points
 
 ---
 
@@ -237,18 +269,18 @@ Props can come from 4 different sources. Higher priority wins:
 
 1. **PRO Backend (Highest)** - Priority: 4
    - Source: API response when `isAdk: true`
-   - Can set: ALL props including PRO-only
-   - Example: `unbranded`, `icon` as URL
+   - Can set: **ONLY PRO-only props** (`unbranded`, `icon` as URL)
+   - Example: `{ unbranded: true, icon: "https://..." }`
 
 2. **User Attributes** - Priority: 3
    - Source: HTML attributes or JavaScript API
-   - Can set: All NON-PRO props
-   - Example: `<tolki-chat toggle-color="#ff0000">`
+   - Can set: All NON-PRO props (colors, placeholders, avatar, etc.)
+   - Example: `<tolki-chat toggle-background="#ff0000">`
 
 3. **Standard Backend** - Priority: 2
-   - Source: API response when `isAdk: false`
-   - Can set: All NON-PRO props
-   - Example: `welcomeMessage`, `suggestions`
+   - Source: API response (all standard props from backend)
+   - Can set: All NON-PRO props (colors, avatar, welcomeMessage, suggestions, etc.)
+   - **IMPORTANT**: Colors from backend are **STANDARD**, not PRO
 
 4. **Component Defaults (Lowest)** - Priority: 1
    - Source: `DEFAULT_PROPS` in `props.ts`
@@ -257,13 +289,27 @@ Props can come from 4 different sources. Higher priority wins:
 ### Example Priority Resolution
 
 ```typescript
-// Scenario:
-// - PRO Backend: toggleColor = "#ff0000"
-// - User Attr:   toggleColor = "#00ff00"
-// - Std Backend: toggleColor = "#0000ff"
-// - Default:     toggleColor = "#3b82f6"
+// Scenario 1: Standard props
+// - Standard Backend: toggleBackground = "#0000ff"
+// - User Attr:        toggleBackground = "#00ff00"
+// - Default:          toggleBackground = "#3b82f6"
 
-// Result: PRO Backend wins → toggleColor = "#ff0000"
+// Result: User Attr wins (priority 3 > 2) → toggleBackground = "#00ff00"
+
+// Scenario 2: PRO props
+// - PRO Backend:  unbranded = true
+// - User Attr:    unbranded = false  // ❌ Ignored (lower priority)
+
+// Result: PRO Backend wins → unbranded = true
+
+// Scenario 3: Auto-generation with backend
+// - Standard Backend: toggleBackground = "#0000ff", toggleContent = "#d7dcdf"
+// - User Attr:        toggleBackground = "#00ff00" (but NOT toggleContent)
+
+// Result:
+//   - toggleBackground = "#00ff00" (user wins)
+//   - toggleContent = null (explicitly set to override backend)
+//   - Auto-generation calculates toggleContent based on "#00ff00"
 ```
 
 ---
@@ -274,17 +320,26 @@ Only available when `isBotPro() === true` (determined by `isAdk` flag):
 
 ### Props
 
-- **`unbranded`**: Remove Tolki branding
-- **`icon` as URL**: Custom icon image (hex colors are available to all)
+- **`unbranded`**: Remove Tolki branding (boolean)
+- **`icon`**: Custom icon image URL (string)
+
+**IMPORTANT**: Colors are NOT PRO-only! All color props (`toggleBackground`, `toggleContent`, `messageBackground`, `messageContent`) are available to all users and can be set from:
+- Standard Backend (priority 2)
+- User Attributes (priority 3)
 
 ### Validation
 
 ```typescript
 // User tries to set PRO prop via HTML attribute
 <tolki-chat unbranded="true">  // ❌ Ignored with warning
+<tolki-chat icon="https://...">  // ❌ Ignored with warning
 
 // PRO backend sets it
-{ isAdk: true, unbranded: true }  // ✅ Applied
+{ isAdk: true, unbranded: true, icon: "https://..." }  // ✅ Applied
+
+// Colors work for everyone
+<tolki-chat toggle-background="#ff0000">  // ✅ Works for all users
+{ styles: { chat: { button: { defaultBackgroundColor: "#ff0000" } } } }  // ✅ Works for all users
 ```
 
 ---
@@ -295,7 +350,8 @@ Only available when `isBotPro() === true` (determined by `isAdk` flag):
 
 #### Simple String
 ```html
-<tolki-chat placeholder="Type here...">
+<tolki-chat message-placeholder="Type here...">
+<tolki-chat toggle-placeholder="Chat with us">
 ```
 
 #### Boolean
@@ -308,8 +364,8 @@ Only available when `isBotPro() === true` (determined by `isAdk` flag):
 
 #### Hex Color
 ```html
-<tolki-chat toggle-color="#ff0000">              <!-- Single color -->
-<tolki-chat toggle-color="#ff0000,#cc0000">      <!-- Color pair -->
+<tolki-chat toggle-background="#ff0000">   <!-- Background color (hover auto-generated) -->
+<tolki-chat toggle-content="#ffffff">      <!-- Content color (or omit for auto-contrast) -->
 ```
 
 #### Array (DSL)
@@ -350,43 +406,40 @@ props.defaultOpen  // Component property
 
 ### File: `src/utils/color.ts`
 
+Uses **tinycolor2** library for robust color manipulation.
+
 ```typescript
-// Conversion
-hexToRgb(hex: string): { r: number, g: number, b: number }
-rgbToHex(r: number, g: number, b: number): HexColor
-
-// Luminance (0 = black, 1 = white)
-getLuminance(hex: string): number
-
 // Auto-contrast (returns white or black)
 getContrastColor(hex: string): '#ffffff' | '#000000'
 
-// Brightness adjustment (-100 to 100)
-adjustBrightness(hex: string, percent: number): HexColor
-
-// Auto-generate hover (±15% brightness)
+// Auto-generate hover (darken light / brighten dark by 8 percentage points)
 generateHoverColor(hex: string): HexColor
-
-// Parsing
-parseHexColorPair(value: string): { default: HexColor, hover: HexColor } | null
 
 // Validation
 isValidHexColor(color: string): boolean
-isValidHexColorPair(value: string): boolean
 ```
 
 ### Algorithm Details
 
-**Luminance Calculation** (sRGB with gamma correction):
+**Luminance Calculation** (via tinycolor2):
 ```typescript
-// Normalize RGB (0-255) to (0-1)
-// Apply gamma correction: v <= 0.03928 ? v/12.92 : ((v+0.055)/1.055)^2.4
-// Weighted sum: 0.2126*R + 0.7152*G + 0.0722*B
+const color = tinycolor(hex)
+const luminance = color.getLuminance()  // 0 = black, 1 = white
 ```
 
-**Contrast Threshold**: 0.5 (WCAG 2.0 compliant)
+**Contrast Threshold**: 0.5
+- Luminance > 0.5 → Light background → Use black text (#000000)
+- Luminance ≤ 0.5 → Dark background → Use white text (#ffffff)
 
-**Brightness Adjustment**: RGB linear adjustment with clamping (0-255)
+**Brightness Adjustment** (via tinycolor2):
+```typescript
+const color = tinycolor(hex)
+const adjusted = color.isLight()
+  ? color.darken(8)   // Darken by 8 percentage points on HSL lightness scale
+  : color.brighten(8) // Brighten by 8 percentage points
+```
+
+**Note**: tinycolor2's `brighten(n)` and `darken(n)` adjust HSL lightness by n percentage points (0-100 scale), not n%.
 
 ---
 
@@ -435,16 +488,22 @@ npx tsc --noEmit
   <script type="module" src="dist/chat.js"></script>
 </head>
 <body>
-  <!-- Test auto-contrast -->
+  <!-- Test auto-contrast on dark background -->
   <tolki-chat
     bot="test-bot"
-    toggle-color="#000000">  <!-- Should auto-generate white icon -->
+    toggle-background="#000000">  <!-- Should auto-generate white content (#ffffff) -->
+  </tolki-chat>
+
+  <!-- Test auto-contrast on light background -->
+  <tolki-chat
+    bot="test-bot"
+    toggle-background="#fbbf24">  <!-- Should auto-generate black content (#000000) -->
   </tolki-chat>
 
   <!-- Test auto-hover -->
   <tolki-chat
     bot="test-bot"
-    toggle-color="#3b82f6">  <!-- Should auto-generate hover color -->
+    toggle-background="#3b82f6">  <!-- Should auto-generate hover color (brightened) -->
   </tolki-chat>
 
   <!-- Test i18n -->
@@ -512,20 +571,28 @@ propNameToAttrName(propName: string): string  // camelCase → kebab-case
 
 ## Troubleshooting
 
-### Issue: Icon color not auto-generating
+### Issue: Content color not auto-generating
 
-**Cause**: `icon` prop is explicitly set (even to empty string)
-**Solution**: Don't set `icon` attribute, or set to `null` via JS
+**Cause**: Content color (`toggleContent` or `messageContent`) is explicitly set
+**Solution**: Don't set the content attribute to allow auto-generation based on background
 
-### Issue: Hover color not auto-generating
+### Issue: Hover color looks too bright/dark
 
-**Cause**: Using color pair format `#hex,#hex`
-**Solution**: Use single color `#hex` to enable auto-generation
+**Cause**: Hover colors are always auto-generated with 8 percentage point adjustment
+**Solution**: Adjust the base background color instead - hover will auto-adjust accordingly
 
 ### Issue: PRO prop not applying from HTML
 
-**Cause**: PRO props can only be set from PRO backend
+**Cause**: PRO props (`unbranded`, `icon`) can only be set from PRO backend
 **Solution**: Use backend API with `isAdk: true`
+
+### Issue: Backend color not applying
+
+**Cause 1**: User has set the color via HTML attribute (user attributes have higher priority)
+**Solution**: Remove the HTML attribute to use backend value
+
+**Cause 2**: User set background color but not content color - system auto-generates content
+**Solution**: Either set both colors as attributes, or remove the background attribute to use backend values
 
 ### Issue: I18n not parsing
 
@@ -558,6 +625,19 @@ Potential additions to the props system:
 
 ## Version History
 
+**v2.0.0** (2025-01-20)
+- **BREAKING**: Removed color pairs - hover colors now always auto-generated
+- **BREAKING**: Renamed `toggleColor` → `toggleBackground`, added `toggleContent`
+- **BREAKING**: Renamed `messageColor` → `messageBackground`, added `messageContent`
+- **BREAKING**: Split `placeholder` → `messagePlaceholder` + `togglePlaceholder`
+- **BREAKING**: `icon` is now URL only (PRO-only), no longer supports hex colors
+- Migrated to **tinycolor2** for color manipulation
+- Clarified PRO-only props: ONLY `unbranded` and `icon` (as URL)
+- All colors are now Standard Backend props, not PRO
+- Auto-generation: `toggleContent` and `messageContent` calculate contrast based on backgrounds
+- Improved priority system: user attributes can force auto-generation by setting background but not content
+- Hover brightness adjustment reduced from 15 to 8 percentage points for subtlety
+
 **v1.0.0** (2025-01-19)
 - Initial implementation
 - 19 configurable props
@@ -573,9 +653,8 @@ Potential additions to the props system:
 
 ## References
 
-- **Color Theory**: sRGB gamma correction (IEC 61966-2-1)
-- **Contrast**: WCAG 2.0 Level AA (4.5:1 ratio)
-- **Luminance Formula**: ITU-R BT.709
+- **Color Library**: tinycolor2 by Brian Grinstead
+- **Contrast**: WCAG 2.0 guidelines
 - **Type System**: TypeScript 5.5+ template literal types
 - **Web Component**: Lit 3.x + @lit-app/state
 
@@ -585,7 +664,4 @@ Potential additions to the props system:
 
 Implementation by Claude (Anthropic) based on specifications provided by Giovanni.
 
-Color utilities inspired by:
-- Chrome DevTools color picker
-- @fullbrains/iride color system
-- WCAG contrast guidelines
+Color system powered by tinycolor2.

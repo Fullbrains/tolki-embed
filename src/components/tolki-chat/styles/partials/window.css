@@ -26,7 +26,7 @@
 
   &--floating {
     opacity: 0;
-    transform: translateY(calc(var(--margin) * 0.25));
+    transform: translateY(calc(var(--margin-y) * 0.25));
     transition: transform var(--transition-default), opacity var(--transition-default), visibility var(--transition-default);
     visibility: hidden;
     z-index: var(--z-window-floating);
@@ -34,11 +34,26 @@
     @media screen and (min-width: 480px) {
       border-radius: var(--window-border-radius);
       box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(0, 0, 0, 0.1);
-      height: calc(90vh - var(--toggle-btn-size) - var(--margin) - var(--margin));
-      margin-bottom: calc(var(--margin) * 0.5);
+      height: calc(90vh - var(--toggle-btn-size) - var(--margin-y) - var(--margin-y));
+      margin-bottom: calc(var(--toggle-btn-size) + 10px);
       max-height: 728px;
-      max-width: 450px;
-      width: calc(100vw - var(--margin) - var(--margin));
+      width: min(var(--chat-width, 400px), calc(100vw - var(--margin-x) - var(--margin-x)));
+    }
+
+    /* Position variants - align window with toggle */
+    &.tk__window--left {
+      margin-right: auto;
+      margin-left: 0;
+    }
+
+    &.tk__window--center {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    &.tk__window--right {
+      margin-left: auto;
+      margin-right: 0;
     }
 
     @media screen and (max-width: 479px) {

@@ -3,12 +3,22 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
-  <title>Tolki Chat Web Component Test</title>
-  
+  <title>Tolki Chat - Interactive Playground</title>
+
   <!-- Google Fonts official embedding -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Funnel+Sans:ital,wght@0,300..800;1,300..800&display=swap"
+        rel="stylesheet">
+
+  <!-- Import map for lil-gui -->
+  <script type="importmap">
+    {
+      "imports": {
+        "lil-gui": "./node_modules/lil-gui/dist/lil-gui.esm.js"
+      }
+    }
+  </script>
 </head>
 <body style="background-color: #bbc0c7; height: 300vh;">
 <style>
@@ -365,7 +375,7 @@
 
 </script>
 <script src="dist/chat.js"></script>
-<tolki-chat lang="en" bot="864b22d2-d693-4bc2-a56b-f09e7bacddfe" id="tolki"></tolki-chat>
+<tolki-chat lang="it" bot="e4b069b5-9eb8-40fc-a947-7ad135f0add0" id="tolki"></tolki-chat>
 <!--<script>window.tolki = window.tolki || {}
 window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
 -->
@@ -377,5 +387,299 @@ window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
 <div class="block">3</div>
 <div class="block">4</div>
 <div class="block">5</div>
+
+<!-- lil-gui Interactive Controls -->
+<script type="module">
+  import GUI from 'lil-gui'
+
+  const STORAGE_KEY = 'tolki-chat-playground-config'
+
+  // Wait for component to be ready
+  window.addEventListener('DOMContentLoaded', () => {
+    const chatElement = document.querySelector('tolki-chat')
+
+    // Load saved config from localStorage
+    const savedConfig = localStorage.getItem(STORAGE_KEY)
+    const defaults = savedConfig ? JSON.parse(savedConfig) : {}
+
+    // Configuration object with localStorage persistence
+    const config = {
+      // Layout & Positioning
+      position: defaults.position ?? 'right',
+      windowSize: defaults.windowSize ?? 'sm',
+      toggleSize: defaults.toggleSize ?? 'md',
+      defaultOpen: defaults.defaultOpen ?? false,
+      expandable: defaults.expandable ?? false,
+      unclosable: defaults.unclosable ?? false,
+
+      // Appearance
+      dark: defaults.dark ?? false,
+      blur: defaults.blur ?? false,
+      backdrop: defaults.backdrop ?? '',
+      avatar: defaults.avatar ?? '',
+
+      // Colors (text input, empty = null = use default)
+      toggleBackground: defaults.toggleBackground ?? '',
+      toggleContent: defaults.toggleContent ?? '',
+      messageBackground: defaults.messageBackground ?? '',
+      messageContent: defaults.messageContent ?? '',
+
+      // Branding (PRO only)
+      unbranded: defaults.unbranded ?? false,
+
+      // Content
+      messagePlaceholder: defaults.messagePlaceholder ?? '',
+      togglePlaceholder: defaults.togglePlaceholder ?? '',
+      welcomeMessage: defaults.welcomeMessage ?? '',
+      suggestions: defaults.suggestions ?? '',
+      toasts: defaults.toasts ?? '',
+
+      // Internationalization
+      lang: defaults.lang ?? 'en',
+      locales: defaults.locales ?? '',
+    }
+
+    // Save config to localStorage
+    function saveConfig() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+    }
+
+    // Create GUI
+    const gui = new GUI({ title: 'Tolki Chat Props', width: 320 })
+
+    // Helper to update attribute and force re-render
+    function updateAttribute(name, value, saveToStorage = true) {
+      console.log(`[updateAttribute] ${name} =`, value)
+
+      if (value === '' || value === null || value === undefined) {
+        console.log(`[updateAttribute] Removing attribute: ${name}`)
+        chatElement.removeAttribute(name)
+      } else if (typeof value === 'boolean') {
+        if (value) {
+          console.log(`[updateAttribute] Setting boolean attribute: ${name}`)
+          chatElement.setAttribute(name, '')
+        } else {
+          console.log(`[updateAttribute] Removing boolean attribute: ${name}`)
+          chatElement.removeAttribute(name)
+        }
+      } else {
+        console.log(`[updateAttribute] Setting attribute: ${name} = ${value}`)
+        chatElement.setAttribute(name, value.toString())
+      }
+
+      if (saveToStorage) {
+        saveConfig()
+      }
+    }
+
+    // Convert camelCase to kebab-case
+    function toKebabCase(str) {
+      return str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)
+    }
+
+    // Layout & Positioning
+    const layoutFolder = gui.addFolder('Layout & Positioning')
+    layoutFolder.add(config, 'position', ['inline', 'left', 'center', 'right'])
+      .onChange(v => updateAttribute('position', v))
+    layoutFolder.add(config, 'windowSize', ['sm', 'md', 'lg', 'xl'])
+      .onChange(v => updateAttribute('window-size', v))
+      .name('windowSize')
+    layoutFolder.add(config, 'toggleSize', ['sm', 'md', 'lg'])
+      .onChange(v => updateAttribute('toggle-size', v))
+      .name('toggleSize')
+    layoutFolder.add(config, 'defaultOpen')
+      .onChange(v => updateAttribute('default-open', v))
+      .name('defaultOpen')
+    layoutFolder.add(config, 'expandable')
+      .onChange(v => updateAttribute('expandable', v))
+    layoutFolder.add(config, 'unclosable')
+      .onChange(v => updateAttribute('unclosable', v))
+
+    // Appearance
+    const appearanceFolder = gui.addFolder('Appearance')
+    appearanceFolder.add(config, 'dark')
+      .onChange(v => updateAttribute('dark', v))
+    appearanceFolder.add(config, 'blur')
+      .onChange(v => updateAttribute('blur', v))
+    appearanceFolder.add(config, 'backdrop')
+      .onChange(v => updateAttribute('backdrop', v))
+      .name('backdrop (hex or empty)')
+    appearanceFolder.add(config, 'avatar')
+      .onChange(v => updateAttribute('avatar', v))
+      .name('avatar (URL)')
+
+    // Colors - with debug logging
+    const colorsFolder = gui.addFolder('Colors')
+
+    // Helper to add color with reset button
+    function addColorControl(folder, obj, prop, label, fallback = '#3b82f6') {
+      // Use fallback if empty
+      if (!obj[prop]) obj[prop] = fallback
+
+      const useDefaultObj = { useDefault: false }
+
+      folder.add(useDefaultObj, 'useDefault')
+        .name(`${label} - use default`)
+        .onChange(v => {
+          console.log(`[lil-gui] ${label} useDefault:`, v)
+          if (v) {
+            obj[prop] = ''
+            updateAttribute(toKebabCase(prop), '')
+            colorCtrl.setValue(fallback)
+          } else {
+            obj[prop] = colorCtrl.getValue()
+            updateAttribute(toKebabCase(prop), obj[prop])
+          }
+        })
+
+      const colorCtrl = folder.addColor(obj, prop)
+        .name(label)
+        .onChange(v => {
+          console.log(`[lil-gui] ${label} color changed:`, v)
+          if (!useDefaultObj.useDefault) {
+            updateAttribute(toKebabCase(prop), v)
+          }
+        })
+
+      return { checkbox: useDefaultObj, color: colorCtrl }
+    }
+
+    // Apply color fallbacks BEFORE creating color controllers
+    if (!config.toggleBackground) config.toggleBackground = '#001ccb'
+    if (!config.toggleContent) config.toggleContent = '#ffffff'
+    if (!config.messageBackground) config.messageBackground = '#001ccb'
+    if (!config.messageContent) config.messageContent = '#ffffff'
+
+    addColorControl(colorsFolder, config, 'toggleBackground', 'Toggle Background', '#001ccb')
+    addColorControl(colorsFolder, config, 'toggleContent', 'Toggle Content', '#ffffff')
+    addColorControl(colorsFolder, config, 'messageBackground', 'Message Background', '#001ccb')
+    addColorControl(colorsFolder, config, 'messageContent', 'Message Content', '#ffffff')
+
+    colorsFolder.open()
+
+    // Branding
+    const brandingFolder = gui.addFolder('Branding (PRO)')
+    brandingFolder.add(config, 'unbranded')
+      .onChange(v => updateAttribute('unbranded', v))
+
+    // Content
+    const contentFolder = gui.addFolder('Content')
+    contentFolder.add(config, 'messagePlaceholder')
+      .onChange(v => updateAttribute('message-placeholder', v))
+    contentFolder.add(config, 'togglePlaceholder')
+      .onChange(v => updateAttribute('toggle-placeholder', v))
+    contentFolder.add(config, 'welcomeMessage')
+      .onChange(v => updateAttribute('welcome-message', v))
+      .name('welcomeMessage')
+    contentFolder.add(config, 'suggestions')
+      .onChange(v => updateAttribute('suggestions', v))
+      .name('suggestions (CSV/JSON)')
+    contentFolder.add(config, 'toasts')
+      .onChange(v => updateAttribute('toasts', v))
+      .name('toasts (CSV/JSON)')
+
+    // Internationalization
+    const i18nFolder = gui.addFolder('i18n')
+    i18nFolder.add(config, 'lang', ['en', 'it', 'es', 'fr', 'de', 'pt'])
+      .onChange(v => updateAttribute('lang', v))
+    i18nFolder.add(config, 'locales')
+      .onChange(v => updateAttribute('locales', v))
+      .name('locales (CSV)')
+
+    // Actions
+    const actionsFolder = gui.addFolder('Actions')
+    actionsFolder.add({
+      reset: () => {
+        Object.keys(config).forEach(key => {
+          chatElement.removeAttribute(toKebabCase(key))
+        })
+        // Reset config to defaults
+        config.position = 'right'
+        config.windowSize = 'sm'
+        config.toggleSize = 'md'
+        config.defaultOpen = true
+        config.expandable = true
+        config.unclosable = false
+        config.dark = false
+        config.blur = true
+        config.backdrop = ''
+        config.avatar = ''
+        config.toggleBackground = '#001ccb'
+        config.toggleContent = '#ffffff'
+        config.messageBackground = '#001ccb'
+        config.messageContent = '#ffffff'
+        config.unbranded = false
+        config.messagePlaceholder = 'Ask Anything'
+        config.togglePlaceholder = ''
+        config.welcomeMessage = ''
+        config.suggestions = ''
+        config.toasts = ''
+        config.lang = 'en'
+        config.locales = 'en,it,es,fr,de,pt'
+        gui.controllersRecursive().forEach(c => c.updateDisplay())
+      },
+    }, 'reset').name('Reset to Defaults')
+
+    actionsFolder.add({
+      copyHTML: () => {
+        const attrs = Array.from(chatElement.attributes)
+          .filter(attr => attr.name !== 'id' && attr.name !== 'bot') // Skip id and bot
+          .map(attr => `${attr.name}="${attr.value}"`)
+          .join('\n  ')
+        const html = `<tolki-chat\n  ${attrs}>\n</tolki-chat>`
+        navigator.clipboard.writeText(html)
+        alert('HTML copied to clipboard!')
+      },
+    }, 'copyHTML').name('Copy HTML')
+
+    actionsFolder.add({
+      clearStorage: () => {
+        localStorage.removeItem(STORAGE_KEY)
+        location.reload()
+      },
+    }, 'clearStorage').name('Clear Storage & Reload')
+
+    // Apply initial config from localStorage
+    Object.keys(config).forEach(key => {
+      const value = config[key]
+      const kebabKey = toKebabCase(key)
+      updateAttribute(kebabKey, value, false) // Don't save to storage on init
+    })
+
+    console.log('🎨 Tolki Chat Playground ready!')
+    console.log('🔥 Hot reload enabled')
+    console.log('💾 Config loaded from localStorage:', config)
+  })
+</script>
+
+<style>
+    /* lil-gui customization */
+    .lil-gui {
+        --width: 320px;
+        z-index: 100000;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    }
+
+    .lil-gui.autoPlace {
+        top: 20px;
+        left: 20px !important;
+        right: auto !important;
+        max-height: 90vh;
+        overflow-y: auto;
+    }
+
+    /* Fix label readability */
+    .lil-gui .title,
+    .lil-gui .controller .name,
+    .lil-gui .controller.option .name {
+        font-size: 11px !important;
+        color: #000 !important;
+    }
+
+    .lil-gui .controller.option {
+        min-height: 20px !important;
+    }
+</style>
+
 </body>
 </html>

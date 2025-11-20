@@ -120,9 +120,9 @@
 }
 
 .tk__user-input {
-  background-color: var(--bubble-background);
+  background-color: var(--message-background);
   border-radius: 22px 6px 22px 22px;
-  color: var(--bubble-color);
+  color: var(--message-content);
   font-size: 15px;
   line-height: var(--leading-base);
   margin-left: auto;
@@ -259,9 +259,9 @@
   }
 
   &--user {
-    background-color: var(--bubble-background);
+    background-color: var(--message-background);
     border-radius: var(--message-radius) calc(var(--message-radius) * 0.25) var(--message-radius) var(--message-radius);
-    color: var(--bubble-color);
+    color: var(--message-content);
     font-weight: var(--weight-medium);
     margin-left: auto;
     margin-right: 0;

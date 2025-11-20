@@ -2,84 +2,132 @@
 @import "../base/variables.css";
 
 .tk__toggle {
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  align-items: center;
-  background-color: var(--toggle-default-background);
-  border-radius: calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.15);
-  border: none;
-  color: var(--toggle-dots-background);
-  cursor: pointer;
-  display: flex;
-  height: var(--toggle-btn-size);
-  justify-content: center;
-  margin-left: auto;
-  outline: none;
-  pointer-events: auto;
-  transition: border-radius 300ms ease-out, background-color 300ms ease-out, color 300ms ease-out, transform 500ms ease-out;
-  width: var(--toggle-btn-size);
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+    align-items: center;
+    background-color: var(--toggle-background);
+    border-radius: calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.15);
+    border: none;
+    color: var(--toggle-content);
+    cursor: pointer;
+    display: flex;
+    height: var(--toggle-btn-size);
+    justify-content: center;
+    outline: none;
+    pointer-events: auto;
+    position: absolute;
+    padding: 0;
+    bottom: 0;
+    transition: border-radius 300ms ease-out, background-color 300ms ease-out, color 300ms ease-out;
+    width: var(--toggle-btn-size);
 
-  &--open {
-    background-color: var(--toggle-hover-background);
-    border-radius: calc(var(--toggle-btn-size) * 0.15) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5);
-  }
-
-  &--unclosable {
-    background-color: var(--toggle-default-background);
-    border-radius: calc(var(--toggle-btn-size) * 0.15) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5);
-  }
-
-  &:hover {
-    background-color: var(--toggle-hover-background);
-
-    span {
-      animation: animateDots 1s linear forwards;
+    /* Position variants - absolute positioning */
+    &--left {
+        left: 0;
+        right: auto;
     }
-  }
+
+    &--center {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+    }
+
+    &--right {
+        left: auto;
+        right: 0;
+    }
+
+    &--open {
+        background-color: var(--toggle-hover);
+        border-radius: calc(var(--toggle-btn-size) * 0.15) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5);
+    }
+
+    &--unclosable {
+        background-color: var(--toggle-background);
+        border-radius: calc(var(--toggle-btn-size) * 0.15) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5);
+    }
+
+    &:hover {
+        background-color: var(--toggle-hover);
+
+        .tk__dots span {
+            animation: animateDots 1s linear forwards;
+
+            &:nth-child(2) {
+                animation-delay: 0.1s;
+            }
+
+            &:nth-child(3) {
+                animation-delay: 0.2s;
+            }
+        }
+    }
+
+    &--with-text {
+        width: auto;
+        .tk__dots {
+            margin-left: calc(var(--toggle-btn-size)/4);
+            margin-right: 0;
+        }
+
+    }
+}
+
+.tk__toggle-text {
+    font-size: var(--toggle-text-size);
+    font-weight: 400;
+    padding-left: calc(var(--toggle-btn-size) / 2 - var(--toggle-btn-size)/2);
+    padding-right: calc(var(--toggle-btn-size) / 2);
+    margin-top: -0.1em;
+    white-space: nowrap;
+    user-select: none;
 }
 
 .tk__dots {
-  align-items: center;
-  display: flex;
-  justify-content: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    width: var(--toggle-btn-size);
+    flex-shrink: 0;
 
-  &--animated {
+    &--animated {
+        span {
+            animation: animateDots 1s linear infinite;
+        }
+    }
+
     span {
-      animation: animateDots 1s linear infinite;
-    }
-  }
+        background-color: currentColor;
+        border-radius: var(--brand-dot-size);
+        height: var(--brand-dot-size);
+        margin: calc(var(--brand-dot-size) * 0.33);
+        pointer-events: none;
+        width: var(--brand-dot-size);
 
-  span {
-    background-color: currentColor;
-    border-radius: var(--brand-dot-size);
-    height: var(--brand-dot-size);
-    margin: calc(var(--brand-dot-size) * 0.33);
-    pointer-events: none;
-    width: var(--brand-dot-size);
+        &:nth-child(2) {
+            animation-delay: 0.1s;
+        }
 
-    &:nth-child(2) {
-      animation-delay: 0.1s;
+        &:nth-child(3) {
+            animation-delay: 0.2s;
+        }
     }
-
-    &:nth-child(3) {
-      animation-delay: 0.2s;
-    }
-  }
 }
 
 @keyframes animateDots {
-  0% {
-    transform: translateY(0);
-  }
+    0% {
+        transform: translateY(0);
+    }
 
-  20% {
-    transform: translateY(-50%);
-  }
+    20% {
+        transform: translateY(-50%);
+    }
 
-  40% {
-    transform: translateY(50%);
-  }
+    40% {
+        transform: translateY(50%);
+    }
 
-  60% {
-    transform: translateY(0);
-  }
+    60% {
+        transform: translateY(0);
+    }
 }

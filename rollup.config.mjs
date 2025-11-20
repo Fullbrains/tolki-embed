@@ -5,9 +5,14 @@ import postcss from 'rollup-plugin-postcss'
 import postcssImport from 'postcss-import'
 import postcssNested from 'postcss-nested'
 import postcssRootToHost from './postcss-root-to-host.cjs'
-import litcss from 'rollup-plugin-postcss-lit'
 import terser from '@rollup/plugin-terser'
 import commonjs from '@rollup/plugin-commonjs'
+import serve from 'rollup-plugin-serve'
+import livereload from 'rollup-plugin-livereload'
+
+// Detect if we're in watch mode (development)
+// Rollup automatically sets ROLLUP_WATCH when using --watch flag
+const isDev = !!process.env.ROLLUP_WATCH
 
 export default {
   input: 'src/components/tolki-chat/tolki-chat.ts',
@@ -15,6 +20,7 @@ export default {
     file: 'dist/chat.js',
     format: 'iife',
     name: 'TolkiChat',
+    sourcemap: isDev, // Enable sourcemaps in dev mode
   },
   plugins: [
     template(),
@@ -29,12 +35,14 @@ export default {
         postcssNested(),
         postcssRootToHost(),
       ],
-      minimize: true,
+      minimize: !isDev, // Don't minimize in dev mode
       inject: false,
       extract: false,
     }),
     typescript(),
-    terser({
+
+    // Only minify in production
+    !isDev && terser({
       compress: {
         drop_console: true,
         drop_debugger: true,
@@ -49,5 +57,20 @@ export default {
         comments: false,
       },
     }),
-  ],
+
+    // Development server with hot reload
+    isDev && serve({
+      open: true,
+      contentBase: ['dist', '.'],
+      host: 'localhost',
+      port: 8080,
+      openPage: '/index.html',
+    }),
+
+    // Live reload on file changes
+    isDev && livereload({
+      watch: 'dist',
+      verbose: true,
+    }),
+  ].filter(Boolean), // Remove falsy plugins
 }

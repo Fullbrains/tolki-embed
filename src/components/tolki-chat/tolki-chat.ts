@@ -14,9 +14,8 @@ import {
   subscribe as subscribeVirtualKeyboardVisibility,
 } from 'on-screen-keyboard-detector'
 
-// iride Colors
-import cobalt from '@fullbrains/iride/cobalt.js'
-import steel from '@fullbrains/iride/steel.js'
+// Colors
+import { defaultColors } from '../../utils/defaults'
 
 // Styles
 import styles from './styles/tolki-chat.css'
@@ -42,7 +41,7 @@ import { PropsManager } from '../../services/props-manager'
 import { Item, ItemType } from '../../types/item'
 import { BotInitResult, BotStatus } from '../../types/bot'
 import { ApiMessageResponseStatus } from '../../types/api'
-import { TolkiChatProps } from '../../types/props'
+import { TolkiChatProps, I18nString } from '../../types/props'
 
 // Templates
 import { headerTemplate } from './templates/header'
@@ -57,8 +56,9 @@ import { CartHelpers } from '../../utils/chat-helpers'
 import {
   transformBotPropsToTolkiProps,
   isBotPro,
+  splitPropsByPriority,
 } from '../../utils/props-transformer'
-import { generateHoverColor } from '../../utils/color'
+import { generateHoverColor, getContrastColor } from '../../utils/color'
 
 const TOLKI_CHAT: string = `tolki-chat`
 const TOLKI_PREFIX: string = `tolki`
@@ -150,8 +150,11 @@ export class TolkiChat extends LitElement {
     return [
       'bot',
       'position',
-      'placeholder',
-      'size',
+      'message-placeholder',
+      'toggle-placeholder',
+      'window-size',
+      'toggle-size',
+      'margin',
       'default-open',
       'expandable',
       'unclosable',
@@ -159,10 +162,11 @@ export class TolkiChat extends LitElement {
       'avatar',
       'blur',
       'backdrop',
-      'toggle-color',
-      'icon',
+      'toggle-background',
+      'toggle-content',
+      'message-background',
+      'message-content',
       'unbranded',
-      'message-color',
       'welcome-message',
       'toasts',
       'lang',
@@ -403,11 +407,14 @@ export class TolkiChat extends LitElement {
   /**
    * Update props manager with current HTML attributes
    */
-  private updatePropsFromAttributes(override?: { [key: string]: string | boolean | null }): void {
+  private updatePropsFromAttributes(override?: {
+    [key: string]: string | boolean | null
+  }): void {
     const attributes: { [key: string]: string | boolean | null } = {}
 
     // Collect all observed attributes
-    const observedAttrs = (this.constructor as typeof TolkiChat).observedAttributes
+    const observedAttrs = (this.constructor as typeof TolkiChat)
+      .observedAttributes
     observedAttrs.forEach((attr) => {
       if (attr === 'bot' || attr === 'inline') return // Skip these
 
@@ -429,6 +436,12 @@ export class TolkiChat extends LitElement {
     const props = this.propsManager.getProps()
     state.inline = props.position === 'inline'
     state.unclosable = props.unclosable
+
+    // Force complete re-render by updating renderKey (reactive state property)
+    state.renderKey = Date.now()
+
+    // Also request update
+    this.requestUpdate()
   }
 
   static async setLanguage(locale: string) {
@@ -491,13 +504,25 @@ export class TolkiChat extends LitElement {
         // Transform backend props and pass to props manager
         if (bot.props) {
           const isPro = isBotPro(bot.props)
-          const transformedProps = transformBotPropsToTolkiProps(bot.props, isPro)
+          const transformedProps = transformBotPropsToTolkiProps(
+            bot.props,
+            isPro
+          )
 
-          // Set backend props with appropriate priority
-          if (isPro) {
-            this.propsManager.setProBackendProps(transformedProps)
-          } else {
-            this.propsManager.setStandardBackendProps(transformedProps)
+          // Split props into PRO-only and standard
+          // PRO-only: unbranded, icon (as URL)
+          // Standard: everything else (including colors!)
+          const { proProps, standardProps } =
+            splitPropsByPriority(transformedProps)
+
+          // Always set standard props (colors, avatar, etc.)
+          if (Object.keys(standardProps).length > 0) {
+            this.propsManager.setStandardBackendProps(standardProps)
+          }
+
+          // Only set PRO props if bot is on PRO plan
+          if (isPro && Object.keys(proProps).length > 0) {
+            this.propsManager.setProBackendProps(proProps)
           }
         }
 
@@ -585,58 +610,184 @@ export class TolkiChat extends LitElement {
     const props = this.propsManager.getProps()
     const map: { [key: string]: string } = {}
 
-    // Parse toggle color (default and hover)
-    const toggleColors = this.parseColorPair(
-      props.toggleColor,
-      cobalt['cobalt-41'],
-      cobalt['cobalt-35']
-    )
-    map['toggle-default-background'] = toggleColors.default
-    map['toggle-hover-background'] = toggleColors.hover
+    // Toggle button colors
+    map['toggle-background'] =
+      props.toggleBackground || defaultColors['toggle-background']
+    map['toggle-hover'] = generateHoverColor(map['toggle-background'])
+    // toggleContent: if null, calculate contrast based on FINAL toggleBackground
+    map['toggle-content'] =
+      props.toggleContent || getContrastColor(map['toggle-background'])
 
-    // Icon color (auto-generated if null)
-    map['toggle-dots-background'] = props.icon || steel['steel-14']
+    // Message bubble colors (user messages)
+    map['message-background'] =
+      props.messageBackground || defaultColors['message-background']
+    // messageContent: if null, calculate contrast based on FINAL messageBackground
+    map['message-content'] =
+      props.messageContent || getContrastColor(map['message-background'])
 
-    // Parse message color (default and hover)
-    const messageColors = this.parseColorPair(
-      props.messageColor,
-      cobalt['cobalt-35'],
-      cobalt['cobalt-30']
-    )
-    map['bubble-background'] = messageColors.default
-    // Note: We don't currently use hover for bubble, but it's available if needed
+    const cssVars =
+      Object.keys(map)
+        .map((key: string) => {
+          return '--' + key + ':' + map[key]
+        })
+        .join(';') + ';'
 
-    // Bubble text color (hardcoded for now, could be a prop in the future)
-    map['bubble-color'] = steel['steel-01']
-
-    return Object.keys(map)
-      .map((key: string) => {
-        return '--' + key + ':' + map[key]
-      })
-      .join(';')
+    return cssVars
   }
 
   /**
-   * Parse a color value that might be a single color or a color pair
-   * Auto-generates hover color if only a single color is provided
+   * Resolve an I18nString to a plain string based on current language
    */
-  private parseColorPair(
-    value: string,
-    defaultColor: string,
-    defaultHoverColor: string
-  ): { default: string; hover: string } {
-    if (!value) {
-      return { default: defaultColor, hover: defaultHoverColor }
+  private resolveI18nString(value: I18nString | string): string {
+    if (typeof value === 'string') {
+      return value
     }
 
-    // Check if it's a pair (contains comma)
-    if (value.includes(',')) {
-      const [def, hover] = value.split(',').map((c) => c.trim())
-      return { default: def, hover: hover }
+    const props = this.propsManager.getProps()
+    const lang = props.lang || 'en'
+
+    // Try to get the value for the current language
+    if (value[lang]) {
+      return value[lang]
     }
 
-    // Single color - auto-generate hover color
-    return { default: value, hover: generateHoverColor(value) }
+    // Fallback to 'en'
+    if (value['en']) {
+      return value['en']
+    }
+
+    // Fallback to first available language
+    const keys = Object.keys(value)
+    if (keys.length > 0) {
+      return value[keys[0]]
+    }
+
+    return ''
+  }
+
+  /**
+   * Resolve an I18nArray to a plain string array based on current language
+   */
+  private resolveI18nArray(value: string[] | { [lang: string]: string }[]): string[] {
+    if (!value) return []
+
+    // If it's already a plain string array, return it
+    if (value.length === 0 || typeof value[0] === 'string') {
+      return value as string[]
+    }
+
+    const props = this.propsManager.getProps()
+    const lang = props.lang || 'en'
+
+    // It's an array of objects with language keys
+    const objectArray = value as { [lang: string]: string }[]
+    return objectArray.map((item) => {
+      // Try current language
+      if (item[lang]) {
+        return item[lang]
+      }
+      // Fallback to 'en'
+      if (item['en']) {
+        return item['en']
+      }
+      // Fallback to first available language
+      const keys = Object.keys(item)
+      if (keys.length > 0) {
+        return item[keys[0]]
+      }
+      return ''
+    })
+  }
+
+  get windowSizeVariables() {
+    const props = this.propsManager.getProps()
+    const size = props.windowSize || 'sm'
+
+    const sizeMap: { [key: string]: string } = {
+      sm: '400px',
+      md: '540px',
+      lg: '768px',
+      xl: '860px',
+    }
+
+    return `--chat-width: ${sizeMap[size]};`
+  }
+
+  get toggleSizeVariables() {
+    const props = this.propsManager.getProps()
+    const size = props.toggleSize || 'md'
+
+    const sizeMap: { [key: string]: string } = {
+      sm: '48px', // Small
+      md: '60px', // Medium (default - current size)
+      lg: '72px', // Large
+    }
+
+    const textSizeMap: { [key: string]: string } = {
+      sm: '15px',
+      md: '16px',
+      lg: '18px',
+    }
+
+    return `--toggle-btn-size: ${sizeMap[size]}; --toggle-text-size: ${textSizeMap[size]};`
+  }
+
+  get marginVariables() {
+    const props = this.propsManager.getProps()
+    const margin = props.margin || 20
+
+    let marginX: number
+    let marginY: number
+
+    if (Array.isArray(margin)) {
+      // [x, y] format
+      marginX = margin[0]
+      marginY = margin[1]
+    } else {
+      // Single number - use for both axes
+      marginX = margin
+      marginY = margin
+    }
+
+    return `--margin-x: ${marginX}px; --margin-y: ${marginY}px;`
+  }
+
+  get hostPositionStyles() {
+    const props = this.propsManager.getProps()
+    const position = props.position
+
+    if (position === 'inline') return ''
+
+    // Calculate actual margin values
+    const margin = props.margin || 20
+    let marginX: number
+    let marginY: number
+
+    if (Array.isArray(margin)) {
+      marginX = margin[0]
+      marginY = margin[1]
+    } else {
+      marginX = margin
+      marginY = margin
+    }
+
+    // Base styles for floating mode
+    let styles = `position:fixed;z-index:9999999;bottom:${marginY}px;`
+
+    // Add horizontal positioning based on position prop
+    switch (position) {
+      case 'left':
+        styles += `left:${marginX}px;`
+        break
+      case 'center':
+        styles += 'left:50%;transform:translateX(-50%);'
+        break
+      case 'right':
+        styles += `right:${marginX}px;`
+        break
+    }
+
+    return styles
   }
 
   toggleWindow() {
@@ -651,9 +802,62 @@ export class TolkiChat extends LitElement {
       this.scrollLock.unlock()
     }
 
-    // Focus input only when user manually opens window
+    // Debug: log dimensions and position when opening
     if (!wasOpen && state.open === 'true') {
       this.updateComplete.then(() => {
+        const props = this.propsManager.getProps()
+        const windowEl = this.shadowRoot?.querySelector('.tk__window')
+        const toggleEl = this.shadowRoot?.querySelector('.tk__toggle')
+
+        console.group('🔍 Toggle Window Debug')
+        console.log('Position prop:', props.position)
+        console.log('Margin prop:', props.margin)
+        console.log('Window size prop:', props.windowSize)
+        console.log('Toggle size prop:', props.toggleSize)
+
+        if (windowEl) {
+          const windowRect = windowEl.getBoundingClientRect()
+          console.log('Window dimensions:', {
+            width: windowRect.width,
+            height: windowRect.height,
+            left: windowRect.left,
+            top: windowRect.top,
+          })
+          console.log('Window classes:', windowEl.className)
+          const computedStyle = getComputedStyle(windowEl)
+          console.log('Window computed CSS:', {
+            width: computedStyle.width,
+            maxWidth: computedStyle.maxWidth,
+            marginLeft: computedStyle.marginLeft,
+            marginRight: computedStyle.marginRight,
+            display: computedStyle.display,
+          })
+        }
+
+        if (toggleEl) {
+          const toggleRect = toggleEl.getBoundingClientRect()
+          console.log('Toggle position:', {
+            left: toggleRect.left,
+            right: window.innerWidth - toggleRect.right,
+            bottom: window.innerHeight - toggleRect.bottom,
+          })
+          console.log('Toggle classes:', toggleEl.className)
+          const computedStyle = getComputedStyle(toggleEl)
+          console.log('Toggle computed CSS:', {
+            left: computedStyle.left,
+            right: computedStyle.right,
+            bottom: computedStyle.bottom,
+            transform: computedStyle.transform,
+            position: computedStyle.position,
+          })
+        }
+
+        console.log('Viewport:', {
+          width: window.innerWidth,
+          height: window.innerHeight,
+        })
+        console.groupEnd()
+
         setTimeout(() => {
           if (this.textarea) {
             this.textarea.focus()
@@ -994,7 +1198,9 @@ export class TolkiChat extends LitElement {
         break
       case 'set_locale':
         if (commandParam) {
-          this.changeLanguage(commandParam).catch((error) => this.logError('Failed to change language', error))
+          this.changeLanguage(commandParam).catch((error) =>
+            this.logError('Failed to change language', error)
+          )
           return // Don't update history for language changes
         } else {
           Logger.warn('set_locale command requires a locale parameter')
@@ -1052,11 +1258,11 @@ export class TolkiChat extends LitElement {
     }
     this.suggestionsListenersAdded = false
 
-    // Update render key to force complete re-render of all templates
-    state.renderKey = Date.now()
-
-    // Force re-render
-    this.requestUpdate()
+    // Update the lang attribute to ensure propsManager has the new language
+    // This is critical for resolving i18n strings/arrays with the correct language
+    // Use updatePropsFromAttributes to preserve all other user attributes
+    // This will also trigger re-render with renderKey update
+    this.updatePropsFromAttributes({ lang: locale })
 
     // Scroll to the new message
     this.updateComplete.then(() => {
@@ -1119,38 +1325,46 @@ export class TolkiChat extends LitElement {
       this.scrollDown.addEventListener('click', scrollDown)
     }
     if (this.suggestions?.length) {
-      if (this.suggestionsListenersAdded === false) {
-        this.suggestions.forEach((suggestion) => {
-          // Remove any existing listeners first
-          const existingHandler = suggestion._tolkiClickHandler
-          if (existingHandler) {
-            suggestion.removeEventListener('click', existingHandler)
+      // Always reset and re-add listeners when suggestions are present
+      // This handles cases where suggestions change dynamically
+      this.suggestions.forEach((suggestion) => {
+        // Remove any existing listeners first
+        const existingHandler = suggestion._tolkiClickHandler
+        if (existingHandler) {
+          suggestion.removeEventListener('click', existingHandler)
+        }
+
+        // Create new handler
+        const clickHandler = () => {
+          const originalText =
+            suggestion.getAttribute('data-original') || suggestion.textContent
+          const { command } = this.extractCommand(originalText)
+
+          console.log('🔍 Suggestion clicked:', {
+            originalText,
+            command,
+            displayText: suggestion.textContent
+          })
+
+          if (command) {
+            // Execute command directly
+            this.executeCommand(command)
+          } else {
+            // Normal suggestion behavior: set text and send
+            this.textarea.value = suggestion.textContent
+            this.sendMessage().then()
           }
+        }
 
-          // Create new handler
-          const clickHandler = () => {
-            const originalText =
-              suggestion.getAttribute('data-original') || suggestion.textContent
-            const { command } = this.extractCommand(originalText)
+        // Store handler reference and add listener
+        suggestion._tolkiClickHandler = clickHandler
+        suggestion.addEventListener('click', clickHandler)
+      })
 
-            if (command) {
-              // Execute command directly
-              this.executeCommand(command)
-            } else {
-              // Normal suggestion behavior: set text and send
-              this.textarea.value = suggestion.textContent
-              this.sendMessage().then()
-            }
-          }
-
-          // Store handler reference and add listener
-          suggestion._tolkiClickHandler = clickHandler
-          suggestion.addEventListener('click', clickHandler)
-        })
-        this.suggestionsListenersAdded = true
-
-        // Setup scroll button visibility logic
+      // Setup scroll button visibility logic (only once)
+      if (!this.suggestionsListenersAdded) {
         this.setupSuggestionsScrollButtons()
+        this.suggestionsListenersAdded = true
       }
     }
 
@@ -1255,15 +1469,15 @@ export class TolkiChat extends LitElement {
   }
 
   override render() {
+    const hostStyles = !state.inline
+      ? `${this.colorVariables} ${this.windowSizeVariables} ${this.toggleSizeVariables} ${this.marginVariables} ${this.hostPositionStyles}`
+      : `${this.colorVariables} ${this.windowSizeVariables} ${this.toggleSizeVariables} ${this.marginVariables}`
+
     return state.bot?.status === BotStatus.ok
       ? html`
           <style>
-            :host {
-              ${this.colorVariables}
-            }
-
             ${styles}
-            ${!state.inline && `:host{position:fixed;z-index:9999999}`}
+            :host { ${hostStyles} }
           </style>
           <div
             class=${classMap({
@@ -1273,6 +1487,12 @@ export class TolkiChat extends LitElement {
               'tk__window--inline': state.inline,
               'tk__window--floating': !state.inline,
               'tk__window--unclosable': state.unclosable,
+              'tk__window--left':
+                this.propsManager.getProps().position === 'left',
+              'tk__window--center':
+                this.propsManager.getProps().position === 'center',
+              'tk__window--right':
+                this.propsManager.getProps().position === 'right',
             })}
             role="region"
             aria-label=${state.bot?.props?.name || 'Chat'}
@@ -1293,20 +1513,37 @@ export class TolkiChat extends LitElement {
                   keyed(`${state.renderKey}-${index}`, chatItemTemplate(item))
                 )}
             </div>
-            ${suggestionsTemplate(
-              state.bot.props.suggestions,
-              this.extractCommand.bind(this)
-            )}
+            ${(() => {
+              const suggestions = this.resolveI18nArray(this.propsManager.getProps().suggestions)
+              console.log('🔍 Suggestions debug:', {
+                raw: this.propsManager.getProps().suggestions,
+                resolved: suggestions,
+                length: suggestions?.length
+              })
+              return suggestionsTemplate(suggestions, this.extractCommand.bind(this))
+            })()}
             ${textareaTemplate(
               state.pending,
               state.showScrollDown,
-              !!state.bot.props.suggestions?.length
+              !!this.propsManager.getProps().suggestions?.length,
+              this.resolveI18nString(this.propsManager.getProps().messagePlaceholder)
             )}
             ${state.bot?.props?.unbranded ? '' : brandingTemplate}
           </div>
           ${state.inline
             ? ''
-            : toggleTemplate(state.open === 'true', state.unclosable)}
+            : toggleTemplate(
+                state.open === 'true',
+                state.unclosable,
+                this.resolveI18nString(this.propsManager.getProps().togglePlaceholder) || 'Chat',
+                (this.propsManager.getProps().position === 'inline'
+                  ? 'right'
+                  : this.propsManager.getProps().position) as
+                  | 'left'
+                  | 'center'
+                  | 'right',
+                this.resolveI18nString(this.propsManager.getProps().togglePlaceholder)
+              )}
         `
       : html``
   }

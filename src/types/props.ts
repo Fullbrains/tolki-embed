@@ -16,14 +16,14 @@ export type I18nArray = string[] | { [lang: string]: string }[]
 export type ChatPosition = 'inline' | 'left' | 'center' | 'right'
 
 /**
- * Size options for the chat widget
+ * Size options for the chat window
  */
-export type ChatSize = 'md' | 'lg' | 'xl'
+export type WindowSize = 'sm' | 'md' | 'lg' | 'xl'
 
 /**
- * Icon value - can be hex color, color pair, or URL (URL is PRO only)
+ * Size options for the toggle button
  */
-export type IconValue = HexColor | HexColorPair | string
+export type ToggleSize = 'sm' | 'md' | 'lg'
 
 /**
  * Complete props interface for TolkiChat component
@@ -31,7 +31,9 @@ export type IconValue = HexColor | HexColorPair | string
 export interface TolkiChatProps {
   // Layout & Positioning
   position: ChatPosition
-  size: ChatSize
+  windowSize: WindowSize
+  toggleSize: ToggleSize
+  margin: number | [number, number] // Margin in pixels: number (all) or [x, y] (default: 20)
   defaultOpen: boolean
   expandable: boolean
   unclosable: boolean
@@ -42,16 +44,23 @@ export interface TolkiChatProps {
   backdrop: HexColor | null
   avatar: string | null
 
-  // Colors
-  toggleColor: HexColor | HexColorPair
-  icon: IconValue | null
-  messageColor: HexColor | HexColorPair
+  // Toggle button colors
+  toggleBackground: HexColor
+  toggleContent: HexColor | null // Auto-generated from toggleBackground if null
+
+  // Message bubble colors (user messages)
+  messageBackground: HexColor
+  messageContent: HexColor | null
+
+  // Icon URL (PRO only)
+  icon: string | null
 
   // Branding (PRO only)
   unbranded: boolean
 
   // Content
-  placeholder: string
+  messagePlaceholder: I18nString
+  togglePlaceholder: I18nString
   welcomeMessage: I18nString | null
   suggestions: I18nArray
   toasts: I18nArray
@@ -67,7 +76,9 @@ export interface TolkiChatProps {
 export const DEFAULT_PROPS: TolkiChatProps = {
   // Layout & Positioning
   position: 'right',
-  size: 'md',
+  windowSize: 'sm',
+  toggleSize: 'md',
+  margin: 20,
   defaultOpen: true,
   expandable: true,
   unclosable: false,
@@ -78,16 +89,23 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   backdrop: null,
   avatar: null,
 
-  // Colors
-  toggleColor: '#3b82f6',
-  icon: null, // Will auto-generate based on toggleColor
-  messageColor: '#2563eb',
+  // Toggle button colors
+  toggleBackground: '#001ccb',
+  toggleContent: null, // Auto-generated based on toggleBackground
+
+  // Message bubble colors
+  messageBackground: '#001ccb',
+  messageContent: null, // Auto-generated based on messageBackground
+
+  // Icon URL
+  icon: null,
 
   // Branding
   unbranded: false,
 
   // Content
-  placeholder: 'Ask Anything',
+  messagePlaceholder: 'Ask Anything',
+  togglePlaceholder: '',
   welcomeMessage: null,
   suggestions: [],
   toasts: [],
@@ -100,7 +118,7 @@ export const DEFAULT_PROPS: TolkiChatProps = {
 /**
  * Props that can only be set via PRO backend
  */
-export const PRO_ONLY_PROPS = ['unbranded'] as const
+export const PRO_ONLY_PROPS = ['unbranded', 'icon'] as const
 export type ProOnlyProp = (typeof PRO_ONLY_PROPS)[number]
 
 /**
@@ -108,12 +126,4 @@ export type ProOnlyProp = (typeof PRO_ONLY_PROPS)[number]
  */
 export function isProOnlyProp(propName: string): boolean {
   return PRO_ONLY_PROPS.includes(propName as ProOnlyProp)
-}
-
-/**
- * Check if icon value is a URL (PRO only)
- */
-export function isIconUrl(icon: IconValue): boolean {
-  if (typeof icon !== 'string') return false
-  return icon.startsWith('http://') || icon.startsWith('https://') || icon.startsWith('data:')
 }

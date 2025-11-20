@@ -4,6 +4,8 @@
   --brand-dot-size: calc(var(--toggle-btn-size) * 0.12);
   --circle-btn-size: 40px;
   --margin: 20px;
+  --margin-x: 20px;
+  --margin-y: 20px;
   --message-radius: 15px;
   --mobile-breakpoint: 480px;
   --window-border-radius: 10px;
