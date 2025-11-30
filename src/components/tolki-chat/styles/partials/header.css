@@ -4,12 +4,12 @@
 
 .tk__header {
   align-items: center;
-  background: white;
+  background: var(--color-bg-primary, white);
   display: flex;
   font-size: var(--text-base);
   font-weight: var(--weight-bold);
   justify-content: space-between;
-  outline: 1px solid rgba(0, 0, 0, 0.1);
+  outline: 1px solid var(--color-border, rgba(0, 0, 0, 0.1));
   padding: 10px;
   z-index: var(--z-header);
 

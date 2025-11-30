@@ -67,6 +67,8 @@ type I18nArray = string[] | { [lang: string]: string }[]
 // Component-specific types
 type ChatPosition = 'inline' | 'left' | 'center' | 'right'
 type ChatSize = 'md' | 'lg' | 'xl'
+type DarkMode = 'auto' | 'light' | 'dark'
+type RoundedSize = 'none' | 'sm' | 'md' | 'lg' | 'xl'
 ```
 
 ### Props Interface
@@ -81,7 +83,8 @@ interface TolkiChatProps {
   unclosable: boolean                 // default: false
 
   // Appearance
-  dark: boolean                       // default: false
+  dark: DarkMode                      // default: 'auto' ('auto' | 'light' | 'dark')
+  rounded: RoundedSize                // default: 'xl' ('none' | 'sm' | 'md' | 'lg' | 'xl')
   blur: boolean                       // default: true
   backdrop: HexColor | null           // default: null
   avatar: string | null               // default: null
@@ -156,6 +159,24 @@ interface TolkiChatProps {
   bot="abc-123"
   position="inline"
   unclosable>
+</tolki-chat>
+
+<!-- Custom border radius -->
+<tolki-chat
+  bot="abc-123"
+  rounded="lg">          <!-- Large corners (15px) -->
+</tolki-chat>
+
+<!-- Sharp corners -->
+<tolki-chat
+  bot="abc-123"
+  rounded="none">        <!-- No border radius -->
+</tolki-chat>
+
+<!-- Dark mode -->
+<tolki-chat
+  bot="abc-123"
+  dark="dark">           <!-- Force dark mode -->
 </tolki-chat>
 ```
 
@@ -614,11 +635,9 @@ Potential additions to the props system:
 
 - [ ] `bubbleTextColor` - Text color inside message bubbles
 - [ ] `fontSize` - Base font size
-- [ ] `borderRadius` - Border radius for chat window
 - [ ] `animation` - Enable/disable animations
 - [ ] `sound` - Enable/disable notification sounds
 - [ ] `maxHeight` - Maximum chat window height
-- [ ] Theme presets (light/dark/auto)
 - [ ] Custom CSS variables support
 
 ---

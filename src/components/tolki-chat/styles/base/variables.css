@@ -8,11 +8,15 @@
   --margin-y: 20px;
   --message-radius: 15px;
   --mobile-breakpoint: 480px;
-  --window-border-radius: 10px;
+  --rounded: 25px; /* Default, overridden by component */
+  --window-border-radius: var(--rounded);
+  --textarea-border-radius: max(10px, calc(var(--rounded) - 10px));
 
   /* Z-index layers */
+  --z-backdrop: 9999998;
   --z-branding: 10;
   --z-header: 10;
+  --z-toggle: 9999999;
   --z-window-floating: 9999999;
 
   /* Animation timings */

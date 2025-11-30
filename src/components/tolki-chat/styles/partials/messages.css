@@ -245,7 +245,7 @@
 /* Cart loading message styling */
 
 .tk__message {
-  background: white;
+  background: var(--color-bg-primary, white);
   border-radius: calc(var(--message-radius) * 0.25) var(--message-radius) var(--message-radius) var(--message-radius);
   font-size: var(--text-small);
   line-height: var(--leading-base);

@@ -159,9 +159,11 @@ export class TolkiChat extends LitElement {
       'expandable',
       'unclosable',
       'dark',
+      'rounded',
       'avatar',
-      'blur',
-      'backdrop',
+      'backdrop-color',
+      'backdrop-opacity',
+      'backdrop-blur',
       'toggle-background',
       'toggle-content',
       'message-background',
@@ -194,6 +196,8 @@ export class TolkiChat extends LitElement {
   private boundResetChat?: () => void
   private unsubscribeTolkiUpdate?: () => void
   private unsubscribeCartLoaded?: () => void
+  private darkModeMediaQuery?: MediaQueryList
+  private boundDarkModeHandler?: () => void
 
   constructor() {
     super()
@@ -219,6 +223,11 @@ export class TolkiChat extends LitElement {
     this.unsubscribeCartLoaded = eventBus.on('tolki:cart:loaded', () => {
       this.handleCartLoaded()
     })
+
+    // Listen for system dark mode changes (for dark="auto")
+    this.darkModeMediaQuery = window.matchMedia?.('(prefers-color-scheme: dark)')
+    this.boundDarkModeHandler = () => this.requestUpdate()
+    this.darkModeMediaQuery?.addEventListener?.('change', this.boundDarkModeHandler)
 
     // Ensure Google Fonts load in Shadow DOM
     this.ensureFontLoading()
@@ -466,9 +475,10 @@ export class TolkiChat extends LitElement {
       items.push(privacyMessage)
     }
 
-    // Add welcome message
-    if (state.bot?.props?.welcomeMessage) {
-      items.push(ItemBuilder.assistant(state.bot.props.welcomeMessage))
+    // Add welcome message (from propsManager to include user attributes)
+    const welcomeMessage = this.propsManager.getProps().welcomeMessage
+    if (welcomeMessage) {
+      items.push(ItemBuilder.assistant(this.resolveI18nString(welcomeMessage)))
     }
 
     // Add cart notification using helper
@@ -549,11 +559,14 @@ export class TolkiChat extends LitElement {
         const savedOpen = this.getSetting<string>('open')
         const isMobile = window.innerWidth <= TolkiChat.MOBILE_BREAKPOINT_PX
 
-        if (savedOpen === 'false') {
+        if (isMobile) {
+          // On mobile, never auto-open (fullscreen modal is intrusive on page load)
+          state.open = ''
+        } else if (savedOpen === 'false') {
           state.open = ''
         } else if (savedOpen === 'true') {
           state.open = 'true'
-        } else if (state.bot.props.defaultOpen === true && !isMobile) {
+        } else if (state.bot.props.defaultOpen === true) {
           state.open = 'true'
         } else {
           state.open = ''
@@ -624,6 +637,17 @@ export class TolkiChat extends LitElement {
     // messageContent: if null, calculate contrast based on FINAL messageBackground
     map['message-content'] =
       props.messageContent || getContrastColor(map['message-background'])
+
+    // Backdrop color with opacity
+    if (props.backdropColor) {
+      const opacity = props.backdropOpacity ?? 0.5
+      // Convert hex to rgba with opacity
+      const hex = props.backdropColor.replace('#', '')
+      const r = parseInt(hex.slice(0, 2), 16)
+      const g = parseInt(hex.slice(2, 4), 16)
+      const b = parseInt(hex.slice(4, 6), 16)
+      map['backdrop-color'] = `rgba(${r}, ${g}, ${b}, ${opacity})`
+    }
 
     const cssVars =
       Object.keys(map)
@@ -699,6 +723,23 @@ export class TolkiChat extends LitElement {
     })
   }
 
+  /**
+   * Compute if dark mode should be active based on prop value
+   * - 'dark': always dark
+   * - 'light': always light
+   * - 'auto': follows system preference (prefers-color-scheme)
+   */
+  get isDarkMode(): boolean {
+    const props = this.propsManager.getProps()
+    const darkProp = props.dark || 'auto'
+
+    if (darkProp === 'dark') return true
+    if (darkProp === 'light') return false
+
+    // 'auto' - check system preference
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
+  }
+
   get windowSizeVariables() {
     const props = this.propsManager.getProps()
     const size = props.windowSize || 'sm'
@@ -752,6 +793,22 @@ export class TolkiChat extends LitElement {
     return `--margin-x: ${marginX}px; --margin-y: ${marginY}px;`
   }
 
+  get roundedVariables() {
+    const props = this.propsManager.getProps()
+    const rounded = props.rounded || 'md'
+
+    const radiusMap: { [key: string]: string } = {
+      none: '0px',
+      xs: '5px',
+      sm: '10px',
+      md: '15px',
+      lg: '20px',
+      xl: '25px',
+    }
+
+    return `--rounded: ${radiusMap[rounded]};`
+  }
+
   get hostPositionStyles() {
     const props = this.propsManager.getProps()
     const position = props.position
@@ -772,18 +829,21 @@ export class TolkiChat extends LitElement {
     }
 
     // Base styles for floating mode
+    // IMPORTANT: We avoid using transform on host as it creates a containing block
+    // that breaks position:fixed for the backdrop
     let styles = `position:fixed;z-index:9999999;bottom:${marginY}px;`
 
     // Add horizontal positioning based on position prop
     switch (position) {
       case 'left':
-        styles += `left:${marginX}px;`
+        styles += `left:${marginX}px;right:auto;`
         break
       case 'center':
-        styles += 'left:50%;transform:translateX(-50%);'
+        // Use left:0;right:0 with flex centering instead of transform
+        styles += 'left:0;right:0;display:flex;justify-content:center;align-items:flex-end;pointer-events:none;'
         break
       case 'right':
-        styles += `right:${marginX}px;`
+        styles += `right:${marginX}px;left:auto;`
         break
     }
 
@@ -1458,6 +1518,11 @@ export class TolkiChat extends LitElement {
     if (this.unsubscribeTolkiUpdate) this.unsubscribeTolkiUpdate()
     if (this.unsubscribeCartLoaded) this.unsubscribeCartLoaded()
 
+    // Clean up dark mode listener
+    if (this.darkModeMediaQuery && this.boundDarkModeHandler) {
+      this.darkModeMediaQuery.removeEventListener('change', this.boundDarkModeHandler)
+    }
+
     // Clean up ResizeObserver
     if (this.resizeObserver) {
       this.resizeObserver.disconnect()
@@ -1470,8 +1535,8 @@ export class TolkiChat extends LitElement {
 
   override render() {
     const hostStyles = !state.inline
-      ? `${this.colorVariables} ${this.windowSizeVariables} ${this.toggleSizeVariables} ${this.marginVariables} ${this.hostPositionStyles}`
-      : `${this.colorVariables} ${this.windowSizeVariables} ${this.toggleSizeVariables} ${this.marginVariables}`
+      ? `${this.colorVariables} ${this.windowSizeVariables} ${this.toggleSizeVariables} ${this.marginVariables} ${this.roundedVariables} ${this.hostPositionStyles}`
+      : `${this.colorVariables} ${this.windowSizeVariables} ${this.toggleSizeVariables} ${this.marginVariables} ${this.roundedVariables}`
 
     return state.bot?.status === BotStatus.ok
       ? html`
@@ -1487,6 +1552,7 @@ export class TolkiChat extends LitElement {
               'tk__window--inline': state.inline,
               'tk__window--floating': !state.inline,
               'tk__window--unclosable': state.unclosable,
+              'tk__window--dark': this.isDarkMode,
               'tk__window--left':
                 this.propsManager.getProps().position === 'left',
               'tk__window--center':
@@ -1544,6 +1610,19 @@ export class TolkiChat extends LitElement {
                   | 'right',
                 this.resolveI18nString(this.propsManager.getProps().togglePlaceholder)
               )}
+          ${!state.inline && !state.unclosable && this.propsManager.getProps().backdropColor
+            ? html`<div
+                class=${classMap({
+                  tk__backdrop: true,
+                  'tk__backdrop--blur-sm': (this.propsManager.getProps().backdropBlur || 'md') === 'sm',
+                  'tk__backdrop--blur-md': (this.propsManager.getProps().backdropBlur || 'md') === 'md',
+                  'tk__backdrop--blur-lg': (this.propsManager.getProps().backdropBlur || 'md') === 'lg',
+                  'tk__backdrop--blur-xl': (this.propsManager.getProps().backdropBlur || 'md') === 'xl',
+                  'tk__backdrop--visible': state.open === 'true',
+                })}
+                @click=${() => this.toggleWindow()}
+              ></div>`
+            : ''}
         `
       : html``
   }

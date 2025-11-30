@@ -2,7 +2,7 @@
 @import "../base/variables.css";
 
 .tk__window {
-  background-color: white;
+  background-color: var(--color-bg-primary, white);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -33,7 +33,7 @@
 
     @media screen and (min-width: 480px) {
       border-radius: var(--window-border-radius);
-      box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.10), 0 0 0 1px rgba(0, 0, 0, 0.1);
+      box-shadow: var(--window-box-shadow, 0 12px 24px 0 rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.1));
       height: calc(90vh - var(--toggle-btn-size) - var(--margin-y) - var(--margin-y));
       margin-bottom: calc(var(--toggle-btn-size) + 10px);
       max-height: 728px;

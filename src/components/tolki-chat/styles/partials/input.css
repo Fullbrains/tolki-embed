@@ -3,38 +3,31 @@
 @import "../base/variables.css";
 
 .tk__input {
-  border-radius: 15px 15px 0 0;
   box-sizing: border-box;
   display: flex;
   justify-content: space-between;
-  outline: 1px solid rgba(0, 0, 0, 0.1);
-  padding: 0;
   position: relative;
   width: 100%;
-
-  &--with-suggestions {
-    outline: none;
-  }
-
-  /* Remove outline when suggestions are present */
+  padding: 0 10px 10px 10px;
 
   textarea {
-    background-color: transparent;
-    border-radius: 0;
+    background-color: rgba(128, 128, 128, 0.1);
+    border-radius: var(--textarea-border-radius, 20px);
     border: none;
     box-sizing: content-box;
+    color: var(--color-text-primary, inherit);
     flex-grow: 1;
     font-family: inherit;
     font-size: var(--text-base);
     margin: 0;
-    min-height: 40px;
+    min-height: 60px;
     outline: none;
-    padding: 15px 60px 20px 20px;
+    padding: 10px 60px 30px 15px;
     resize: none;
     transition: height var(--transition-default);
 
     &::placeholder {
-      color: var(--steel-30);
+      color: var(--color-text-muted, var(--steel-30));
       opacity: 1;
     }
   }
@@ -43,24 +36,25 @@
 .tk__send {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   align-items: center;
-  background-color: var(--steel-06);
+  background-color: var(--color-send-bg, var(--eigen-45));
   border-radius: var(--circle-btn-size);
   border: none;
-  color: var(--eigen-45);
+  color: var(--color-send-text, white);
   cursor: pointer;
   display: flex;
-  height: var(--circle-btn-size);
+  height: 35px;
   justify-content: center;
   outline: none;
   pointer-events: auto;
   position: absolute;
-  right: 10px;
+  padding: 10px !important;
+  right: 20px;
   top: 10px;
-  transition: background-color var(--transition-default), color var(--transition-default);
-  width: var(--circle-btn-size);
+  transition: opacity var(--transition-default);
+  width: 35px;
 
   &:hover {
-    background-color: var(--steel-10);
+    opacity: 0.9;
   }
 
   svg {
@@ -75,11 +69,11 @@
 .tk__scroll-down {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   align-items: center;
-  background-color: white;
+  background-color: var(--color-bg-primary, white);
   border-radius: var(--circle-btn-size);
   border: none;
-  box-shadow: 0 5px 10px 0 rgba(0, 0, 0, 0.20), 0 0 0 1px rgba(0, 0, 0, 0.1);
-  color: var(--eigen-45);
+  box-shadow: 0 5px 10px 0 var(--color-shadow-strong, rgba(0, 0, 0, 0.2)), 0 0 0 1px var(--color-border, rgba(0, 0, 0, 0.1));
+  color: var(--color-text-primary, var(--eigen-45));
   cursor: pointer;
   display: flex;
   height: var(--circle-btn-size);

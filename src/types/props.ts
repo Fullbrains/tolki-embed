@@ -26,6 +26,25 @@ export type WindowSize = 'sm' | 'md' | 'lg' | 'xl'
 export type ToggleSize = 'sm' | 'md' | 'lg'
 
 /**
+ * Dark mode options
+ * - 'auto': follows system preference (prefers-color-scheme)
+ * - 'light': always light mode
+ * - 'dark': always dark mode
+ */
+export type DarkMode = 'auto' | 'light' | 'dark'
+
+/**
+ * Border radius options
+ * - 'none': no border radius (0px)
+ * - 'xs': extra small border radius (5px)
+ * - 'sm': small border radius (10px)
+ * - 'md': medium border radius (15px)
+ * - 'lg': large border radius (20px)
+ * - 'xl': extra large border radius (25px) - default
+ */
+export type RoundedSize = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'
+
+/**
  * Complete props interface for TolkiChat component
  */
 export interface TolkiChatProps {
@@ -39,9 +58,11 @@ export interface TolkiChatProps {
   unclosable: boolean
 
   // Appearance
-  dark: boolean
-  blur: boolean
-  backdrop: HexColor | null
+  dark: DarkMode
+  rounded: RoundedSize
+  backdropColor: HexColor | null
+  backdropOpacity: number // 0-1, default 0.5
+  backdropBlur: 'none' | 'sm' | 'md' | 'lg' | 'xl' | null // default 'md' if null
   avatar: string | null
 
   // Toggle button colors
@@ -84,9 +105,11 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   unclosable: false,
 
   // Appearance
-  dark: false,
-  blur: true,
-  backdrop: null,
+  dark: 'auto',
+  rounded: 'xl',
+  backdropColor: null,
+  backdropOpacity: 0.5,
+  backdropBlur: 'md',
   avatar: null,
 
   // Toggle button colors

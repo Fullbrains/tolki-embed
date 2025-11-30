@@ -42,6 +42,30 @@
   /* Ruby - Red */
   --ruby-30: #f50039;
 
+  /* Dark Mode Palette */
+  --dark-bg-primary: #1a1a24;
+  --dark-bg-secondary: #242432;
+  --dark-bg-tertiary: #2e2e3e;
+  --dark-bg-elevated: #38384a;
+  --dark-border: rgba(255, 255, 255, 0.1);
+  --dark-text-primary: #f0f0f5;
+  --dark-text-secondary: #a0a0b0;
+  --dark-text-muted: #6e6e80;
+
+  /* Semantic Colors - Light Mode (default) */
+  --color-bg-primary: var(--steel-01);
+  --color-bg-secondary: var(--steel-04);
+  --color-bg-tertiary: var(--steel-06);
+  --color-bg-elevated: var(--steel-08);
+  --color-bg-input: var(--steel-06);
+  --color-border: rgba(0, 0, 0, 0.1);
+  --color-text-primary: var(--eigen-45);
+  --color-text-secondary: var(--steel-50);
+  --color-text-muted: var(--steel-30);
+  --color-link-hover: var(--cobalt-35);
+  --color-shadow: rgba(0, 0, 0, 0.1);
+  --color-shadow-strong: rgba(0, 0, 0, 0.2);
+
   /* Computed Colors */
   --link-color: color-mix(in srgb, var(--sky-50) 50%, var(--cobalt-30) 50%);
 }

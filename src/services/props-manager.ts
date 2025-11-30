@@ -130,9 +130,22 @@ export class PropsManager {
         case 'defaultOpen':
         case 'expandable':
         case 'unclosable':
-        case 'dark':
-        case 'blur':
           props[propName] = parseBoolean(value)
+          break
+
+        // Backdrop blur (enum: none, sm, md, lg, xl)
+        case 'backdropBlur':
+          props.backdropBlur = parseEnum(value as string, ['none', 'sm', 'md', 'lg', 'xl'])
+          break
+
+        // Dark mode (enum: auto, light, dark)
+        case 'dark':
+          props.dark = parseEnum(value as string, ['auto', 'light', 'dark'])
+          break
+
+        // Rounded (enum: none, xs, sm, md, lg, xl)
+        case 'rounded':
+          props.rounded = parseEnum(value as string, ['none', 'xs', 'sm', 'md', 'lg', 'xl'])
           break
 
         // Simple strings
@@ -140,9 +153,15 @@ export class PropsManager {
           props[propName] = parseString(value as string) || undefined
           break
 
-        // Hex colors
-        case 'backdrop':
-          props.backdrop = parseHexColor(value as string) as HexColor | null
+        // Backdrop
+        case 'backdropColor':
+          props.backdropColor = parseHexColor(value as string) as HexColor | null
+          break
+        case 'backdropOpacity':
+          const opacity = parseFloat(value as string)
+          if (!isNaN(opacity) && opacity >= 0 && opacity <= 1) {
+            props.backdropOpacity = opacity
+          }
           break
         case 'toggleBackground':
           props.toggleBackground = parseHexColor(value as string) as HexColor | undefined

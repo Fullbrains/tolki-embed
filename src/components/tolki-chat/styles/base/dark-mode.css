@@ -1,0 +1,51 @@
+/* Dark Mode Overrides */
+/* Applied when .tk__window--dark class is present */
+
+.tk__window--dark {
+  /* Override semantic colors for dark mode */
+  --color-bg-primary: var(--dark-bg-primary);
+  --color-bg-secondary: var(--dark-bg-secondary);
+  --color-bg-tertiary: var(--dark-bg-tertiary);
+  --color-bg-elevated: var(--dark-bg-elevated);
+  --color-bg-input: var(--dark-bg-tertiary);
+  --color-border: var(--dark-border);
+  --color-text-primary: var(--dark-text-primary);
+  --color-text-secondary: var(--dark-text-secondary);
+  --color-text-muted: var(--dark-text-muted);
+  --color-shadow: rgba(0, 0, 0, 0.3);
+  --color-shadow-strong: rgba(0, 0, 0, 0.5);
+
+  /* Override specific component colors */
+  --steel-01: var(--dark-bg-primary);
+  --steel-04: var(--dark-bg-secondary);
+  --steel-06: var(--dark-bg-tertiary);
+  --steel-08: var(--dark-bg-elevated);
+  --steel-10: #3a3a4c;
+  --steel-15: #424254;
+  --steel-20: #4a4a5c;
+  --steel-30: #6a6a7c;
+  --eigen-45: var(--dark-text-primary);
+
+  /* Jade colors for dark mode */
+  --jade-06: #1a332b;
+  --jade-45: #4adea0;
+
+  /* Link color for dark mode */
+  --link-color: #60a5fa;
+  --color-link-hover: var(--cobalt-10);
+
+  /* Suggestion colors for dark mode */
+  --color-suggestion-bg: color-mix(in srgb, var(--cobalt-25) 25%, transparent);
+  --color-suggestion-text: var(--cobalt-10);
+  --color-suggestion-bg-hover: color-mix(in srgb, var(--cobalt-25) 35%, transparent);
+  --color-suggestion-text-hover: var(--cobalt-06);
+
+  /* Window shadow for dark mode (no 1px border) */
+  --window-box-shadow: 0 12px 24px 0 rgba(0, 0, 0, 0.4);
+
+  /* Send button colors for dark mode */
+  --color-send-bg: var(--steel-10);
+  --color-send-text: var(--eigen-45);
+
+  color: var(--dark-text-primary);
+}

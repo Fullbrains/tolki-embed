@@ -1,4 +1,5 @@
 import { html } from 'lit'
+import { classMap } from 'lit/directives/class-map.js'
 
 export const suggestionsTemplate = (
   suggestions: string[],
@@ -7,7 +8,7 @@ export const suggestionsTemplate = (
     displayText: string
   }
 ) => {
-  if (!suggestions?.length) return html``
+  const isEmpty = !suggestions?.length
 
   const handleScrollLeft = (e: Event) => {
     e.preventDefault()
@@ -30,7 +31,10 @@ export const suggestionsTemplate = (
   }
 
   return html`
-    <div class="tk__suggestions-container">
+    <div class=${classMap({
+      'tk__suggestions-container': true,
+      'tk__suggestions-container--empty': isEmpty,
+    })}>
       <button
         class="tk__suggestions-scroll-btn tk__suggestions-scroll-left"
         @click=${handleScrollLeft}
@@ -40,7 +44,7 @@ export const suggestionsTemplate = (
         </svg>
       </button>
       <div class="tk__suggestions">
-        ${suggestions.map((suggestion) => {
+        ${(suggestions || []).map((suggestion) => {
           const parsed = extractCommand
             ? extractCommand(suggestion)
             : { command: null, displayText: suggestion }
