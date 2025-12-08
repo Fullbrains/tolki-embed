@@ -53,11 +53,7 @@ import { suggestionsTemplate } from './templates/suggestions'
 
 // Utils
 import { CartHelpers } from '../../utils/chat-helpers'
-import {
-  transformBotPropsToTolkiProps,
-  isBotPro,
-  splitPropsByPriority,
-} from '../../utils/props-transformer'
+import { transformBotPropsToTolkiProps } from '../../utils/props-transformer'
 import { generateHoverColor, getContrastColor } from '../../utils/color'
 
 const TOLKI_CHAT: string = `tolki-chat`
@@ -512,27 +508,11 @@ export class TolkiChat extends LitElement {
         state.bot = bot
 
         // Transform backend props and pass to props manager
+        // Backend decides what to send (including PRO props like icon/unbranded if applicable)
         if (bot.props) {
-          const isPro = isBotPro(bot.props)
-          const transformedProps = transformBotPropsToTolkiProps(
-            bot.props,
-            isPro
-          )
-
-          // Split props into PRO-only and standard
-          // PRO-only: unbranded, icon (as URL)
-          // Standard: everything else (including colors!)
-          const { proProps, standardProps } =
-            splitPropsByPriority(transformedProps)
-
-          // Always set standard props (colors, avatar, etc.)
-          if (Object.keys(standardProps).length > 0) {
-            this.propsManager.setStandardBackendProps(standardProps)
-          }
-
-          // Only set PRO props if bot is on PRO plan
-          if (isPro && Object.keys(proProps).length > 0) {
-            this.propsManager.setProBackendProps(proProps)
+          const transformedProps = transformBotPropsToTolkiProps(bot.props)
+          if (Object.keys(transformedProps).length > 0) {
+            this.propsManager.setBackendProps(transformedProps)
           }
         }
 

@@ -1,4 +1,4 @@
-import { HexColor, HexColorPair } from '../utils/color'
+import { HexColor } from '../utils/color'
 
 /**
  * Internationalized string - can be a plain string or an object with language keys
@@ -73,10 +73,10 @@ export interface TolkiChatProps {
   messageBackground: HexColor
   messageContent: HexColor | null
 
-  // Icon URL (PRO only)
+  // Icon URL (backend only sends this if bot is PRO)
   icon: string | null
 
-  // Branding (PRO only)
+  // Branding (backend only sends this if bot is PRO)
   unbranded: boolean
 
   // Content
@@ -120,10 +120,8 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   messageBackground: '#001ccb',
   messageContent: null, // Auto-generated based on messageBackground
 
-  // Icon URL
+  // PRO features (backend only sends these if bot is PRO)
   icon: null,
-
-  // Branding
   unbranded: false,
 
   // Content
@@ -138,15 +136,3 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   locales: ['en', 'it', 'es', 'fr', 'de', 'pt'],
 }
 
-/**
- * Props that can only be set via PRO backend
- */
-export const PRO_ONLY_PROPS = ['unbranded', 'icon'] as const
-export type ProOnlyProp = (typeof PRO_ONLY_PROPS)[number]
-
-/**
- * Check if a prop is PRO only
- */
-export function isProOnlyProp(propName: string): boolean {
-  return PRO_ONLY_PROPS.includes(propName as ProOnlyProp)
-}

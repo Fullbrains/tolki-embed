@@ -48,4 +48,14 @@
   --color-send-text: var(--eigen-45);
 
   color: var(--dark-text-primary);
+
+  /* Send button border for dark mode */
+  .tk__send {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
+
+  /* Input area border for dark mode */
+  .tk__input textarea {
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  }
 }

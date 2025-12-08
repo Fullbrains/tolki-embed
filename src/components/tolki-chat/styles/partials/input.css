@@ -36,10 +36,10 @@
 .tk__send {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   align-items: center;
-  background-color: var(--color-send-bg, var(--eigen-45));
+  background-color: var(--toggle-background);
   border-radius: var(--circle-btn-size);
   border: none;
-  color: var(--color-send-text, white);
+  color: var(--toggle-content);
   cursor: pointer;
   display: flex;
   height: 35px;
@@ -50,11 +50,11 @@
   padding: 10px !important;
   right: 20px;
   top: 10px;
-  transition: opacity var(--transition-default);
+  transition: background-color var(--transition-default);
   width: 35px;
 
   &:hover {
-    opacity: 0.9;
+    background-color: var(--toggle-hover);
   }
 
   svg {

@@ -17,18 +17,20 @@ export function getContrastColor(hex: string): '#ffffff' | '#000000' {
 }
 
 /**
- * Generate hover color automatically based on luminance
- * Dark colors are lightened, light colors are darkened
+ * Generate hover color automatically
+ * Darkens most colors for a "pressed" effect
+ * Very dark colors (luminance < 0.1) are lightened instead
  * Uses 8% brightness adjustment for subtle hover effect
  */
 export function generateHoverColor(hex: string): HexColor {
   const color = tinycolor(hex)
+  const luminance = color.getLuminance()
 
-  // For dark colors, lighten by 8%
-  // For light colors, darken by 8%
-  const adjusted = color.isLight()
-    ? color.darken(8)
-    : color.brighten(8)
+  // Very dark colors: lighten instead of darken
+  // Luminance < 0.05 means the color is too dark to darken further
+  const adjusted = luminance < 0.05
+    ? color.lighten(12)  // Lighten more for very dark colors (more visible)
+    : color.darken(8)
 
   return adjusted.toHexString() as HexColor
 }

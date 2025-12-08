@@ -375,7 +375,7 @@
 
 </script>
 <script src="dist/chat.js"></script>
-<tolki-chat lang="it" bot="e4b069b5-9eb8-40fc-a947-7ad135f0add0" id="tolki"></tolki-chat>
+<tolki-chat lang="it" bot="9da7b9b4-2fb3-4189-a5d2-391f509f5286" id="tolki"></tolki-chat>
 <!--<script>window.tolki = window.tolki || {}
 window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
 -->
@@ -403,294 +403,294 @@ window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
     // Don't initialize GUI, exit early
   } else {
 
-  // Wait for component to be ready
-  window.addEventListener('DOMContentLoaded', () => {
-    const chatElement = document.querySelector('tolki-chat')
+    // Wait for component to be ready
+    window.addEventListener('DOMContentLoaded', () => {
+      const chatElement = document.querySelector('tolki-chat')
 
-    // Load saved config from localStorage
-    const savedConfig = localStorage.getItem(STORAGE_KEY)
-    const defaults = savedConfig ? JSON.parse(savedConfig) : {}
+      // Load saved config from localStorage
+      const savedConfig = localStorage.getItem(STORAGE_KEY)
+      const defaults = savedConfig ? JSON.parse(savedConfig) : {}
 
-    // Configuration object with localStorage persistence
-    const config = {
+      // Configuration object with localStorage persistence
+      const config = {
+        // Layout & Positioning
+        position: defaults.position ?? 'right',
+        windowSize: defaults.windowSize ?? 'sm',
+        toggleSize: defaults.toggleSize ?? 'md',
+        defaultOpen: defaults.defaultOpen ?? false,
+        expandable: defaults.expandable ?? false,
+        unclosable: defaults.unclosable ?? false,
+
+        // Appearance
+        dark: defaults.dark ?? 'auto',
+        rounded: defaults.rounded ?? 'xl',
+        backdropColor: defaults.backdropColor ?? '',
+        backdropOpacity: defaults.backdropOpacity ?? 0.5,
+        backdropBlur: defaults.backdropBlur ?? 'md',
+        avatar: defaults.avatar ?? '',
+
+        // Colors (text input, empty = null = use default)
+        toggleBackground: defaults.toggleBackground ?? '',
+        toggleContent: defaults.toggleContent ?? '',
+        messageBackground: defaults.messageBackground ?? '',
+        messageContent: defaults.messageContent ?? '',
+
+        // Branding (PRO only)
+        unbranded: defaults.unbranded ?? false,
+
+        // Content
+        messagePlaceholder: defaults.messagePlaceholder ?? '',
+        togglePlaceholder: defaults.togglePlaceholder ?? '',
+        welcomeMessage: defaults.welcomeMessage ?? '',
+        suggestions: defaults.suggestions ?? '',
+        toasts: defaults.toasts ?? '',
+
+        // Internationalization
+        lang: defaults.lang ?? 'en',
+        locales: defaults.locales ?? '',
+      }
+
+      // Save config to localStorage
+      function saveConfig() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
+      }
+
+      // Create GUI
+      const gui = new GUI({ title: 'Tolki Chat Props', width: 320 })
+
+      // Helper to update attribute and force re-render
+      function updateAttribute(name, value, saveToStorage = true) {
+        console.log(`[updateAttribute] ${name} =`, value)
+
+        if (value === '' || value === null || value === undefined) {
+          console.log(`[updateAttribute] Removing attribute: ${name}`)
+          chatElement.removeAttribute(name)
+        } else if (typeof value === 'boolean') {
+          // For boolean attributes, set explicit "true" or "false" string
+          // This ensures defaults don't override user intent
+          console.log(`[updateAttribute] Setting boolean attribute: ${name} = ${value}`)
+          chatElement.setAttribute(name, value.toString())
+        } else {
+          console.log(`[updateAttribute] Setting attribute: ${name} = ${value}`)
+          chatElement.setAttribute(name, value.toString())
+        }
+
+        if (saveToStorage) {
+          saveConfig()
+        }
+      }
+
+      // Convert camelCase to kebab-case
+      function toKebabCase(str) {
+        return str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)
+      }
+
       // Layout & Positioning
-      position: defaults.position ?? 'right',
-      windowSize: defaults.windowSize ?? 'sm',
-      toggleSize: defaults.toggleSize ?? 'md',
-      defaultOpen: defaults.defaultOpen ?? false,
-      expandable: defaults.expandable ?? false,
-      unclosable: defaults.unclosable ?? false,
+      const layoutFolder = gui.addFolder('Layout & Positioning')
+      layoutFolder.add(config, 'position', ['inline', 'left', 'center', 'right'])
+        .onChange(v => updateAttribute('position', v))
+      layoutFolder.add(config, 'windowSize', ['sm', 'md', 'lg', 'xl'])
+        .onChange(v => updateAttribute('window-size', v))
+        .name('windowSize')
+      layoutFolder.add(config, 'toggleSize', ['sm', 'md', 'lg'])
+        .onChange(v => updateAttribute('toggle-size', v))
+        .name('toggleSize')
+      layoutFolder.add(config, 'defaultOpen')
+        .onChange(v => updateAttribute('default-open', v))
+        .name('defaultOpen')
+      layoutFolder.add(config, 'expandable')
+        .onChange(v => updateAttribute('expandable', v))
+      layoutFolder.add(config, 'unclosable')
+        .onChange(v => updateAttribute('unclosable', v))
 
       // Appearance
-      dark: defaults.dark ?? 'auto',
-      rounded: defaults.rounded ?? 'xl',
-      backdropColor: defaults.backdropColor ?? '',
-      backdropOpacity: defaults.backdropOpacity ?? 0.5,
-      backdropBlur: defaults.backdropBlur ?? 'md',
-      avatar: defaults.avatar ?? '',
+      const appearanceFolder = gui.addFolder('Appearance')
+      appearanceFolder.add(config, 'dark', ['auto', 'light', 'dark'])
+        .onChange(v => updateAttribute('dark', v))
+      appearanceFolder.add(config, 'rounded', ['none', 'xs', 'sm', 'md', 'lg', 'xl'])
+        .onChange(v => updateAttribute('rounded', v))
 
-      // Colors (text input, empty = null = use default)
-      toggleBackground: defaults.toggleBackground ?? '',
-      toggleContent: defaults.toggleContent ?? '',
-      messageBackground: defaults.messageBackground ?? '',
-      messageContent: defaults.messageContent ?? '',
+      // Backdrop controls
+      // Use a helper object for color with enable/disable
+      const backdropColorObj = {
+        color: config.backdropColor || '#000000',
+        enabled: !!config.backdropColor,
+      }
+      appearanceFolder.add(backdropColorObj, 'enabled')
+        .name('backdrop enabled')
+        .onChange(v => {
+          if (v) {
+            config.backdropColor = backdropColorObj.color
+            updateAttribute('backdrop-color', backdropColorObj.color)
+          } else {
+            config.backdropColor = ''
+            updateAttribute('backdrop-color', '')
+          }
+        })
+      appearanceFolder.addColor(backdropColorObj, 'color')
+        .name('backdrop color')
+        .onChange(v => {
+          backdropColorObj.color = v
+          if (backdropColorObj.enabled) {
+            config.backdropColor = v
+            updateAttribute('backdrop-color', v)
+          }
+        })
+      appearanceFolder.add(config, 'backdropOpacity', 0, 1, 0.1)
+        .name('backdrop opacity')
+        .onChange(v => updateAttribute('backdrop-opacity', v))
+      appearanceFolder.add(config, 'backdropBlur', ['none', 'sm', 'md', 'lg', 'xl'])
+        .name('backdrop blur')
+        .onChange(v => updateAttribute('backdrop-blur', v))
 
-      // Branding (PRO only)
-      unbranded: defaults.unbranded ?? false,
+      appearanceFolder.add(config, 'avatar')
+        .onChange(v => updateAttribute('avatar', v))
+        .name('avatar (URL)')
+
+      // Colors - with debug logging
+      const colorsFolder = gui.addFolder('Colors')
+
+      // Helper to add color with reset button
+      function addColorControl(folder, obj, prop, label, fallback = '#3b82f6') {
+        // Use fallback if empty
+        if (!obj[prop]) obj[prop] = fallback
+
+        const useDefaultObj = { useDefault: false }
+
+        folder.add(useDefaultObj, 'useDefault')
+          .name(`${label} - use default`)
+          .onChange(v => {
+            console.log(`[lil-gui] ${label} useDefault:`, v)
+            if (v) {
+              obj[prop] = ''
+              updateAttribute(toKebabCase(prop), '')
+              colorCtrl.setValue(fallback)
+            } else {
+              obj[prop] = colorCtrl.getValue()
+              updateAttribute(toKebabCase(prop), obj[prop])
+            }
+          })
+
+        const colorCtrl = folder.addColor(obj, prop)
+          .name(label)
+          .onChange(v => {
+            console.log(`[lil-gui] ${label} color changed:`, v)
+            if (!useDefaultObj.useDefault) {
+              updateAttribute(toKebabCase(prop), v)
+            }
+          })
+
+        return { checkbox: useDefaultObj, color: colorCtrl }
+      }
+
+      // Apply color fallbacks BEFORE creating color controllers
+      if (!config.toggleBackground) config.toggleBackground = '#001ccb'
+      if (!config.toggleContent) config.toggleContent = '#ffffff'
+      if (!config.messageBackground) config.messageBackground = '#001ccb'
+      if (!config.messageContent) config.messageContent = '#ffffff'
+
+      addColorControl(colorsFolder, config, 'toggleBackground', 'Toggle Background', '#001ccb')
+      addColorControl(colorsFolder, config, 'toggleContent', 'Toggle Content', '#ffffff')
+      addColorControl(colorsFolder, config, 'messageBackground', 'Message Background', '#001ccb')
+      addColorControl(colorsFolder, config, 'messageContent', 'Message Content', '#ffffff')
+
+      colorsFolder.open()
+
+      // Branding
+      const brandingFolder = gui.addFolder('Branding (PRO)')
+      brandingFolder.add(config, 'unbranded')
+        .onChange(v => updateAttribute('unbranded', v))
 
       // Content
-      messagePlaceholder: defaults.messagePlaceholder ?? '',
-      togglePlaceholder: defaults.togglePlaceholder ?? '',
-      welcomeMessage: defaults.welcomeMessage ?? '',
-      suggestions: defaults.suggestions ?? '',
-      toasts: defaults.toasts ?? '',
+      const contentFolder = gui.addFolder('Content')
+      contentFolder.add(config, 'messagePlaceholder')
+        .onChange(v => updateAttribute('message-placeholder', v))
+      contentFolder.add(config, 'togglePlaceholder')
+        .onChange(v => updateAttribute('toggle-placeholder', v))
+      contentFolder.add(config, 'welcomeMessage')
+        .onChange(v => updateAttribute('welcome-message', v))
+        .name('welcomeMessage')
+      contentFolder.add(config, 'suggestions')
+        .onChange(v => updateAttribute('suggestions', v))
+        .name('suggestions (CSV/JSON)')
+      contentFolder.add(config, 'toasts')
+        .onChange(v => updateAttribute('toasts', v))
+        .name('toasts (CSV/JSON)')
 
       // Internationalization
-      lang: defaults.lang ?? 'en',
-      locales: defaults.locales ?? '',
-    }
+      const i18nFolder = gui.addFolder('i18n')
+      i18nFolder.add(config, 'lang', ['en', 'it', 'es', 'fr', 'de', 'pt'])
+        .onChange(v => updateAttribute('lang', v))
+      i18nFolder.add(config, 'locales')
+        .onChange(v => updateAttribute('locales', v))
+        .name('locales (CSV)')
 
-    // Save config to localStorage
-    function saveConfig() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(config))
-    }
-
-    // Create GUI
-    const gui = new GUI({ title: 'Tolki Chat Props', width: 320 })
-
-    // Helper to update attribute and force re-render
-    function updateAttribute(name, value, saveToStorage = true) {
-      console.log(`[updateAttribute] ${name} =`, value)
-
-      if (value === '' || value === null || value === undefined) {
-        console.log(`[updateAttribute] Removing attribute: ${name}`)
-        chatElement.removeAttribute(name)
-      } else if (typeof value === 'boolean') {
-        // For boolean attributes, set explicit "true" or "false" string
-        // This ensures defaults don't override user intent
-        console.log(`[updateAttribute] Setting boolean attribute: ${name} = ${value}`)
-        chatElement.setAttribute(name, value.toString())
-      } else {
-        console.log(`[updateAttribute] Setting attribute: ${name} = ${value}`)
-        chatElement.setAttribute(name, value.toString())
-      }
-
-      if (saveToStorage) {
-        saveConfig()
-      }
-    }
-
-    // Convert camelCase to kebab-case
-    function toKebabCase(str) {
-      return str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`)
-    }
-
-    // Layout & Positioning
-    const layoutFolder = gui.addFolder('Layout & Positioning')
-    layoutFolder.add(config, 'position', ['inline', 'left', 'center', 'right'])
-      .onChange(v => updateAttribute('position', v))
-    layoutFolder.add(config, 'windowSize', ['sm', 'md', 'lg', 'xl'])
-      .onChange(v => updateAttribute('window-size', v))
-      .name('windowSize')
-    layoutFolder.add(config, 'toggleSize', ['sm', 'md', 'lg'])
-      .onChange(v => updateAttribute('toggle-size', v))
-      .name('toggleSize')
-    layoutFolder.add(config, 'defaultOpen')
-      .onChange(v => updateAttribute('default-open', v))
-      .name('defaultOpen')
-    layoutFolder.add(config, 'expandable')
-      .onChange(v => updateAttribute('expandable', v))
-    layoutFolder.add(config, 'unclosable')
-      .onChange(v => updateAttribute('unclosable', v))
-
-    // Appearance
-    const appearanceFolder = gui.addFolder('Appearance')
-    appearanceFolder.add(config, 'dark', ['auto', 'light', 'dark'])
-      .onChange(v => updateAttribute('dark', v))
-    appearanceFolder.add(config, 'rounded', ['none', 'xs', 'sm', 'md', 'lg', 'xl'])
-      .onChange(v => updateAttribute('rounded', v))
-
-    // Backdrop controls
-    // Use a helper object for color with enable/disable
-    const backdropColorObj = {
-      color: config.backdropColor || '#000000',
-      enabled: !!config.backdropColor
-    }
-    appearanceFolder.add(backdropColorObj, 'enabled')
-      .name('backdrop enabled')
-      .onChange(v => {
-        if (v) {
-          config.backdropColor = backdropColorObj.color
-          updateAttribute('backdrop-color', backdropColorObj.color)
-        } else {
+      // Actions
+      const actionsFolder = gui.addFolder('Actions')
+      actionsFolder.add({
+        reset: () => {
+          Object.keys(config).forEach(key => {
+            chatElement.removeAttribute(toKebabCase(key))
+          })
+          // Reset config to defaults
+          config.position = 'right'
+          config.windowSize = 'sm'
+          config.toggleSize = 'md'
+          config.defaultOpen = true
+          config.expandable = true
+          config.unclosable = false
+          config.dark = 'auto'
+          config.rounded = 'xl'
           config.backdropColor = ''
-          updateAttribute('backdrop-color', '')
-        }
+          config.backdropOpacity = 0.5
+          config.backdropBlur = 'md'
+          config.avatar = ''
+          config.toggleBackground = '#001ccb'
+          config.toggleContent = '#ffffff'
+          config.messageBackground = '#001ccb'
+          config.messageContent = '#ffffff'
+          config.unbranded = false
+          config.messagePlaceholder = 'Ask Anything'
+          config.togglePlaceholder = ''
+          config.welcomeMessage = ''
+          config.suggestions = ''
+          config.toasts = ''
+          config.lang = 'en'
+          config.locales = 'en,it,es,fr,de,pt'
+          gui.controllersRecursive().forEach(c => c.updateDisplay())
+        },
+      }, 'reset').name('Reset to Defaults')
+
+      actionsFolder.add({
+        copyHTML: () => {
+          const attrs = Array.from(chatElement.attributes)
+            .filter(attr => attr.name !== 'id' && attr.name !== 'bot') // Skip id and bot
+            .map(attr => `${attr.name}="${attr.value}"`)
+            .join('\n  ')
+          const html = `<tolki-chat\n  ${attrs}>\n</tolki-chat>`
+          navigator.clipboard.writeText(html)
+          alert('HTML copied to clipboard!')
+        },
+      }, 'copyHTML').name('Copy HTML')
+
+      actionsFolder.add({
+        clearStorage: () => {
+          localStorage.removeItem(STORAGE_KEY)
+          location.reload()
+        },
+      }, 'clearStorage').name('Clear Storage & Reload')
+
+      // Apply initial config from localStorage
+      Object.keys(config).forEach(key => {
+        const value = config[key]
+        const kebabKey = toKebabCase(key)
+        updateAttribute(kebabKey, value, false) // Don't save to storage on init
       })
-    appearanceFolder.addColor(backdropColorObj, 'color')
-      .name('backdrop color')
-      .onChange(v => {
-        backdropColorObj.color = v
-        if (backdropColorObj.enabled) {
-          config.backdropColor = v
-          updateAttribute('backdrop-color', v)
-        }
-      })
-    appearanceFolder.add(config, 'backdropOpacity', 0, 1, 0.1)
-      .name('backdrop opacity')
-      .onChange(v => updateAttribute('backdrop-opacity', v))
-    appearanceFolder.add(config, 'backdropBlur', ['none', 'sm', 'md', 'lg', 'xl'])
-      .name('backdrop blur')
-      .onChange(v => updateAttribute('backdrop-blur', v))
 
-    appearanceFolder.add(config, 'avatar')
-      .onChange(v => updateAttribute('avatar', v))
-      .name('avatar (URL)')
-
-    // Colors - with debug logging
-    const colorsFolder = gui.addFolder('Colors')
-
-    // Helper to add color with reset button
-    function addColorControl(folder, obj, prop, label, fallback = '#3b82f6') {
-      // Use fallback if empty
-      if (!obj[prop]) obj[prop] = fallback
-
-      const useDefaultObj = { useDefault: false }
-
-      folder.add(useDefaultObj, 'useDefault')
-        .name(`${label} - use default`)
-        .onChange(v => {
-          console.log(`[lil-gui] ${label} useDefault:`, v)
-          if (v) {
-            obj[prop] = ''
-            updateAttribute(toKebabCase(prop), '')
-            colorCtrl.setValue(fallback)
-          } else {
-            obj[prop] = colorCtrl.getValue()
-            updateAttribute(toKebabCase(prop), obj[prop])
-          }
-        })
-
-      const colorCtrl = folder.addColor(obj, prop)
-        .name(label)
-        .onChange(v => {
-          console.log(`[lil-gui] ${label} color changed:`, v)
-          if (!useDefaultObj.useDefault) {
-            updateAttribute(toKebabCase(prop), v)
-          }
-        })
-
-      return { checkbox: useDefaultObj, color: colorCtrl }
-    }
-
-    // Apply color fallbacks BEFORE creating color controllers
-    if (!config.toggleBackground) config.toggleBackground = '#001ccb'
-    if (!config.toggleContent) config.toggleContent = '#ffffff'
-    if (!config.messageBackground) config.messageBackground = '#001ccb'
-    if (!config.messageContent) config.messageContent = '#ffffff'
-
-    addColorControl(colorsFolder, config, 'toggleBackground', 'Toggle Background', '#001ccb')
-    addColorControl(colorsFolder, config, 'toggleContent', 'Toggle Content', '#ffffff')
-    addColorControl(colorsFolder, config, 'messageBackground', 'Message Background', '#001ccb')
-    addColorControl(colorsFolder, config, 'messageContent', 'Message Content', '#ffffff')
-
-    colorsFolder.open()
-
-    // Branding
-    const brandingFolder = gui.addFolder('Branding (PRO)')
-    brandingFolder.add(config, 'unbranded')
-      .onChange(v => updateAttribute('unbranded', v))
-
-    // Content
-    const contentFolder = gui.addFolder('Content')
-    contentFolder.add(config, 'messagePlaceholder')
-      .onChange(v => updateAttribute('message-placeholder', v))
-    contentFolder.add(config, 'togglePlaceholder')
-      .onChange(v => updateAttribute('toggle-placeholder', v))
-    contentFolder.add(config, 'welcomeMessage')
-      .onChange(v => updateAttribute('welcome-message', v))
-      .name('welcomeMessage')
-    contentFolder.add(config, 'suggestions')
-      .onChange(v => updateAttribute('suggestions', v))
-      .name('suggestions (CSV/JSON)')
-    contentFolder.add(config, 'toasts')
-      .onChange(v => updateAttribute('toasts', v))
-      .name('toasts (CSV/JSON)')
-
-    // Internationalization
-    const i18nFolder = gui.addFolder('i18n')
-    i18nFolder.add(config, 'lang', ['en', 'it', 'es', 'fr', 'de', 'pt'])
-      .onChange(v => updateAttribute('lang', v))
-    i18nFolder.add(config, 'locales')
-      .onChange(v => updateAttribute('locales', v))
-      .name('locales (CSV)')
-
-    // Actions
-    const actionsFolder = gui.addFolder('Actions')
-    actionsFolder.add({
-      reset: () => {
-        Object.keys(config).forEach(key => {
-          chatElement.removeAttribute(toKebabCase(key))
-        })
-        // Reset config to defaults
-        config.position = 'right'
-        config.windowSize = 'sm'
-        config.toggleSize = 'md'
-        config.defaultOpen = true
-        config.expandable = true
-        config.unclosable = false
-        config.dark = 'auto'
-        config.rounded = 'xl'
-        config.backdropColor = ''
-        config.backdropOpacity = 0.5
-        config.backdropBlur = 'md'
-        config.avatar = ''
-        config.toggleBackground = '#001ccb'
-        config.toggleContent = '#ffffff'
-        config.messageBackground = '#001ccb'
-        config.messageContent = '#ffffff'
-        config.unbranded = false
-        config.messagePlaceholder = 'Ask Anything'
-        config.togglePlaceholder = ''
-        config.welcomeMessage = ''
-        config.suggestions = ''
-        config.toasts = ''
-        config.lang = 'en'
-        config.locales = 'en,it,es,fr,de,pt'
-        gui.controllersRecursive().forEach(c => c.updateDisplay())
-      },
-    }, 'reset').name('Reset to Defaults')
-
-    actionsFolder.add({
-      copyHTML: () => {
-        const attrs = Array.from(chatElement.attributes)
-          .filter(attr => attr.name !== 'id' && attr.name !== 'bot') // Skip id and bot
-          .map(attr => `${attr.name}="${attr.value}"`)
-          .join('\n  ')
-        const html = `<tolki-chat\n  ${attrs}>\n</tolki-chat>`
-        navigator.clipboard.writeText(html)
-        alert('HTML copied to clipboard!')
-      },
-    }, 'copyHTML').name('Copy HTML')
-
-    actionsFolder.add({
-      clearStorage: () => {
-        localStorage.removeItem(STORAGE_KEY)
-        location.reload()
-      },
-    }, 'clearStorage').name('Clear Storage & Reload')
-
-    // Apply initial config from localStorage
-    Object.keys(config).forEach(key => {
-      const value = config[key]
-      const kebabKey = toKebabCase(key)
-      updateAttribute(kebabKey, value, false) // Don't save to storage on init
+      console.log('🎨 Tolki Chat Playground ready!')
+      console.log('🔥 Hot reload enabled')
+      console.log('💾 Config loaded from localStorage:', config)
     })
-
-    console.log('🎨 Tolki Chat Playground ready!')
-    console.log('🔥 Hot reload enabled')
-    console.log('💾 Config loaded from localStorage:', config)
-  })
 
   } // end if (!guiDisabled)
 </script>
