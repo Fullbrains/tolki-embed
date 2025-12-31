@@ -39,7 +39,6 @@
     }
 
     &--open {
-        background-color: var(--toggle-hover);
         border-radius: calc(var(--toggle-btn-size) * 0.15) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5) calc(var(--toggle-btn-size) * 0.5);
     }
 
