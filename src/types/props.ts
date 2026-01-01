@@ -80,6 +80,7 @@ export interface TolkiChatProps {
   unbranded: boolean
 
   // Content
+  name: I18nString
   messagePlaceholder: I18nString
   togglePlaceholder: I18nString
   welcomeMessage: I18nString | null
@@ -125,6 +126,7 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   unbranded: false,
 
   // Content
+  name: '',
   messagePlaceholder: {
     en: 'Ask anything',
     it: 'Chiedi qualsiasi cosa',

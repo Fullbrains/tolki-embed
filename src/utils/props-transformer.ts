@@ -15,6 +15,10 @@ export function transformBotPropsToTolkiProps(
 
   // === Direct mappings (root props) ===
 
+  if (botProps.name) {
+    props.name = botProps.name
+  }
+
   if (botProps.avatar) {
     props.avatar = botProps.avatar
   }

@@ -169,6 +169,9 @@ export class PropsManager {
           break
 
         // I18n strings
+        case 'name':
+          props.name = parseI18nString(value as string)
+          break
         case 'messagePlaceholder':
           props.messagePlaceholder = parseI18nString(value as string)
           break

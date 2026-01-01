@@ -70,7 +70,7 @@ export interface StylesConfig {
 
 export interface BotProps {
   // Identity
-  name: string
+  name: I18nString
   avatar?: string
 
   // Behavior

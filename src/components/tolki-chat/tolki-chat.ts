@@ -147,6 +147,7 @@ export class TolkiChat extends LitElement {
     return [
       'bot',
       'position',
+      'name',
       'message-placeholder',
       'toggle-placeholder',
       'window-size',
@@ -1562,9 +1563,12 @@ export class TolkiChat extends LitElement {
                 this.propsManager.getProps().position === 'right',
             })}
             role="region"
-            aria-label=${state.bot?.props?.name || 'Chat'}
+            aria-label=${this.resolveI18nString(this.propsManager.getProps().name) || this.resolveI18nString(state.bot?.props?.name) || 'Chat'}
           >
-            ${headerTemplate(state.bot.props.name, state.bot.props.avatar)}
+            ${headerTemplate(
+              this.resolveI18nString(this.propsManager.getProps().name) || this.resolveI18nString(state.bot.props.name),
+              this.propsManager.getProps().avatar || state.bot.props.avatar
+            )}
             <div
               class=${classMap({
                 tk__log: true,
