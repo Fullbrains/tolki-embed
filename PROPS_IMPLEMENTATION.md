@@ -2,7 +2,9 @@
 
 ## Overview
 
-This document describes the comprehensive props system implemented for the Tolki Chat web component. The system provides a flexible, type-safe way to configure the chat widget with support for multiple data sources, automatic color generation, and internationalization.
+This document describes the comprehensive props system implemented for the Tolki Chat web component. The system provides
+a flexible, type-safe way to configure the chat widget with support for multiple data sources, automatic color
+generation, and internationalization.
 
 **Implementation Date**: 2025-01-19
 **Features**: 19+ configurable props, auto-contrast, auto-hover-colors, i18n support, PRO plan features
@@ -104,7 +106,7 @@ interface TolkiChatProps {
   unbranded: boolean                  // default: false
 
   // Content
-  messagePlaceholder: string          // default: 'Ask Anything'
+  messagePlaceholder: string          // default: 'Ask anything'
   togglePlaceholder: string           // default: 'Chat with us'
   welcomeMessage: I18nString | null   // default: null
   suggestions: I18nArray              // default: []
@@ -207,22 +209,41 @@ The backend can provide props via the Bot API response:
 // Backend response (BotProps format)
 {
   name: "Support Bot",
-  avatar: "https://example.com/avatar.png",
-  welcomeMessage: "How can I help?",
-  suggestions: ["Help", "Pricing", "Contact"],
-  defaultOpen: true,
-  unbranded: true,  // PRO only
-  icon: "https://example.com/custom-icon.svg",  // PRO only
-  styles: {
+    avatar
+:
+  "https://example.com/avatar.png",
+    welcomeMessage
+:
+  "How can I help?",
+    suggestions
+:
+  ["Help", "Pricing", "Contact"],
+    defaultOpen
+:
+  true,
+    unbranded
+:
+  true,  // PRO only
+    icon
+:
+  "https://example.com/custom-icon.svg",  // PRO only
+    styles
+:
+  {
     chat: {
       button: {
         defaultBackgroundColor: "#3b82f6",  // → toggleBackground
-        foregroundColor: "#ffffff"          // → toggleContent
+          foregroundColor
+      :
+        "#ffffff"          // → toggleContent
         // hoverBackgroundColor is ignored (auto-generated)
-      },
+      }
+    ,
       bubble: {
         backgroundColor: "#22c55e",   // → messageBackground
-        foregroundColor: "#ffffff"     // → messageContent
+          foregroundColor
+      :
+        "#ffffff"     // → messageContent
       }
     }
   }
@@ -246,7 +267,8 @@ The backend can provide props via the Bot API response:
 
 ### Content Colors (Auto-Contrast)
 
-When `toggleContent` or `messageContent` are `null`, they are automatically calculated for optimal contrast with their respective backgrounds:
+When `toggleContent` or `messageContent` are `null`, they are automatically calculated for optimal contrast with their
+respective backgrounds:
 
 ```typescript
 // Algorithm (using tinycolor2)
@@ -256,12 +278,14 @@ content = isLight ? '#000000' : '#ffffff'  // Black for light backgrounds, white
 ```
 
 **Examples**:
+
 - `toggleBackground="#3b82f6"` (blue, dark) → `toggleContent="#ffffff"` (white)
 - `toggleBackground="#fbbf24"` (yellow, light) → `toggleContent="#000000"` (black)
 - `messageBackground="#22c55e"` (green, medium) → `messageContent="#ffffff"` (white)
 
 **User Attribute Behavior**:
-When you set a background color via HTML attribute but NOT its corresponding content color, the system explicitly sets content to `null` at User Attributes priority, overriding any backend value to trigger auto-generation.
+When you set a background color via HTML attribute but NOT its corresponding content color, the system explicitly sets
+content to `null` at User Attributes priority, overriding any backend value to trigger auto-generation.
 
 ### Hover Colors (Auto-Brightness)
 
@@ -277,6 +301,7 @@ hoverColor = adjusted.toHexString()
 ```
 
 **Examples**:
+
 - `toggleBackground="#3b82f6"` → hover: brightened by 8 percentage points
 - `toggleBackground="#fbbf24"` → hover: darkened by 8 percentage points
 
@@ -289,23 +314,23 @@ Props can come from 4 different sources. Higher priority wins:
 ### Priority Levels
 
 1. **PRO Backend (Highest)** - Priority: 4
-   - Source: API response when `isAdk: true`
-   - Can set: **ONLY PRO-only props** (`unbranded`, `icon` as URL)
-   - Example: `{ unbranded: true, icon: "https://..." }`
+    - Source: API response when `isAdk: true`
+    - Can set: **ONLY PRO-only props** (`unbranded`, `icon` as URL)
+    - Example: `{ unbranded: true, icon: "https://..." }`
 
 2. **User Attributes** - Priority: 3
-   - Source: HTML attributes or JavaScript API
-   - Can set: All NON-PRO props (colors, placeholders, avatar, etc.)
-   - Example: `<tolki-chat toggle-background="#ff0000">`
+    - Source: HTML attributes or JavaScript API
+    - Can set: All NON-PRO props (colors, placeholders, avatar, etc.)
+    - Example: `<tolki-chat toggle-background="#ff0000">`
 
 3. **Standard Backend** - Priority: 2
-   - Source: API response (all standard props from backend)
-   - Can set: All NON-PRO props (colors, avatar, welcomeMessage, suggestions, etc.)
-   - **IMPORTANT**: Colors from backend are **STANDARD**, not PRO
+    - Source: API response (all standard props from backend)
+    - Can set: All NON-PRO props (colors, avatar, welcomeMessage, suggestions, etc.)
+    - **IMPORTANT**: Colors from backend are **STANDARD**, not PRO
 
 4. **Component Defaults (Lowest)** - Priority: 1
-   - Source: `DEFAULT_PROPS` in `props.ts`
-   - Fallback when no other source provides value
+    - Source: `DEFAULT_PROPS` in `props.ts`
+    - Fallback when no other source provides value
 
 ### Example Priority Resolution
 
@@ -344,7 +369,9 @@ Only available when `isBotPro() === true` (determined by `isAdk` flag):
 - **`unbranded`**: Remove Tolki branding (boolean)
 - **`icon`**: Custom icon image URL (string)
 
-**IMPORTANT**: Colors are NOT PRO-only! All color props (`toggleBackground`, `toggleContent`, `messageBackground`, `messageContent`) are available to all users and can be set from:
+**IMPORTANT**: Colors are NOT PRO-only! All color props (`toggleBackground`, `toggleContent`, `messageBackground`,
+`messageContent`) are available to all users and can be set from:
+
 - Standard Backend (priority 2)
 - User Attributes (priority 3)
 
@@ -352,15 +379,18 @@ Only available when `isBotPro() === true` (determined by `isAdk` flag):
 
 ```typescript
 // User tries to set PRO prop via HTML attribute
-<tolki-chat unbranded="true">  // ❌ Ignored with warning
-<tolki-chat icon="https://...">  // ❌ Ignored with warning
+<tolki-chat
+unbranded = "true" >  // ❌ Ignored with warning
+  <tolki-chat
+icon = "https://..." >  // ❌ Ignored with warning
 
-// PRO backend sets it
-{ isAdk: true, unbranded: true, icon: "https://..." }  // ✅ Applied
+  // PRO backend sets it
+  { isAdk: true, unbranded: true, icon: "https://..." }  // ✅ Applied
 
-// Colors work for everyone
-<tolki-chat toggle-background="#ff0000">  // ✅ Works for all users
-{ styles: { chat: { button: { defaultBackgroundColor: "#ff0000" } } } }  // ✅ Works for all users
+  // Colors work for everyone
+  < tolki - chat
+toggle - background = "#ff0000" >  // ✅ Works for all users
+  { styles: { chat: { button: { defaultBackgroundColor: "#ff0000" } } } }  // ✅ Works for all users
 ```
 
 ---
@@ -370,43 +400,57 @@ Only available when `isBotPro() === true` (determined by `isAdk` flag):
 ### Supported Formats
 
 #### Simple String
+
 ```html
+
 <tolki-chat message-placeholder="Type here...">
-<tolki-chat toggle-placeholder="Chat with us">
+  <tolki-chat toggle-placeholder="Chat with us">
 ```
 
 #### Boolean
+
 ```html
+
 <tolki-chat dark>                    <!-- true -->
-<tolki-chat dark="">                 <!-- true -->
-<tolki-chat dark="true">             <!-- true -->
-<tolki-chat dark="false">            <!-- false -->
+  <tolki-chat dark="">                 <!-- true -->
+    <tolki-chat dark="true">             <!-- true -->
+      <tolki-chat dark="false">            <!-- false -->
 ```
 
 #### Hex Color
+
 ```html
+
 <tolki-chat toggle-background="#ff0000">   <!-- Background color (hover auto-generated) -->
-<tolki-chat toggle-content="#ffffff">      <!-- Content color (or omit for auto-contrast) -->
+  <tolki-chat toggle-content="#ffffff">      <!-- Content color (or omit for auto-contrast) -->
 ```
 
 #### Array (DSL)
+
 ```html
+
 <tolki-chat suggestions="Help,Pricing,Contact">
-<tolki-chat locales="en,it,es,fr">
+  <tolki-chat locales="en,it,es,fr">
 ```
 
 #### Array (JSON)
+
 ```html
+
 <tolki-chat suggestions='["Help","Pricing","Contact"]'>
 ```
 
 #### I18n String (JSON only)
+
 ```html
+
 <tolki-chat welcome-message='{"en":"Hello","it":"Ciao"}'>
 ```
 
 #### I18n Array (JSON only)
+
 ```html
+
 <tolki-chat suggestions='[{"en":"Help","it":"Aiuto"},{"en":"Pricing","it":"Prezzi"}]'>
 ```
 
@@ -415,8 +459,10 @@ Only available when `isBotPro() === true` (determined by `isAdk` flag):
 HTML attributes use `kebab-case`, component uses `camelCase`:
 
 ```html
+
 <tolki-chat default-open="true">  <!-- HTML -->
 ```
+
 ```typescript
 props.defaultOpen  // Component property
 ```
@@ -431,28 +477,43 @@ Uses **tinycolor2** library for robust color manipulation.
 
 ```typescript
 // Auto-contrast (returns white or black)
-getContrastColor(hex: string): '#ffffff' | '#000000'
+getContrastColor(hex
+:
+string
+):
+'#ffffff' | '#000000'
 
 // Auto-generate hover (darken light / brighten dark by 8 percentage points)
-generateHoverColor(hex: string): HexColor
+generateHoverColor(hex
+:
+string
+):
+HexColor
 
 // Validation
-isValidHexColor(color: string): boolean
+isValidHexColor(color
+:
+string
+):
+boolean
 ```
 
 ### Algorithm Details
 
 **Luminance Calculation** (via tinycolor2):
+
 ```typescript
 const color = tinycolor(hex)
 const luminance = color.getLuminance()  // 0 = black, 1 = white
 ```
 
 **Contrast Threshold**: 0.5
+
 - Luminance > 0.5 → Light background → Use black text (#000000)
 - Luminance ≤ 0.5 → Dark background → Use white text (#ffffff)
 
 **Brightness Adjustment** (via tinycolor2):
+
 ```typescript
 const color = tinycolor(hex)
 const adjusted = color.isLight()
@@ -474,8 +535,8 @@ The old `inline` boolean attribute is now deprecated in favor of `position`:
 <!-- Old (still works for backward compatibility) -->
 <tolki-chat inline>
 
-<!-- New (recommended) -->
-<tolki-chat position="inline">
+  <!-- New (recommended) -->
+  <tolki-chat position="inline">
 ```
 
 **Compatibility**: Both work, but `position="inline"` is preferred.
@@ -509,30 +570,30 @@ npx tsc --noEmit
   <script type="module" src="dist/chat.js"></script>
 </head>
 <body>
-  <!-- Test auto-contrast on dark background -->
-  <tolki-chat
-    bot="test-bot"
-    toggle-background="#000000">  <!-- Should auto-generate white content (#ffffff) -->
-  </tolki-chat>
+<!-- Test auto-contrast on dark background -->
+<tolki-chat
+  bot="test-bot"
+  toggle-background="#000000">  <!-- Should auto-generate white content (#ffffff) -->
+</tolki-chat>
 
-  <!-- Test auto-contrast on light background -->
-  <tolki-chat
-    bot="test-bot"
-    toggle-background="#fbbf24">  <!-- Should auto-generate black content (#000000) -->
-  </tolki-chat>
+<!-- Test auto-contrast on light background -->
+<tolki-chat
+  bot="test-bot"
+  toggle-background="#fbbf24">  <!-- Should auto-generate black content (#000000) -->
+</tolki-chat>
 
-  <!-- Test auto-hover -->
-  <tolki-chat
-    bot="test-bot"
-    toggle-background="#3b82f6">  <!-- Should auto-generate hover color (brightened) -->
-  </tolki-chat>
+<!-- Test auto-hover -->
+<tolki-chat
+  bot="test-bot"
+  toggle-background="#3b82f6">  <!-- Should auto-generate hover color (brightened) -->
+</tolki-chat>
 
-  <!-- Test i18n -->
-  <tolki-chat
-    bot="test-bot"
-    welcome-message='{"en":"Hello","it":"Ciao"}'
-    lang="it">
-  </tolki-chat>
+<!-- Test i18n -->
+<tolki-chat
+  bot="test-bot"
+  welcome-message='{"en":"Hello","it":"Ciao"}'
+  lang="it">
+</tolki-chat>
 </body>
 </html>
 ```
@@ -547,7 +608,9 @@ npx tsc --noEmit
 class PropsManager {
   // Set props from different sources
   setProBackendProps(props: Partial<TolkiChatProps>): void
+
   setUserAttributes(attributes: { [key: string]: string | boolean | null }): void
+
   setStandardBackendProps(props: Partial<TolkiChatProps>): void
 
   // Get final computed props
@@ -563,29 +626,77 @@ class PropsManager {
 ```typescript
 // Transform backend format to component format
 transformBotPropsToTolkiProps(
-  botProps: BotProps,
-  isPro: boolean
-): Partial<TolkiChatProps>
+  botProps
+:
+BotProps,
+  isPro
+:
+boolean
+):
+Partial<TolkiChatProps>
 
 // Determine if bot is PRO
-isBotPro(botProps: BotProps): boolean
+isBotPro(botProps
+:
+BotProps
+):
+boolean
 ```
 
 ### Parser
 
 ```typescript
 // Parse different value types from string attributes
-parseBoolean(value: string | boolean | null): boolean
-parseString(value: string | null): string | null
-parseI18nString(value: string | null): I18nString | null
-parseI18nArray(value: string | null): I18nArray
-parseStringArray(value: string | null): string[]
-parseHexColor(value: string | null): string | null
-parseEnum<T>(value: string | null, allowedValues: readonly T[]): T | null
+parseBoolean(value
+:
+string | boolean | null
+):
+boolean
+parseString(value
+:
+string | null
+):
+string | null
+parseI18nString(value
+:
+string | null
+):
+I18nString | null
+parseI18nArray(value
+:
+string | null
+):
+I18nArray
+parseStringArray(value
+:
+string | null
+):
+string[]
+parseHexColor(value
+:
+string | null
+):
+string | null
+parseEnum<T>(value
+:
+string | null, allowedValues
+:
+readonly
+T[]
+):
+T | null
 
 // Case conversion
-attrNameToPropName(attrName: string): string  // kebab-case → camelCase
-propNameToAttrName(propName: string): string  // camelCase → kebab-case
+attrNameToPropName(attrName
+:
+string
+):
+string  // kebab-case → camelCase
+propNameToAttrName(propName
+:
+string
+):
+string  // camelCase → kebab-case
 ```
 
 ---
@@ -619,12 +730,13 @@ propNameToAttrName(propName: string): string  // camelCase → kebab-case
 
 **Cause**: Invalid JSON syntax in attribute
 **Solution**: Ensure proper JSON escaping:
+
 ```html
 <!-- ❌ Wrong -->
 <tolki-chat suggestions="{'en':'Help'}">
 
-<!-- ✅ Correct -->
-<tolki-chat suggestions='{"en":"Help"}'>
+  <!-- ✅ Correct -->
+  <tolki-chat suggestions='{"en":"Help"}'>
 ```
 
 ---
@@ -645,6 +757,7 @@ Potential additions to the props system:
 ## Version History
 
 **v2.0.0** (2025-01-20)
+
 - **BREAKING**: Removed color pairs - hover colors now always auto-generated
 - **BREAKING**: Renamed `toggleColor` → `toggleBackground`, added `toggleContent`
 - **BREAKING**: Renamed `messageColor` → `messageBackground`, added `messageContent`
@@ -658,6 +771,7 @@ Potential additions to the props system:
 - Hover brightness adjustment reduced from 15 to 8 percentage points for subtlety
 
 **v1.0.0** (2025-01-19)
+
 - Initial implementation
 - 19 configurable props
 - Auto-contrast for icon colors

@@ -78,39 +78,39 @@ interface BotProps {
 
 ### Styles
 
-| Prop Componente    | Path API `styles.`     | Default        |
-|--------------------|------------------------|----------------|
-| `position`         | `position`             | `'right'`      |
-| `margin`           | `margin`               | `20`           |
-| `dark`             | `dark`                 | `'auto'`       |
-| `rounded`          | `rounded`              | `'xl'`         |
-| `toggleSize`       | `toggle.size`          | `'md'`         |
-| `toggleBackground` | `toggle.background`    | `'#001ccb'`    |
-| `toggleContent`    | `toggle.foreground`    | `null`         |
-| `windowSize`       | `window.size`          | `'sm'`         |
-| `messageBackground`| `message.background`   | `'#001ccb'`    |
-| `messageContent`   | `message.foreground`   | `null`         |
-| `backdropColor`    | `backdrop.color`       | `null`         |
-| `backdropOpacity`  | `backdrop.opacity`     | `0.5`          |
-| `backdropBlur`     | `backdrop.blur`        | `'md'`         |
+| Prop Componente     | Path API `styles.`   | Default     |
+|---------------------|----------------------|-------------|
+| `position`          | `position`           | `'right'`   |
+| `margin`            | `margin`             | `20`        |
+| `dark`              | `dark`               | `'auto'`    |
+| `rounded`           | `rounded`            | `'xl'`      |
+| `toggleSize`        | `toggle.size`        | `'md'`      |
+| `toggleBackground`  | `toggle.background`  | `'#001ccb'` |
+| `toggleContent`     | `toggle.foreground`  | `null`      |
+| `windowSize`        | `window.size`        | `'sm'`      |
+| `messageBackground` | `message.background` | `'#001ccb'` |
+| `messageContent`    | `message.foreground` | `null`      |
+| `backdropColor`     | `backdrop.color`     | `null`      |
+| `backdropOpacity`   | `backdrop.opacity`   | `0.5`       |
+| `backdropBlur`      | `backdrop.blur`      | `'md'`      |
 
 ### Root Props
 
-| Prop Componente      | Campo API             | Stato      |
-|----------------------|-----------------------|------------|
-| `avatar`             | `avatar`              | ✅ Esiste  |
-| `defaultOpen`        | `defaultOpen`         | ✅ Esiste  |
-| `expandable`         | `expandable`          | ❌ Nuovo   |
-| `unclosable`         | `unclosable`          | ❌ Nuovo   |
-| `welcomeMessage`     | `welcomeMessage`      | ✅ Esiste  |
-| `suggestions`        | `suggestions`         | ✅ Esiste  |
-| `toasts`             | `toasts`              | ❌ Nuovo   |
-| `messagePlaceholder` | `messagePlaceholder`  | ❌ Nuovo   |
-| `togglePlaceholder`  | `togglePlaceholder`   | ❌ Nuovo   |
-| `lang`               | `lang`                | ❌ Nuovo   |
-| `locales`            | `locales`             | ❌ Nuovo   |
-| `icon`               | `icon`                | ✅ Esiste  |
-| `unbranded`          | `unbranded`           | ✅ Esiste  |
+| Prop Componente      | Campo API            | Stato    |
+|----------------------|----------------------|----------|
+| `avatar`             | `avatar`             | ✅ Esiste |
+| `defaultOpen`        | `defaultOpen`        | ✅ Esiste |
+| `expandable`         | `expandable`         | ❌ Nuovo  |
+| `unclosable`         | `unclosable`         | ❌ Nuovo  |
+| `welcomeMessage`     | `welcomeMessage`     | ✅ Esiste |
+| `suggestions`        | `suggestions`        | ✅ Esiste |
+| `toasts`             | `toasts`             | ❌ Nuovo  |
+| `messagePlaceholder` | `messagePlaceholder` | ❌ Nuovo  |
+| `togglePlaceholder`  | `togglePlaceholder`  | ❌ Nuovo  |
+| `lang`               | `lang`               | ❌ Nuovo  |
+| `locales`            | `locales`            | ❌ Nuovo  |
+| `icon`               | `icon`               | ✅ Esiste |
+| `unbranded`          | `unbranded`          | ✅ Esiste |
 
 ---
 
@@ -120,14 +120,14 @@ interface BotProps {
 
 ### Da cambiare nel Backend
 
-| Vecchio Path                                | Nuovo Path                | Azione       |
-|---------------------------------------------|---------------------------|--------------|
-| `styles.chat.button.defaultBackgroundColor` | `styles.toggle.background`| Rinominare   |
-| `styles.chat.button.foregroundColor`        | `styles.toggle.foreground`| Rinominare   |
-| `styles.chat.button.hoverBackgroundColor`   | ❌ RIMOSSO                | Eliminare    |
-| `styles.chat.bubble.backgroundColor`        | `styles.message.background`| Rinominare  |
-| `styles.chat.bubble.foregroundColor`        | `styles.message.foreground`| Rinominare  |
-| `styles.chat`                               | ❌ RIMOSSO                | Eliminare    |
+| Vecchio Path                                | Nuovo Path                  | Azione     |
+|---------------------------------------------|-----------------------------|------------|
+| `styles.chat.button.defaultBackgroundColor` | `styles.toggle.background`  | Rinominare |
+| `styles.chat.button.foregroundColor`        | `styles.toggle.foreground`  | Rinominare |
+| `styles.chat.button.hoverBackgroundColor`   | ❌ RIMOSSO                   | Eliminare  |
+| `styles.chat.bubble.backgroundColor`        | `styles.message.background` | Rinominare |
+| `styles.chat.bubble.foregroundColor`        | `styles.message.foreground` | Rinominare |
+| `styles.chat`                               | ❌ RIMOSSO                   | Eliminare  |
 
 ### Esempio migrazione
 
@@ -138,12 +138,19 @@ interface BotProps {
     chat: {
       button: {
         defaultBackgroundColor: '#001ccb',
-        hoverBackgroundColor: '#0015a3',
-        foregroundColor: '#ffffff'
-      },
+          hoverBackgroundColor
+      :
+        '#0015a3',
+          foregroundColor
+      :
+        '#ffffff'
+      }
+    ,
       bubble: {
         backgroundColor: '#001ccb',
-        foregroundColor: '#ffffff'
+          foregroundColor
+      :
+        '#ffffff'
       }
     }
   }
@@ -154,11 +161,16 @@ interface BotProps {
   styles: {
     toggle: {
       background: '#001ccb',
-      foreground: '#ffffff'
-    },
+        foreground
+    :
+      '#ffffff'
+    }
+  ,
     message: {
       background: '#001ccb',
-      foreground: '#ffffff'
+        foreground
+    :
+      '#ffffff'
     }
   }
 }
@@ -170,17 +182,17 @@ interface BotProps {
 
 Queste sono aggiunte, non breaking:
 
-| Nuova Prop               | Default     | Note                    |
-|--------------------------|-------------|-------------------------|
-| `styles.position`        | `'right'`   | Posizione widget        |
-| `styles.margin`          | `20`        | Margine dal bordo       |
-| `styles.dark`            | `'auto'`    | Tema dark/light         |
-| `styles.rounded`         | `'xl'`      | Border radius           |
-| `styles.toggle.size`     | `'md'`      | Dimensione toggle       |
-| `styles.window.size`     | `'sm'`      | Dimensione finestra     |
-| `styles.backdrop.color`  | `null`      | Colore backdrop         |
-| `styles.backdrop.opacity`| `0.5`       | Opacità backdrop        |
-| `styles.backdrop.blur`   | `'md'`      | Blur backdrop           |
+| Nuova Prop                | Default   | Note                |
+|---------------------------|-----------|---------------------|
+| `styles.position`         | `'right'` | Posizione widget    |
+| `styles.margin`           | `20`      | Margine dal bordo   |
+| `styles.dark`             | `'auto'`  | Tema dark/light     |
+| `styles.rounded`          | `'xl'`    | Border radius       |
+| `styles.toggle.size`      | `'md'`    | Dimensione toggle   |
+| `styles.window.size`      | `'sm'`    | Dimensione finestra |
+| `styles.backdrop.color`   | `null`    | Colore backdrop     |
+| `styles.backdrop.opacity` | `0.5`     | Opacità backdrop    |
+| `styles.backdrop.blur`    | `'md'`    | Blur backdrop       |
 
 ---
 
@@ -188,25 +200,25 @@ Queste sono aggiunte, non breaking:
 
 Queste sono aggiunte, non breaking:
 
-| Nuova Prop           | Default        | Note                    |
-|----------------------|----------------|-------------------------|
-| `expandable`         | `true`         | Permette expand         |
-| `unclosable`         | `false`        | Non chiudibile          |
-| `toasts`             | `[]`           | Notifiche toast         |
-| `messagePlaceholder` | `'Ask Anything'`| Placeholder input      |
-| `togglePlaceholder`  | `''`           | Testo sul toggle        |
-| `lang`               | `'en'`         | Lingua default          |
-| `locales`            | `['en',...]`   | Lingue disponibili      |
+| Nuova Prop           | Default          | Note               |
+|----------------------|------------------|--------------------|
+| `expandable`         | `true`           | Permette expand    |
+| `unclosable`         | `false`          | Non chiudibile     |
+| `toasts`             | `[]`             | Notifiche toast    |
+| `messagePlaceholder` | `'Ask anything'` | Placeholder input  |
+| `togglePlaceholder`  | `''`             | Testo sul toggle   |
+| `lang`               | `'en'`           | Lingua default     |
+| `locales`            | `['en',...]`     | Lingue disponibili |
 
 ---
 
 ## 4. Props da Rimuovere (BREAKING)
 
-| Prop                  | Motivo                              |
-|-----------------------|-------------------------------------|
-| `version`             | Non usata                           |
-| `team`                | Non usata                           |
-| `hoverBackgroundColor`| Auto-generato dal frontend          |
+| Prop                   | Motivo                     |
+|------------------------|----------------------------|
+| `version`              | Non usata                  |
+| `team`                 | Non usata                  |
+| `hoverBackgroundColor` | Auto-generato dal frontend |
 
 ---
 
@@ -225,7 +237,8 @@ export function isBotPro(botProps: BotProps): boolean {
 
 ### Soluzione
 
-Rimuovere `isBotPro()` completamente. Il backend manda `icon` e `unbranded` **solo** se il bot è PRO. Il frontend li usa se presenti, altrimenti no.
+Rimuovere `isBotPro()` completamente. Il backend manda `icon` e `unbranded` **solo** se il bot è PRO. Il frontend li usa
+se presenti, altrimenti no.
 
 ```typescript
 // ✅ CORRETTO - nessuna logica PRO nel frontend
@@ -241,15 +254,18 @@ if (botProps.unbranded) {
 ### File da modificare
 
 **`src/types/props.ts`:**
+
 - Rimuovere `PRO_ONLY_PROPS` constant
 - Rimuovere `isProOnlyProp()` function
 
 **`src/utils/props-transformer.ts`:**
+
 - Rimuovere `isBotPro()` function
 - Rimuovere `splitPropsByPriority()` function
 - Semplificare `transformBotPropsToTolkiProps()` - usare `icon`/`unbranded` direttamente
 
 **`src/services/props-manager.ts`:**
+
 - Rimuovere `PropsPriority.PRO_BACKEND` (4 livelli → 3 livelli)
 - Rimuovere `setProBackendProps()` method
 - Rimuovere `isPro` flag da `PropsSource` interface
@@ -282,11 +298,13 @@ enum PropsPriority {
 ## Opzione A: Breaking Change Immediato
 
 **Frontend:**
+
 1. Aggiornare `props-transformer.ts` per leggere nuova struttura
 2. Rimuovere supporto per `styles.chat`
 3. Aggiornare `BotProps` interface
 
 **Backend:**
+
 1. Migrare tutti i bot esistenti alla nuova struttura
 2. Aggiornare API per accettare/restituire nuova struttura
 3. Rimuovere campi obsoleti dal database
@@ -337,21 +355,25 @@ function getToggleBackground(styles: any): HexColor | undefined {
 ## Frontend (tolki-embed)
 
 ### Types
+
 - [ ] `src/types/bot.ts` - aggiornare interface `BotProps` con nuova struttura `styles`
 - [ ] `src/types/props.ts` - rimuovere `version`, `team`, `PRO_ONLY_PROPS`, `isProOnlyProp()`
 
 ### Transformer
+
 - [ ] `src/utils/props-transformer.ts` - rimuovere `isBotPro()`, `splitPropsByPriority()`
 - [ ] `src/utils/props-transformer.ts` - aggiornare mapping per nuova struttura `styles`
 - [ ] `src/utils/props-transformer.ts` - supportare fallback legacy `styles.chat.*`
 
 ### Props Manager
+
 - [ ] `src/services/props-manager.ts` - rimuovere `PropsPriority.PRO_BACKEND`
 - [ ] `src/services/props-manager.ts` - rimuovere `setProBackendProps()`
 - [ ] `src/services/props-manager.ts` - rimuovere `isPro` flag e relativi check
 - [ ] `src/services/props-manager.ts` - semplificare a 3 livelli priorità
 
 ### Testing
+
 - [ ] Testare con struttura legacy `styles.chat.*`
 - [ ] Testare con nuova struttura `styles.toggle.*`, `styles.message.*`
 - [ ] Testare fallback automatico

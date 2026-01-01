@@ -8,7 +8,7 @@ export const textareaTemplate = (
   pending: boolean,
   showScrollDown: boolean,
   hasSuggestions: boolean = false,
-  placeholder: string = 'Type a message...'
+  placeholder: string = 'Ask anything'
 ) => {
   return html` <div class=${classMap({
     'tk__input': true,

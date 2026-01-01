@@ -133,6 +133,7 @@ export class TolkiChat extends LitElement {
   stateController = new StateController(this, state)
   suggestionsListenersAdded = false
   requestedLang?: string
+  private _settingLangProgrammatically = false
 
   // Services
   private commandService!: ChatCommandService
@@ -392,9 +393,23 @@ export class TolkiChat extends LitElement {
       return
     }
 
-    // Handle lang attribute separately (sets locale)
+    // Handle lang attribute - bidirectional sync with set_locale command
     if (name === 'lang' && newValue) {
       this.requestedLang = newValue as string
+
+      // Skip if this change was triggered programmatically by changeLanguage()
+      if (this._settingLangProgrammatically) {
+        return
+      }
+
+      // Only call changeLanguage if bot is already initialized
+      // (otherwise it will be handled by init())
+      if (state.bot?.status === BotStatus.ok) {
+        this.changeLanguage(newValue as string).catch((error) =>
+          Logger.error('Failed to change language from attribute', error)
+        )
+        return
+      }
     }
 
     // Convert legacy 'inline' attribute to 'position'
@@ -1261,6 +1276,12 @@ export class TolkiChat extends LitElement {
   async changeLanguage(locale: string): Promise<void> {
     // Set the new language first
     await TolkiChat.setLanguage(locale)
+
+    // Update the DOM attribute to keep it in sync (bidirectional)
+    // Use flag to prevent infinite loop with attributeChangedCallback
+    this._settingLangProgrammatically = true
+    this.setAttribute('lang', locale)
+    this._settingLangProgrammatically = false
 
     // Create language change message using template system
     const changeMessage = ItemBuilder.info('Language changed.')

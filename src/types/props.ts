@@ -125,7 +125,14 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   unbranded: false,
 
   // Content
-  messagePlaceholder: 'Ask Anything',
+  messagePlaceholder: {
+    en: 'Ask anything',
+    it: 'Chiedi qualsiasi cosa',
+    es: 'Pregunta lo que quieras',
+    fr: 'Demandez ce que vous voulez',
+    de: 'Frag einfach',
+    pt: 'Pergunte o que quiser',
+  },
   togglePlaceholder: '',
   welcomeMessage: null,
   suggestions: [],
@@ -135,4 +142,3 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   lang: 'en',
   locales: ['en', 'it', 'es', 'fr', 'de', 'pt'],
 }
-
