@@ -60,6 +60,7 @@ export interface MarkdownResponse {
   translate?: boolean // Whether content should be translated instead of displayed
   templateKey?: string // Template key for translatable content
   templateParams?: { [key: string]: unknown } // Parameters for template
+  propKey?: string // Key to read dynamic i18n content from window.tolki.props
 }
 
 export interface ProductResponse {

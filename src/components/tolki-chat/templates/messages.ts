@@ -15,15 +15,30 @@ const decodeHtmlEntities = (text: string): string => {
 
 // Template: Markdown response with level support
 export const markdownResponseTemplate = (item: MarkdownResponse): TemplateResult => {
-  // Se il contenuto è vuoto (setLocale senza messaggio), non renderizzare nulla
-  if (!item.content || item.content.trim() === '') {
-    return html``
-  }
+  // Priority: propKey > templateKey > content
+  // propKey: reads dynamic i18n content from window.tolki.props (already resolved for current language)
+  // templateKey: uses lit-localize templates for fixed translatable strings
+  // content: static content saved in history
 
-  // Use template system if templateKey is provided
-  const processedContent = item.templateKey 
-    ? renderTemplate(item.templateKey, item.templateParams)
-    : item.content
+  let processedContent: string
+
+  if (item.propKey) {
+    // Read from window.tolki.props (dynamically resolved i18n props)
+    const propValue = window.tolki?.props?.[item.propKey]
+    if (!propValue) {
+      return html`` // Don't render if prop is empty
+    }
+    processedContent = propValue
+  } else if (item.templateKey) {
+    // Use template system for fixed translatable strings
+    processedContent = renderTemplate(item.templateKey, item.templateParams)
+  } else {
+    // Use static content
+    if (!item.content || item.content.trim() === '') {
+      return html``
+    }
+    processedContent = item.content
+  }
 
   // Per messaggi info con HTML entities (privacy notice), decodifica e usa unsafeHTML
   const hasHtmlEntities =

@@ -43,6 +43,11 @@ declare global {
       }
       loaded?: boolean
       update?: () => void
+      props?: {
+        welcomeMessage?: string
+        name?: string
+        [key: string]: string | undefined
+      }
     }
     ActionCommands?: {
       [commandName: string]: (data?: unknown, item?: unknown) => void | Promise<void>

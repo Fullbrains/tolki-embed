@@ -86,6 +86,22 @@ export class ItemBuilder {
     return ItemBuilder.markdown(message, MarkdownResponseLevel.default)
   }
 
+  /**
+   * Create a dynamic message that reads content from window.tolki.props
+   * The propKey is used to look up the resolved i18n value at render time
+   */
+  static dynamicMessage(
+    propKey: string,
+    level: MarkdownResponseLevel = MarkdownResponseLevel.default
+  ): MarkdownResponse {
+    return {
+      type: ItemType.markdown,
+      content: '', // Content is ignored when propKey is set
+      level,
+      propKey,
+    }
+  }
+
   static info(
     message: string,
     templateData?: {

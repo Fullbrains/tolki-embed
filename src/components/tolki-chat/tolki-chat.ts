@@ -487,10 +487,11 @@ export class TolkiChat extends LitElement {
       items.push(privacyMessage)
     }
 
-    // Add welcome message (from propsManager to include user attributes)
+    // Add welcome message as dynamic item (reads from window.tolki.props at render time)
+    // This allows the message to update when language or props change
     const welcomeMessage = this.propsManager.getProps().welcomeMessage
     if (welcomeMessage) {
-      items.push(ItemBuilder.assistant(this.resolveI18nString(welcomeMessage)))
+      items.push(ItemBuilder.dynamicMessage('welcomeMessage'))
     }
 
     // Add cart notification using helper
@@ -1535,7 +1536,26 @@ export class TolkiChat extends LitElement {
     this.scrollLock.unlock()
   }
 
+  /**
+   * Sync resolved i18n props to window.tolki.props for dynamic template access
+   * Called before each render to ensure templates have fresh data
+   */
+  private syncPropsToWindow(): void {
+    if (!window.tolki) {
+      window.tolki = {}
+    }
+
+    const props = this.propsManager.getProps()
+    window.tolki.props = {
+      welcomeMessage: this.resolveI18nString(props.welcomeMessage) || undefined,
+      name: this.resolveI18nString(props.name) || undefined,
+    }
+  }
+
   override render() {
+    // Sync resolved props to window.tolki.props before rendering
+    this.syncPropsToWindow()
+
     const hostStyles = !state.inline
       ? `${this.colorVariables} ${this.windowSizeVariables} ${this.toggleSizeVariables} ${this.marginVariables} ${this.roundedVariables} ${this.hostPositionStyles}`
       : `${this.colorVariables} ${this.windowSizeVariables} ${this.toggleSizeVariables} ${this.marginVariables} ${this.roundedVariables}`
