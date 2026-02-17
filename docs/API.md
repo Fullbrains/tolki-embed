@@ -136,6 +136,12 @@ GET https://api.tolki.ai/chat/v1/embed/{bot_uuid}/settings/{lang}
 | 403 | Bot is inactive | `inactive` |
 | 404 | Bot not found | `notFound` |
 
+**cURL Example:**
+
+```bash
+curl -X GET "https://api.tolki.ai/chat/v1/embed/9da7b9b4-2fb3-4189-a5d2-391f509f5286/settings/en"
+```
+
 ---
 
 ### POST /message
@@ -186,6 +192,26 @@ The response is an array of items that can be rendered in the chat. See [Respons
     "price": "$99.00"
   }
 ]
+```
+
+**cURL Example:**
+
+```bash
+# Generate a random UUID for the chat session
+CHAT_UUID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+
+# Send a message
+curl -X POST "https://api.tolki.ai/chat/v1/embed/9da7b9b4-2fb3-4189-a5d2-391f509f5286/chat/${CHAT_UUID}/message" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hello, I need help with my order"}'
+```
+
+**cURL Example (ADK-enabled bot):**
+
+```bash
+curl -X POST "https://brain.tolki.ai/v1/embed/9da7b9b4-2fb3-4189-a5d2-391f509f5286/chat/${CHAT_UUID}/message" \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What products do you have?"}'
 ```
 
 ---

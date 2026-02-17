@@ -295,4 +295,9 @@ src/
 
 ## License
 
-MIT
+This project is dual-licensed:
+
+- **AGPL-3.0** for open source use - see [LICENSE](LICENSE)
+- **Commercial License** available for proprietary use - contact [info@tolki.ai](mailto:info@tolki.ai)
+
+If you modify this software and make it available over a network, you must release your modifications under AGPL-3.0. For commercial licensing without this requirement, contact us.
