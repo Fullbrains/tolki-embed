@@ -18,6 +18,16 @@ npm install tolki-chat-wc
 
 ## Quick Start
 
+### 1. Create a Bot
+
+1. Go to [Tolki Studio](https://studio.tolki.ai)
+2. Sign up or log in to your account
+3. Create a new bot and configure it
+4. Navigate to the **Embed** section
+5. Copy the embed code - it contains your `bot` UUID
+
+### 2. Add to Your Website
+
 Add the component to your HTML:
 
 ```html
@@ -25,7 +35,9 @@ Add the component to your HTML:
 <tolki-chat bot="YOUR_BOT_UUID"></tolki-chat>
 ```
 
-The `bot` attribute is required and must be a valid UUID from the Tolki platform.
+Replace `YOUR_BOT_UUID` with the UUID from your embed code (e.g., `9da7b9b4-2fb3-4189-a5d2-391f509f5286`).
+
+The `bot` attribute is required and must be a valid UUID from Tolki Studio.
 
 ## Attributes
 
