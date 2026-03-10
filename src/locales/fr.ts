@@ -11,7 +11,6 @@
     export const templates = {
       's0ac3dc1d83641895': `Erreur lors du chargement du panier.`,
 's12bda6ed4915b346': `En cours`,
-'s16430e1864d70df9': `Tapez un message...`,
 's255857544a9d5ec0': `Réinitialiser`,
 's275845573d646861': `Votre panier est vide.`,
 's27ac935473f90d03': `Langue changée.`,
@@ -25,6 +24,7 @@
 's3e7884bf4f412c6f': `articles`,
 's41fcaea831e2795e': `Remboursé`,
 's5033dab8c17f05f2': `Terminé`,
+'s52df77a89dccee06': `peut être inexact. Vérifiez les réponses.`,
 's539c0516abfbd1eb': `Aucune commande trouvée.`,
 's61731584cd086e84': str`${0} ${1} de plus`,
 's78636b92c1a3909c': `En attente`,
@@ -40,6 +40,7 @@
 'sf0937c46689e829e': str`Panier (${0})`,
 'sf416c6faf53c9239': `Commander`,
 'sfbd40db33f87611b': `Chargement du panier...`,
+'sb9e306d8fcfb3c1c': `Send message`,
 's1b9b0f519f1e0891': `You have items in cart.`,
     };
   

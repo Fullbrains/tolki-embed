@@ -659,7 +659,10 @@ export class TolkiChat extends LitElement {
   /**
    * Resolve an I18nString to a plain string based on current language
    */
-  private resolveI18nString(value: I18nString | string): string {
+  private resolveI18nString(value: I18nString | string | null | undefined): string {
+    if (!value) {
+      return ''
+    }
     if (typeof value === 'string') {
       return value
     }
@@ -1619,8 +1622,9 @@ export class TolkiChat extends LitElement {
               !!this.propsManager.getProps().suggestions?.length,
               this.resolveI18nString(this.propsManager.getProps().messagePlaceholder)
             )}
-            ${state.bot?.props?.unbranded ? '' : brandingTemplate}
+            ${state.bot?.props?.unbranded ? '' : brandingTemplate()}
           </div>
+
           ${state.inline
             ? ''
             : toggleTemplate(

@@ -11,7 +11,6 @@
     export const templates = {
       's0ac3dc1d83641895': `Error al cargar el carrito.`,
 's12bda6ed4915b346': `Procesando`,
-'s16430e1864d70df9': `Escribe un mensaje...`,
 's255857544a9d5ec0': `Restablecer`,
 's275845573d646861': `Tu carrito está vacío.`,
 's27ac935473f90d03': `Idioma cambiado.`,
@@ -25,6 +24,7 @@
 's3e7884bf4f412c6f': `artículos`,
 's41fcaea831e2795e': `Reembolsado`,
 's5033dab8c17f05f2': `Completado`,
+'s52df77a89dccee06': `puede ser inexacto. Verifica las respuestas.`,
 's539c0516abfbd1eb': `No se encontraron pedidos.`,
 's61731584cd086e84': str`${0} ${1} más`,
 's78636b92c1a3909c': `Pendiente`,
@@ -40,6 +40,7 @@
 'sf0937c46689e829e': str`Carrito (${0})`,
 'sf416c6faf53c9239': `Finalizar compra`,
 'sfbd40db33f87611b': `Cargando carrito...`,
+'sb9e306d8fcfb3c1c': `Send message`,
 's1b9b0f519f1e0891': `You have items in cart.`,
     };
   

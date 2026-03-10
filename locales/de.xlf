@@ -10,10 +10,6 @@
                 <source>Go to Cart</source>
                 <target>Zum Warenkorb</target>
             </trans-unit>
-            <trans-unit id="s16430e1864d70df9">
-                <source>Type a message...</source>
-                <target>Nachricht eingeben...</target>
-            </trans-unit>
             <trans-unit id="sd0eb9d5b0f609a49">
                 <source>View Orders</source>
                 <target>Bestellungen anzeigen</target>
@@ -139,6 +135,13 @@
 <trans-unit id="s2fb4c0400af3783e">
   <source>Login to view your orders.</source>
   <target>Melden Sie sich an, um Ihre Bestellungen zu sehen.</target>
+</trans-unit>
+<trans-unit id="sb9e306d8fcfb3c1c">
+  <source>Send message</source>
+</trans-unit>
+<trans-unit id="s52df77a89dccee06">
+  <source>may be inaccurate. Verify answers.</source>
+  <target>kann ungenau sein. Antworten überprüfen.</target>
 </trans-unit>
         </body>
     </file>

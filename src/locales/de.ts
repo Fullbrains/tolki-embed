@@ -11,7 +11,6 @@
     export const templates = {
       's0ac3dc1d83641895': `Fehler beim Laden des Warenkorbs.`,
 's12bda6ed4915b346': `In Bearbeitung`,
-'s16430e1864d70df9': `Nachricht eingeben...`,
 's255857544a9d5ec0': `Zurücksetzen`,
 's275845573d646861': `Ihr Warenkorb ist leer.`,
 's27ac935473f90d03': `Sprache geändert.`,
@@ -25,6 +24,7 @@
 's3e7884bf4f412c6f': `Artikel`,
 's41fcaea831e2795e': `Erstattet`,
 's5033dab8c17f05f2': `Abgeschlossen`,
+'s52df77a89dccee06': `kann ungenau sein. Antworten überprüfen.`,
 's539c0516abfbd1eb': `Keine Bestellungen gefunden.`,
 's61731584cd086e84': str`
                     ${0}
@@ -51,6 +51,7 @@
                 `,
 'sf416c6faf53c9239': `Zur Kasse`,
 'sfbd40db33f87611b': `Warenkorb laden...`,
+'sb9e306d8fcfb3c1c': `Send message`,
 's1b9b0f519f1e0891': `You have items in cart.`,
     };
   

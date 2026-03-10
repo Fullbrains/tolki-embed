@@ -2,10 +2,6 @@
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
     <file target-language="pt" source-language="en" original="lit-localize-inputs" datatype="plaintext">
         <body>
-            <trans-unit id="s16430e1864d70df9">
-                <source>Type a message...</source>
-                <target>Digite uma mensagem...</target>
-            </trans-unit>
             <trans-unit id="s2841a0c596d6f426">
                 <source>item</source>
                 <target>item</target>
@@ -138,6 +134,13 @@
 <trans-unit id="s2fb4c0400af3783e">
   <source>Login to view your orders.</source>
   <target>Faça login para ver seus pedidos.</target>
+</trans-unit>
+<trans-unit id="sb9e306d8fcfb3c1c">
+  <source>Send message</source>
+</trans-unit>
+<trans-unit id="s52df77a89dccee06">
+  <source>may be inaccurate. Verify answers.</source>
+  <target>pode ser impreciso. Verifique as respostas.</target>
 </trans-unit>
         </body>
     </file>
