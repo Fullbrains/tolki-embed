@@ -42,11 +42,11 @@ export class Api {
   // ---------------------------------------------------------------------------
   // POST /v1/embed/{bot_uuid}/chat/{chat_uuid}/message
   //
-  // Response items MUST include a top-level "message_id" field (UUID v4).
+  // Response items MUST include a top-level "id" field.
   // This is required for the like/dislike feedback endpoint to work.
   //
   // Expected response shape (each item in data.items[]):
-  //   { "type": "markdown", "message_id": "uuid-v4", "content": "..." }
+  //   { "type": "markdown", "id": "123", "content": "..." }
   // ---------------------------------------------------------------------------
   public static async message(
     chat_uuid: string,
@@ -135,12 +135,12 @@ export class Api {
   // ---------------------------------------------------------------------------
   // Message feedback (like/dislike on a single message)
   // ---------------------------------------------------------------------------
-  // POST /v1/embed/{bot_uuid}/chat/{chat_uuid}/message/{message_id}/feedback
+  // POST /v1/embed/{bot_uuid}/chat/{chat_uuid}/message/{id}/feedback
   //
   // Backend requirements:
   //   - Every item returned by the /message endpoint MUST include a top-level
-  //     "message_id" field (UUID v4). At minimum on "markdown" items; ideally
-  //     on every item type so we can extend feedback to other types later.
+  //     "id" field. At minimum on "markdown" items; ideally on every item type
+  //     so we can extend feedback to other types later.
   //   - This endpoint receives the feedback and persists it.
   //
   // Request body:
@@ -148,16 +148,16 @@ export class Api {
   //
   // Response:
   //   200 { "ok": true }
-  //   400 { "error": "invalid message_id" | "invalid type" }
+  //   400 { "error": "invalid id" | "invalid type" }
   //   404 { "error": "message not found" }
   // ---------------------------------------------------------------------------
   public static async messageFeedback(
     bot_uuid: string,
     chat_uuid: string,
-    message_id: string,
+    id: string,
     type: 'like' | 'dislike'
   ): Promise<void> {
-    const url = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/${message_id}/feedback`
+    const url = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/${id}/feedback`
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

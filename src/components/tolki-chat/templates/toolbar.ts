@@ -57,7 +57,7 @@ export const toolbarTemplate = (
   const sources = getSourcesForMessage(history, messageIndex)
   const hasSources = sources.results.length > 0
   const item = history[messageIndex] as MarkdownResponse
-  const messageId = item.message_id || ''
+  const messageId = item.id || ''
 
   return html`
     <div class="tk__toolbar">
