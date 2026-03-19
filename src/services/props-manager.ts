@@ -120,6 +120,18 @@ export class PropsManager {
           props[propName] = parseBoolean(value)
           break
 
+        // Boolean or number of seconds
+        case 'showRating': {
+          const strVal = String(value).trim()
+          const numVal = parseInt(strVal, 10)
+          if (!isNaN(numVal) && numVal > 0) {
+            props.showRating = numVal
+          } else {
+            props.showRating = parseBoolean(value)
+          }
+          break
+        }
+
         // Backdrop blur (enum: none, sm, md, lg, xl)
         case 'backdropBlur':
           props.backdropBlur = parseEnum(value as string, ['none', 'sm', 'md', 'lg', 'xl'])

@@ -215,7 +215,7 @@ export class TolkiChat extends LitElement {
   private isRestoredSession = false
   private ratingTimer?: ReturnType<typeof setTimeout>
   private ratingCountdownInterval?: ReturnType<typeof setInterval>
-  private static readonly RATING_DELAY_MS = 90_000
+  private static readonly RATING_DEFAULT_DELAY_S = 90
   private static readonly RATING_THANKS_MS = 3_000
   private static readonly RATING_MIN_TURNS = 2
 
@@ -1144,13 +1144,20 @@ export class TolkiChat extends LitElement {
   private startRatingTimer() {
     this.cancelRatingTimer()
 
-    // Don't start if: restored session, already dismissed/submitted, not enough turns
+    const showRating = this.propsManager.getProps().showRating
+    // Don't start if: disabled by prop, restored session, already dismissed/submitted, not enough turns
+    if (!showRating) return
     if (this.isRestoredSession) return
     if (this.getSetting<string>('ratingDismissedChat') === state.chat) return
     if (state.ratingVisible || state.ratingSubmitted) return
     if (this.countTurns() < TolkiChat.RATING_MIN_TURNS) return
 
-    let remaining = TolkiChat.RATING_DELAY_MS / 1000
+    const delaySec = typeof showRating === 'number'
+      ? showRating
+      : TolkiChat.RATING_DEFAULT_DELAY_S
+    const delayMs = delaySec * 1000
+
+    let remaining = delaySec
     console.log(`[Rating] Timer started: ${remaining}s countdown`)
     this.ratingCountdownInterval = setInterval(() => {
       remaining--
@@ -1166,7 +1173,7 @@ export class TolkiChat extends LitElement {
       if (state.open !== 'true' && !state.inline && !state.unclosable) return
       state.ratingVisible = true
       this.autoScrollToBottom()
-    }, TolkiChat.RATING_DELAY_MS)
+    }, delayMs)
   }
 
   private cancelRatingTimer() {

@@ -91,6 +91,9 @@ export interface TolkiChatProps {
   lang: string
   locales: string[]
 
+  // Features
+  showRating: boolean | number // true (default 90s), false (disabled), or number of seconds
+
   // Debug / development
   showDocs: boolean
 }
@@ -146,6 +149,9 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   // Internationalization
   lang: 'en',
   locales: ['en', 'it', 'es', 'fr', 'de', 'pt'],
+
+  // Features
+  showRating: true,
 
   // Debug / development
   showDocs: false,
