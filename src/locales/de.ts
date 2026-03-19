@@ -13,19 +13,25 @@
 's12bda6ed4915b346': `In Bearbeitung`,
 's255857544a9d5ec0': `Zurücksetzen`,
 's275845573d646861': `Ihr Warenkorb ist leer.`,
+'s27a97cdefe3a64f2': `Weniger anzeigen`,
 's27ac935473f90d03': `Sprache geändert.`,
 's2841a0c596d6f426': `Artikel`,
 's29aa7ed001f47bcf': `Entschuldigung, es gab einen Fehler bei der Verarbeitung Ihrer Nachricht.`,
 's2ba5f4d8f3bd7c57': `Bestellung`,
 's2ceb11be2290bb1b': `Abbrechen`,
 's2fb4c0400af3783e': `Melden Sie sich an, um Ihre Bestellungen zu sehen.`,
+'s30c0a4d43229080a': `Mehr anzeigen`,
 's32748bd47443e416': `Warenkorb anzeigen`,
+'s3687049d1af562c4': `Kopieren`,
 's3bb786d3b55ba37c': `Storniert`,
+'s3d099ab47fec57b6': `Gefällt mir`,
 's3e7884bf4f412c6f': `Artikel`,
 's41fcaea831e2795e': `Erstattet`,
 's5033dab8c17f05f2': `Abgeschlossen`,
 's52df77a89dccee06': `kann ungenau sein. Antworten überprüfen.`,
 's539c0516abfbd1eb': `Keine Bestellungen gefunden.`,
+'s5b780a0beb551bb9': `Suchanfrage`,
+'s5e8250fb85d64c23': `Schliessen`,
 's61731584cd086e84': str`
                     ${0}
                     weitere
@@ -34,8 +40,11 @@
 's78636b92c1a3909c': `Ausstehend`,
 's7d8cc15f29d8cba9': str`Meine Bestellungen (${0})
                 `,
+'s80f613f4c20e9e54': `Gefällt mir nicht`,
 's898e751edf09ec1e': `Zum Warenkorb`,
 's8dcbad308d74cec5': `Einkaufen beginnen`,
+'s91e3a47599412f51': `Quellen`,
+'saf30fc1eade20268': `Relevanz`,
 'sc88802102d8774bf': `Durch die Nutzung dieses Chats stimmen Sie unserer &lt;a target="_blank"
                     href="https://tolki.ai/privacy"&gt;Datenschutzrichtlinie&lt;/a&gt; zu.
                 `,

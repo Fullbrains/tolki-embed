@@ -32,11 +32,17 @@ export class Api {
     })
   }
 
+  private static isDevHost(): boolean {
+    const hostname = window.location.hostname
+    return hostname === 'localhost' || hostname === 'studio.tolki.ai'
+  }
+
   public static async message(
     chat_uuid: string,
     bot_uuid: string,
     message: string,
-    isAdk?: boolean
+    isAdk?: boolean,
+    showDocs?: boolean
   ): Promise<ApiMessageResponse> {
     // api.tolki.ai/chat/v1/embed/:bot_uuid/chat/:chat_uuid/message
     // or different URL if isAdk is true
@@ -48,9 +54,11 @@ export class Api {
         message?.trim() !== ''
       ) {
         try {
-          const url = isAdk 
+          const base = isAdk
             ? `${TOLKI_BRAIN_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`
             : `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`
+          const includeDocs = showDocs || this.isDevHost()
+          const url = includeDocs ? `${base}?include_docs=true` : base
           fetch(url, {
             method: `POST`,
             headers: {

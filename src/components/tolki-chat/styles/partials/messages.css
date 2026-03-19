@@ -7,6 +7,10 @@
   margin-bottom: 10px;
   width: 100%;
 
+  &--markdown {
+    flex-direction: column;
+  }
+
   &--product, &--card {
     width: 50%;
   }

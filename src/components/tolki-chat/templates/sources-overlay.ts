@@ -1,0 +1,84 @@
+import { html, TemplateResult } from 'lit'
+import { msg } from '@lit/localize'
+import {
+  DocumentSearchQueryResponse,
+  DocumentSearchResultsResponse,
+  DocumentSearchDocument,
+} from '../../../types/item'
+
+function scoreColor(score: number): string {
+  if (score >= 0.7) return 'tk__source-score--high'
+  if (score >= 0.4) return 'tk__source-score--mid'
+  return 'tk__source-score--low'
+}
+
+function toggleText(e: Event) {
+  const btn = e.currentTarget as HTMLElement
+  const container = btn.closest('.tk__source-doc')
+  const textEl = container?.querySelector('.tk__source-doc-text') as HTMLElement
+  if (!textEl) return
+
+  const isExpanded = textEl.classList.toggle('tk__source-doc-text--expanded')
+  btn.textContent = isExpanded ? msg('Read less') : msg('Read more')
+}
+
+function sourceDocTemplate(doc: DocumentSearchDocument): TemplateResult {
+  return html`
+    <div class="tk__source-doc">
+      <div class="tk__source-doc-filename">${doc.filename}</div>
+      <span class="tk__source-score ${scoreColor(doc.score)}">
+        ${msg('Relevance')} <strong>${(doc.score * 100).toFixed(0)}%</strong>
+      </span>
+      <div class="tk__source-doc-text">${doc.text}</div>
+      <button class="tk__source-doc-toggle" @click=${toggleText}>
+        ${msg('Read more')}
+      </button>
+    </div>
+  `
+}
+
+function searchResultsTemplate(
+  result: DocumentSearchResultsResponse,
+  queries: DocumentSearchQueryResponse[]
+): TemplateResult {
+  const query = queries.find((q) => q.search_id === result.search_id)
+  return html`
+    <div class="tk__source-group">
+      ${query
+        ? html`<div class="tk__source-query">
+            <span class="tk__source-query-label">${msg('Search query')}:</span>
+            <span class="tk__source-query-text">${query.query}</span>
+          </div>`
+        : ''}
+      <div class="tk__source-docs">
+        ${result.documents.map((doc) => sourceDocTemplate(doc))}
+      </div>
+    </div>
+  `
+}
+
+export const sourcesOverlayTemplate = (
+  open: boolean,
+  queries: DocumentSearchQueryResponse[],
+  results: DocumentSearchResultsResponse[],
+  onClose: () => void
+): TemplateResult => {
+  if (!open) return html``
+
+  return html`
+    <div class="tk__sources-backdrop" @click=${onClose}></div>
+    <div class="tk__sources-overlay">
+      <div class="tk__sources-header">
+        <h3 class="tk__sources-title">${msg('Sources')}</h3>
+      </div>
+      <div class="tk__sources-content">
+        ${results.map((result) => searchResultsTemplate(result, queries))}
+      </div>
+      <div class="tk__sources-footer">
+        <button class="tk__sources-close" @click=${onClose}>
+          ${msg('Close')}
+        </button>
+      </div>
+    </div>
+  `
+}

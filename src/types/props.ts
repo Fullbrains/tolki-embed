@@ -90,6 +90,9 @@ export interface TolkiChatProps {
   // Internationalization
   lang: string
   locales: string[]
+
+  // Debug / development
+  showDocs: boolean
 }
 
 /**
@@ -143,4 +146,7 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   // Internationalization
   lang: 'en',
   locales: ['en', 'it', 'es', 'fr', 'de', 'pt'],
+
+  // Debug / development
+  showDocs: false,
 }

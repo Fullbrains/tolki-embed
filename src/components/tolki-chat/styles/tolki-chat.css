@@ -16,6 +16,7 @@
 @import "partials/placeholder-common.css";
 @import "partials/suggestions.css";
 @import "partials/toggle.css";
+@import "partials/toolbar.css";
 @import "partials/window.css";
 
 /* Host styles */

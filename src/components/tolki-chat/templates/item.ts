@@ -12,6 +12,7 @@ import {
 import { cartResponseTemplate } from './cart'
 import { ordersResponseTemplate } from './orders'
 import { cartNotificationTemplate } from './cart-notification'
+import { toolbarTemplate } from './toolbar'
 
 // Import type-specific interfaces for type safety
 import {
@@ -26,9 +27,22 @@ import {
  * Main template function that renders a chat item based on its type
  * This function acts as a router, delegating to specialized template functions
  */
-export const chatItemTemplate = (item: Item): TemplateResult => {
+export const chatItemTemplate = (
+  item: Item,
+  history: Item[] = [],
+  index: number = -1
+): TemplateResult => {
+  // document_search_query and document_search_results are consumed by the toolbar
+  // and should not render as standalone chat items
+  if (
+    item.type === ItemType.documentSearchQuery ||
+    item.type === ItemType.documentSearchResults
+  ) {
+    return html``
+  }
+
   // Map of template functions for each item type
-  const templateMap: Record<ItemType, () => TemplateResult> = {
+  const templateMap: Partial<Record<ItemType, () => TemplateResult>> = {
     [ItemType.action]: () => actionResponseTemplate(item as ActionResponse),
     [ItemType.card]: () => cardResponseTemplate(item as CardResponse),
     [ItemType.markdown]: () =>
@@ -45,10 +59,20 @@ export const chatItemTemplate = (item: Item): TemplateResult => {
   const templateFunction = templateMap[item.type]
   const content = templateFunction ? templateFunction() : html``
 
+  // Show toolbar under assistant markdown messages
+  const showToolbar =
+    item.type === ItemType.markdown &&
+    index >= 0 &&
+    !(item as MarkdownResponse).level // Don't show on info/error messages
+
+  const toolbar = showToolbar
+    ? toolbarTemplate((item as MarkdownResponse).content, history, index)
+    : html``
+
   // Wrap the content in a standardized chat item container
   return html`
     <div class="tk__chat-item tk__chat-item--${item.type || 'legacy'}">
-      ${content}
+      ${content} ${toolbar}
     </div>
   `
 }

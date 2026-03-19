@@ -14,6 +14,8 @@ export enum ItemType {
   cart = 'show_cart',
   orders = 'show_orders',
   cartNotification = 'cart_notification',
+  documentSearchQuery = 'document_search_query',
+  documentSearchResults = 'document_search_results',
 }
 
 export interface Action {
@@ -87,6 +89,24 @@ export interface CartNotificationResponse {
   // This type is dynamically rendered and not persisted in history
 }
 
+export interface DocumentSearchDocument {
+  filename: string
+  text: string
+  score: number
+}
+
+export interface DocumentSearchQueryResponse {
+  type: ItemType.documentSearchQuery
+  query: string
+  search_id: string
+}
+
+export interface DocumentSearchResultsResponse {
+  type: ItemType.documentSearchResults
+  search_id: string
+  documents: DocumentSearchDocument[]
+}
+
 export type Item =
   | ActionResponse
   | CardResponse
@@ -97,3 +117,5 @@ export type Item =
   | ThinkingResponse
   | UserInput
   | CartNotificationResponse
+  | DocumentSearchQueryResponse
+  | DocumentSearchResultsResponse

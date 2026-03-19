@@ -142,6 +142,42 @@
   <source>may be inaccurate. Verify answers.</source>
   <target>pode ser impreciso. Verifique as respostas.</target>
 </trans-unit>
+<trans-unit id="s3687049d1af562c4">
+  <source>Copy</source>
+  <target>Copiar</target>
+</trans-unit>
+<trans-unit id="s3d099ab47fec57b6">
+  <source>Like</source>
+  <target>Gostei</target>
+</trans-unit>
+<trans-unit id="s80f613f4c20e9e54">
+  <source>Dislike</source>
+  <target>Nao gostei</target>
+</trans-unit>
+<trans-unit id="s91e3a47599412f51">
+  <source>Sources</source>
+  <target>Fontes</target>
+</trans-unit>
+<trans-unit id="s5b780a0beb551bb9">
+  <source>Search query</source>
+  <target>Consulta de pesquisa</target>
+</trans-unit>
+<trans-unit id="s5e8250fb85d64c23">
+  <source>Close</source>
+  <target>Fechar</target>
+</trans-unit>
+<trans-unit id="s27a97cdefe3a64f2">
+  <source>Read less</source>
+  <target>Ver menos</target>
+</trans-unit>
+<trans-unit id="s30c0a4d43229080a">
+  <source>Read more</source>
+  <target>Ver mais</target>
+</trans-unit>
+<trans-unit id="saf30fc1eade20268">
+  <source>Relevance</source>
+  <target>Relevancia</target>
+</trans-unit>
         </body>
     </file>
 </xliff>

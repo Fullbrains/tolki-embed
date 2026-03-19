@@ -38,7 +38,12 @@ import { SettingsRepository } from '../../services/settings-repository'
 import { PropsManager } from '../../services/props-manager'
 
 // Tolki Types
-import { Item, ItemType } from '../../types/item'
+import {
+  Item,
+  ItemType,
+  DocumentSearchQueryResponse,
+  DocumentSearchResultsResponse,
+} from '../../types/item'
 import { BotInitResult, BotStatus } from '../../types/bot'
 import { ApiMessageResponseStatus } from '../../types/api'
 import { TolkiChatProps, I18nString } from '../../types/props'
@@ -50,6 +55,7 @@ import { textareaTemplate } from './templates/textarea'
 import { toggleTemplate } from './templates/toggle'
 import { chatItemTemplate } from './templates/item'
 import { suggestionsTemplate } from './templates/suggestions'
+import { sourcesOverlayTemplate } from './templates/sources-overlay'
 
 // Utils
 import { CartHelpers } from '../../utils/chat-helpers'
@@ -106,6 +112,15 @@ class ChatState extends State {
 
   @property({ value: 0 })
   renderKey: number
+
+  @property({ value: false })
+  sourcesOverlayOpen: boolean
+
+  @property({ value: null })
+  sourcesOverlayData: {
+    queries: import('../../types/item').DocumentSearchQueryResponse[]
+    results: import('../../types/item').DocumentSearchResultsResponse[]
+  } | null
 }
 
 const state = new ChatState()
@@ -172,6 +187,7 @@ export class TolkiChat extends LitElement {
       'lang',
       'suggestions',
       'locales',
+      'show-docs',
       // Legacy - for backward compatibility
       'inline',
     ]
@@ -196,6 +212,8 @@ export class TolkiChat extends LitElement {
   private unsubscribeCartLoaded?: () => void
   private darkModeMediaQuery?: MediaQueryList
   private boundDarkModeHandler?: () => void
+  private boundSourcesOpenHandler?: (e: Event) => void
+  private initialScrollDone = false
 
   constructor() {
     super()
@@ -226,6 +244,14 @@ export class TolkiChat extends LitElement {
     this.darkModeMediaQuery = window.matchMedia?.('(prefers-color-scheme: dark)')
     this.boundDarkModeHandler = () => this.requestUpdate()
     this.darkModeMediaQuery?.addEventListener?.('change', this.boundDarkModeHandler)
+
+    // Listen for sources overlay open events
+    this.boundSourcesOpenHandler = (e: Event) => {
+      const detail = (e as CustomEvent).detail
+      state.sourcesOverlayData = detail
+      state.sourcesOverlayOpen = true
+    }
+    document.addEventListener('tolki:sources:open', this.boundSourcesOpenHandler)
 
     // Ensure Google Fonts load in Shadow DOM
     this.ensureFontLoading()
@@ -321,7 +347,7 @@ export class TolkiChat extends LitElement {
 
       // If content height changed and user was at bottom, scroll to new bottom
       if (wasAtBottom && newScrollHeight !== scrollHeight) {
-        this.scrollToLastMessage(TolkiChat.SCROLL_ANIMATION_SHORT_MS) // Animated scroll for better UX
+        this.scrollToLastMessage(TolkiChat.SCROLL_ANIMATION_SHORT_MS)
       }
       // If content height changed significantly, update scroll state
       else if (Math.abs(newScrollHeight - scrollHeight) > 50) {
@@ -574,15 +600,28 @@ export class TolkiChat extends LitElement {
           this.scrollLock.lock()
         }
 
-        setTimeout(() => {
-          const top =
-            this.log.scrollHeight -
-            (this.log.clientHeight - TolkiChat.LOG_BOTTOM_OFFSET_PX)
-          this.log.scrollTo({
-            top,
-            behavior: 'auto',
-          })
-        }, 0)
+        // Use a MutationObserver to catch the final render and scroll to bottom instantly.
+        // This handles all deferred re-renders (lil-gui, props, etc.)
+        this.initialScrollDone = false
+        const scrollToEnd = () => {
+          if (this.log) {
+            this.log.scrollTop = this.log.scrollHeight
+          }
+        }
+        // Scroll after this render cycle
+        this.updateComplete.then(() => {
+          scrollToEnd()
+          // Keep scrolling to end for a short window to cover all deferred renders
+          const observer = new MutationObserver(() => scrollToEnd())
+          if (this.log) {
+            observer.observe(this.log, { childList: true, subtree: true })
+          }
+          setTimeout(() => {
+            observer.disconnect()
+            scrollToEnd()
+            this.initialScrollDone = true
+          }, 1000)
+        })
       })
       .catch((bot) => {
         state.bot = bot
@@ -862,6 +901,18 @@ export class TolkiChat extends LitElement {
       this.scrollLock.unlock()
     }
 
+    // Scroll to bottom when opening chat
+    if (!wasOpen && state.open === 'true') {
+      this.updateComplete.then(() => {
+        // Use rAF to ensure the window is visible and layout is computed
+        requestAnimationFrame(() => {
+          if (this.log) {
+            this.log.scrollTop = this.log.scrollHeight
+          }
+        })
+      })
+    }
+
     // Debug: log dimensions and position when opening
     if (!wasOpen && state.open === 'true') {
       this.updateComplete.then(() => {
@@ -934,6 +985,14 @@ export class TolkiChat extends LitElement {
   }
 
   scrollToBottom(timeout: number = TolkiChat.SCROLL_ANIMATION_LONG_MS) {
+    // During init phase, always scroll to absolute bottom instantly
+    if (!this.initialScrollDone) {
+      if (this.log) {
+        this.log.scrollTop = this.log.scrollHeight
+      }
+      return
+    }
+
     setTimeout(() => {
       const top =
         this.log.scrollHeight -
@@ -951,6 +1010,14 @@ export class TolkiChat extends LitElement {
     retryCount: number = 0,
     targetMessageIndex?: number
   ) {
+    // During init phase, always scroll to absolute bottom instantly (behavior B)
+    if (!this.initialScrollDone) {
+      if (this.log) {
+        this.log.scrollTop = this.log.scrollHeight
+      }
+      return
+    }
+
     setTimeout(() => {
       if (!this.log) return
 
@@ -1068,7 +1135,9 @@ export class TolkiChat extends LitElement {
         item.type === ItemType.product ||
         item.type === ItemType.cart ||
         item.type === ItemType.orders ||
-        item.type === ItemType.userInput
+        item.type === ItemType.userInput ||
+        item.type === ItemType.documentSearchQuery ||
+        item.type === ItemType.documentSearchResults
       )
     })
     this.saveSetting('history', serializedMessages)
@@ -1132,7 +1201,8 @@ export class TolkiChat extends LitElement {
         state.chat,
         state.bot.uuid,
         message,
-        state.bot.props.isAdk
+        state.bot.props.isAdk,
+        this.propsManager.getProps().showDocs
       )
 
       if (
@@ -1535,6 +1605,11 @@ export class TolkiChat extends LitElement {
       this.resizeObserver = undefined
     }
 
+    // Clean up sources overlay listener
+    if (this.boundSourcesOpenHandler) {
+      document.removeEventListener('tolki:sources:open', this.boundSourcesOpenHandler)
+    }
+
     // Clean up body scroll lock if component is removed while open
     this.scrollLock.unlock()
   }
@@ -1601,11 +1676,14 @@ export class TolkiChat extends LitElement {
               aria-atomic="false"
               aria-label="Chat messages"
             >
-              ${state.history
-                .filter((item) => item && item.type)
-                .map((item, index) =>
-                  keyed(`${state.renderKey}-${index}`, chatItemTemplate(item))
-                )}
+              ${state.history.map((item, index) =>
+                item && item.type
+                  ? keyed(
+                      `${state.renderKey}-${index}`,
+                      chatItemTemplate(item, state.history, index)
+                    )
+                  : html``
+              )}
             </div>
             ${(() => {
               const suggestions = this.resolveI18nArray(this.propsManager.getProps().suggestions)
@@ -1623,6 +1701,15 @@ export class TolkiChat extends LitElement {
               this.resolveI18nString(this.propsManager.getProps().messagePlaceholder)
             )}
             ${state.bot?.props?.unbranded ? '' : brandingTemplate()}
+            ${sourcesOverlayTemplate(
+              state.sourcesOverlayOpen,
+              state.sourcesOverlayData?.queries || [],
+              state.sourcesOverlayData?.results || [],
+              () => {
+                state.sourcesOverlayOpen = false
+                state.sourcesOverlayData = null
+              }
+            )}
           </div>
 
           ${state.inline
