@@ -1,0 +1,48 @@
+/* Rating widget - rendered inside a .tk__action bubble */
+
+.tk__rating {
+  animation: tk__rating-fade-in 0.3s ease-out;
+}
+
+.tk__rating--thanks {
+  animation: tk__rating-fade-in 0.2s ease-out;
+}
+
+.tk__rating-stars {
+  display: flex;
+  gap: 0;
+  margin-top: -10px;
+  margin-bottom: -5px;
+  padding: 0 15px 15px 12px;
+}
+
+.tk__rating-star {
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  background: none;
+  border: none;
+  color: var(--steel-30);
+  cursor: pointer;
+  padding: 2px;
+  transition: color var(--transition-fast);
+
+  &:hover,
+  &--hover {
+    color: var(--link-color);
+  }
+
+  svg {
+    display: block;
+    pointer-events: none;
+  }
+}
+
+@keyframes tk__rating-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

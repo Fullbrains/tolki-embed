@@ -106,6 +106,7 @@
     pointer-events: none;
     position: absolute;
     top: -60px;
+    z-index: 10000;
     transform: translateY(5px) scale(0.8);
     transition: opacity var(--transition-default), visibility var(--transition-default), transform var(--transition-default), top var(--transition-default);
     visibility: hidden;

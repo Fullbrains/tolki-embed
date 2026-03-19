@@ -37,6 +37,17 @@ export class Api {
     return hostname === 'localhost' || hostname === 'studio.tolki.ai'
   }
 
+  // ---------------------------------------------------------------------------
+  // Send message
+  // ---------------------------------------------------------------------------
+  // POST /v1/embed/{bot_uuid}/chat/{chat_uuid}/message
+  //
+  // Response items MUST include a top-level "message_id" field (UUID v4).
+  // This is required for the like/dislike feedback endpoint to work.
+  //
+  // Expected response shape (each item in data.items[]):
+  //   { "type": "markdown", "message_id": "uuid-v4", "content": "..." }
+  // ---------------------------------------------------------------------------
   public static async message(
     chat_uuid: string,
     bot_uuid: string,
@@ -44,8 +55,6 @@ export class Api {
     isAdk?: boolean,
     showDocs?: boolean
   ): Promise<ApiMessageResponse> {
-    // api.tolki.ai/chat/v1/embed/:bot_uuid/chat/:chat_uuid/message
-    // or different URL if isAdk is true
 
     return new Promise((resolve, reject) => {
       if (
@@ -121,5 +130,70 @@ export class Api {
         })
       }
     })
+  }
+
+  // ---------------------------------------------------------------------------
+  // Message feedback (like/dislike on a single message)
+  // ---------------------------------------------------------------------------
+  // POST /v1/embed/{bot_uuid}/chat/{chat_uuid}/message/{message_id}/feedback
+  //
+  // Backend requirements:
+  //   - Every item returned by the /message endpoint MUST include a top-level
+  //     "message_id" field (UUID v4). At minimum on "markdown" items; ideally
+  //     on every item type so we can extend feedback to other types later.
+  //   - This endpoint receives the feedback and persists it.
+  //
+  // Request body:
+  //   { "type": "like" | "dislike" }
+  //
+  // Response:
+  //   200 { "ok": true }
+  //   400 { "error": "invalid message_id" | "invalid type" }
+  //   404 { "error": "message not found" }
+  // ---------------------------------------------------------------------------
+  public static async messageFeedback(
+    bot_uuid: string,
+    chat_uuid: string,
+    message_id: string,
+    type: 'like' | 'dislike'
+  ): Promise<void> {
+    const url = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/${message_id}/feedback`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type }),
+    })
+    if (!response.ok) {
+      throw new Error(`Feedback failed: ${response.status}`)
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Conversation rating (overall satisfaction for the whole chat session)
+  // ---------------------------------------------------------------------------
+  // POST /v1/embed/{bot_uuid}/chat/{chat_uuid}/rating
+  //
+  // Request body:
+  //   { "rating": 1 | 2 | 3 | 4 | 5 }
+  //
+  // Response:
+  //   200 { "ok": true }
+  //   400 { "error": "invalid rating" | "already rated" }
+  //   404 { "error": "chat not found" }
+  // ---------------------------------------------------------------------------
+  public static async conversationRating(
+    bot_uuid: string,
+    chat_uuid: string,
+    rating: number
+  ): Promise<void> {
+    const url = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/rating`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rating }),
+    })
+    if (!response.ok) {
+      throw new Error(`Rating failed: ${response.status}`)
+    }
   }
 }

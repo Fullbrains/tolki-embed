@@ -178,6 +178,18 @@
   <source>Relevance</source>
   <target>Relevancia</target>
 </trans-unit>
+<trans-unit id="saccea9f00824cd64">
+  <source>Thanks for your feedback!</source>
+  <target>Obrigado pelo seu feedback!</target>
+</trans-unit>
+<trans-unit id="s667980330811914c">
+  <source>How was this conversation?</source>
+  <target>Como foi esta conversa?</target>
+</trans-unit>
+<trans-unit id="s12d6dde9b30c3093">
+  <source>Dismiss</source>
+  <target>Ignorar</target>
+</trans-unit>
         </body>
     </file>
 </xliff>

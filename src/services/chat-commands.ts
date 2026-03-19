@@ -10,6 +10,7 @@ interface ChatOperations {
   scrollToLastMessage(timeout?: number): void
   updateComplete: Promise<boolean>
   setChatId(chatId: string): void
+  onChatReset?(): void
 }
 
 /**
@@ -49,6 +50,7 @@ export class ChatCommandService {
     this.chatOps.saveSetting('chat', newChatId)
     await this.chatOps.addHeadingMessages()
     this.historyManager.persist()
+    this.chatOps.onChatReset?.()
   }
 
   /**

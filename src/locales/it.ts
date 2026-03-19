@@ -11,6 +11,7 @@
     export const templates = {
       's0ac3dc1d83641895': `Errore nel caricamento del carrello.`,
 's12bda6ed4915b346': `In elaborazione`,
+'s12d6dde9b30c3093': `Ignora`,
 's255857544a9d5ec0': `Ripristina`,
 's275845573d646861': `Il tuo carrello è vuoto.`,
 's27a97cdefe3a64f2': `Mostra meno`,
@@ -36,6 +37,7 @@
                     ${0}
                     ${1}
                 `,
+'s667980330811914c': `Come valuti questa conversazione?`,
 's78636b92c1a3909c': `In attesa`,
 's7d8cc15f29d8cba9': str`I miei Ordini (${0})
                 `,
@@ -43,6 +45,7 @@
 's898e751edf09ec1e': `Vai al Carrello`,
 's8dcbad308d74cec5': `Vai allo Shop`,
 's91e3a47599412f51': `Fonti`,
+'saccea9f00824cd64': `Grazie per il tuo feedback!`,
 'saf30fc1eade20268': `Pertinenza`,
 'sc88802102d8774bf': `Utilizzando questa chat, accetti la nostra &lt;a target="_blank" href="https://tolki.ai/privacy"&gt;politica
                     della privacy&lt;/a&gt;.

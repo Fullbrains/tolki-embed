@@ -3,6 +3,7 @@
   --toggle-btn-size: 60px;
   --brand-dot-size: calc(var(--toggle-btn-size) * 0.12);
   --circle-btn-size: 40px;
+  --header-height: 60px;
   --margin: 20px;
   --margin-x: 20px;
   --margin-y: 20px;

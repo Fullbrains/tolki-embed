@@ -10,9 +10,11 @@ import {
 import {
   Item,
   ItemType,
+  MarkdownResponse,
   DocumentSearchQueryResponse,
   DocumentSearchResultsResponse,
 } from '../../../types/item'
+import { Api } from '../../../services/api'
 
 /**
  * Collects document_search_query and document_search_results items
@@ -48,10 +50,14 @@ function getSourcesForMessage(
 export const toolbarTemplate = (
   content: string,
   history: Item[],
-  messageIndex: number
+  messageIndex: number,
+  botUuid: string,
+  chatUuid: string
 ): TemplateResult => {
   const sources = getSourcesForMessage(history, messageIndex)
   const hasSources = sources.results.length > 0
+  const item = history[messageIndex] as MarkdownResponse
+  const messageId = item.message_id || ''
 
   return html`
     <div class="tk__toolbar">
@@ -65,14 +71,14 @@ export const toolbarTemplate = (
       <button
         class="tk__toolbar-btn"
         title=${msg('Like')}
-        @click=${(e: Event) => handleLike(e)}
+        @click=${(e: Event) => handleLike(e, botUuid, chatUuid, messageId)}
       >
         ${likeIcon()}
       </button>
       <button
         class="tk__toolbar-btn"
         title=${msg('Dislike')}
-        @click=${(e: Event) => handleDislike(e)}
+        @click=${(e: Event) => handleDislike(e, botUuid, chatUuid, messageId)}
       >
         ${dislikeIcon()}
       </button>
@@ -111,18 +117,16 @@ function handleCopy(e: Event, content: string) {
   })
 }
 
-function handleLike(e: Event) {
-  const btn = e.currentTarget as HTMLElement
-  const sibling = btn.nextElementSibling as HTMLElement
-  btn.classList.toggle('tk__toolbar-btn--active')
-  sibling?.classList.remove('tk__toolbar-btn--active')
+function handleLike(_e: Event, botUuid: string, chatUuid: string, messageId: string) {
+  if (messageId) {
+    Api.messageFeedback(botUuid, chatUuid, messageId, 'like').catch(() => {})
+  }
 }
 
-function handleDislike(e: Event) {
-  const btn = e.currentTarget as HTMLElement
-  const sibling = btn.previousElementSibling as HTMLElement
-  btn.classList.toggle('tk__toolbar-btn--active')
-  sibling?.classList.remove('tk__toolbar-btn--active')
+function handleDislike(_e: Event, botUuid: string, chatUuid: string, messageId: string) {
+  if (messageId) {
+    Api.messageFeedback(botUuid, chatUuid, messageId, 'dislike').catch(() => {})
+  }
 }
 
 function openSourcesOverlay(sources: {

@@ -30,7 +30,9 @@ import {
 export const chatItemTemplate = (
   item: Item,
   history: Item[] = [],
-  index: number = -1
+  index: number = -1,
+  botUuid: string = '',
+  chatUuid: string = ''
 ): TemplateResult => {
   // document_search_query and document_search_results are consumed by the toolbar
   // and should not render as standalone chat items
@@ -66,7 +68,7 @@ export const chatItemTemplate = (
     !(item as MarkdownResponse).level // Don't show on info/error messages
 
   const toolbar = showToolbar
-    ? toolbarTemplate((item as MarkdownResponse).content, history, index)
+    ? toolbarTemplate((item as MarkdownResponse).content, history, index, botUuid, chatUuid)
     : html``
 
   // Wrap the content in a standardized chat item container

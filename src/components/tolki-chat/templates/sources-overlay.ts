@@ -1,4 +1,4 @@
-import { html, TemplateResult } from 'lit'
+import { html, render, TemplateResult } from 'lit'
 import { msg } from '@lit/localize'
 import {
   DocumentSearchQueryResponse,
@@ -57,28 +57,44 @@ function searchResultsTemplate(
   `
 }
 
-export const sourcesOverlayTemplate = (
-  open: boolean,
+/**
+ * Opens the sources overlay imperatively — no Lit re-render, no scroll impact.
+ * Call this from an event handler passing the shadow root's .tk__window element.
+ */
+export function openSourcesOverlay(
+  windowEl: HTMLElement,
   queries: DocumentSearchQueryResponse[],
-  results: DocumentSearchResultsResponse[],
-  onClose: () => void
-): TemplateResult => {
-  if (!open) return html``
+  results: DocumentSearchResultsResponse[]
+) {
+  // Remove any existing overlay
+  closeSourcesOverlayImmediate(windowEl)
 
-  return html`
-    <div class="tk__sources-backdrop" @click=${onClose}></div>
-    <div class="tk__sources-overlay">
-      <div class="tk__sources-header">
-        <h3 class="tk__sources-title">${msg('Sources')}</h3>
-      </div>
-      <div class="tk__sources-content">
-        ${results.map((result) => searchResultsTemplate(result, queries))}
-      </div>
-      <div class="tk__sources-footer">
-        <button class="tk__sources-close" @click=${onClose}>
-          ${msg('Close')}
-        </button>
-      </div>
+  const container = document.createElement('div')
+  container.className = 'tk__sources-overlay tk__sources--enter'
+
+  const close = () => {
+    container.classList.replace('tk__sources--enter', 'tk__sources--exit')
+    container.addEventListener('animationend', () => {
+      container.remove()
+    }, { once: true })
+  }
+
+  const content = html`
+    <div class="tk__sources-content">
+      ${results.map((result) => searchResultsTemplate(result, queries))}
+    </div>
+    <div class="tk__sources-footer">
+      <button class="tk__sources-close" @click=${close}>
+        ${msg('Close')}
+      </button>
     </div>
   `
+
+  render(content, container)
+  windowEl.appendChild(container)
+}
+
+function closeSourcesOverlayImmediate(windowEl: HTMLElement) {
+  windowEl.querySelectorAll('.tk__sources-overlay')
+    .forEach((el) => el.remove())
 }

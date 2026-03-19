@@ -56,6 +56,7 @@ export interface CardResponse {
 export interface MarkdownResponse {
   type: ItemType.markdown
   content: string
+  message_id?: string // UUID assigned by backend, used for like/dislike feedback
   caption?: string
   level?: MarkdownResponseLevel
   locale?: string // For setLocale messages

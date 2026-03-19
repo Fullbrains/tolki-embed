@@ -55,7 +55,8 @@ import { textareaTemplate } from './templates/textarea'
 import { toggleTemplate } from './templates/toggle'
 import { chatItemTemplate } from './templates/item'
 import { suggestionsTemplate } from './templates/suggestions'
-import { sourcesOverlayTemplate } from './templates/sources-overlay'
+import { openSourcesOverlay } from './templates/sources-overlay'
+import { ratingTemplate } from './templates/rating'
 
 // Utils
 import { CartHelpers } from '../../utils/chat-helpers'
@@ -114,13 +115,10 @@ class ChatState extends State {
   renderKey: number
 
   @property({ value: false })
-  sourcesOverlayOpen: boolean
+  ratingVisible: boolean
 
-  @property({ value: null })
-  sourcesOverlayData: {
-    queries: import('../../types/item').DocumentSearchQueryResponse[]
-    results: import('../../types/item').DocumentSearchResultsResponse[]
-  } | null
+  @property({ value: false })
+  ratingSubmitted: boolean
 }
 
 const state = new ChatState()
@@ -214,6 +212,12 @@ export class TolkiChat extends LitElement {
   private boundDarkModeHandler?: () => void
   private boundSourcesOpenHandler?: (e: Event) => void
   private initialScrollDone = false
+  private isRestoredSession = false
+  private ratingTimer?: ReturnType<typeof setTimeout>
+  private ratingCountdownInterval?: ReturnType<typeof setInterval>
+  private static readonly RATING_DELAY_MS = 90_000
+  private static readonly RATING_THANKS_MS = 3_000
+  private static readonly RATING_MIN_TURNS = 2
 
   constructor() {
     super()
@@ -248,8 +252,10 @@ export class TolkiChat extends LitElement {
     // Listen for sources overlay open events
     this.boundSourcesOpenHandler = (e: Event) => {
       const detail = (e as CustomEvent).detail
-      state.sourcesOverlayData = detail
-      state.sourcesOverlayOpen = true
+      const windowEl = this.shadowRoot?.querySelector('.tk__window') as HTMLElement
+      if (windowEl) {
+        openSourcesOverlay(windowEl, detail.queries, detail.results)
+      }
     }
     document.addEventListener('tolki:sources:open', this.boundSourcesOpenHandler)
 
@@ -318,6 +324,12 @@ export class TolkiChat extends LitElement {
         updateComplete: this.updateComplete,
         setChatId: (chatId) => {
           state.chat = chatId
+        },
+        onChatReset: () => {
+          this.isRestoredSession = false
+          this.cancelRatingTimer()
+          state.ratingVisible = false
+          state.ratingSubmitted = false
         },
       },
       this.historyManager
@@ -568,8 +580,9 @@ export class TolkiChat extends LitElement {
 
         const history = this.getSetting<Item[]>('history')
 
-        if (history) {
+        if (history && history.length > 0) {
           state.history = history
+          this.isRestoredSession = true
           // Process setLocale items from history
           await this.processHistoryLocales()
         } else {
@@ -899,6 +912,7 @@ export class TolkiChat extends LitElement {
       this.scrollLock.lock()
     } else {
       this.scrollLock.unlock()
+      this.cancelRatingTimer()
     }
 
     // Scroll to bottom when opening chat
@@ -1084,6 +1098,7 @@ export class TolkiChat extends LitElement {
     this.updateComplete.then(() => {
       this.scrollToLastMessage(TolkiChat.SCROLL_ANIMATION_SHORT_MS)
     })
+    this.startRatingTimer()
   }
 
   afterReceiveWithTarget(targetMessageIndex: number) {
@@ -1096,14 +1111,95 @@ export class TolkiChat extends LitElement {
         targetMessageIndex
       )
     })
+    this.startRatingTimer()
   }
 
   afterSend() {
     state.pending = true
+    this.cancelRatingTimer()
     this.resetMessage()
     this.updateComplete.then(() => {
       this.scrollToLastMessage(TolkiChat.SCROLL_ANIMATION_SHORT_MS)
     })
+  }
+
+  // ---------------------------------------------------------------------------
+  // Rating
+  // ---------------------------------------------------------------------------
+
+  private countTurns(): number {
+    let turns = 0
+    let lastWasUser = false
+    for (const item of state.history) {
+      if (item.type === ItemType.userInput) {
+        lastWasUser = true
+      } else if (item.type === ItemType.markdown && !item.level && lastWasUser) {
+        turns++
+        lastWasUser = false
+      }
+    }
+    return turns
+  }
+
+  private startRatingTimer() {
+    this.cancelRatingTimer()
+
+    // Don't start if: restored session, already dismissed/submitted, not enough turns
+    if (this.isRestoredSession) return
+    if (this.getSetting<string>('ratingDismissedChat') === state.chat) return
+    if (state.ratingVisible || state.ratingSubmitted) return
+    if (this.countTurns() < TolkiChat.RATING_MIN_TURNS) return
+
+    let remaining = TolkiChat.RATING_DELAY_MS / 1000
+    console.log(`[Rating] Timer started: ${remaining}s countdown`)
+    this.ratingCountdownInterval = setInterval(() => {
+      remaining--
+      if (remaining > 0) console.log(`[Rating] ${remaining}s remaining`)
+    }, 1000)
+
+    this.ratingTimer = setTimeout(() => {
+      if (this.ratingCountdownInterval) {
+        clearInterval(this.ratingCountdownInterval)
+        this.ratingCountdownInterval = undefined
+      }
+      // Double-check chat is open
+      if (state.open !== 'true' && !state.inline && !state.unclosable) return
+      state.ratingVisible = true
+      this.autoScrollToBottom()
+    }, TolkiChat.RATING_DELAY_MS)
+  }
+
+  private cancelRatingTimer() {
+    if (this.ratingTimer) {
+      clearTimeout(this.ratingTimer)
+      this.ratingTimer = undefined
+    }
+    if (this.ratingCountdownInterval) {
+      clearInterval(this.ratingCountdownInterval)
+      this.ratingCountdownInterval = undefined
+    }
+  }
+
+  private handleRate(rating: number) {
+    state.ratingSubmitted = true
+    this.saveSetting('ratingDismissedChat', state.chat)
+    this.cancelRatingTimer()
+
+    // Fire-and-forget API call
+    Api.conversationRating(state.bot.uuid, state.chat, rating).catch(() => {
+      // Graceful: rating display is already shown, backend will catch up later
+    })
+
+    // Hide the thanks message after a delay
+    setTimeout(() => {
+      state.ratingVisible = false
+    }, TolkiChat.RATING_THANKS_MS)
+  }
+
+  private handleRatingDismiss() {
+    state.ratingVisible = false
+    this.saveSetting('ratingDismissedChat', state.chat)
+    this.cancelRatingTimer()
   }
 
   logScroll = () => {
@@ -1412,6 +1508,7 @@ export class TolkiChat extends LitElement {
       this.sendMessage().then()
     }
     const enterSendMessage = (event: KeyboardEvent) => {
+      this.cancelRatingTimer()
       if (event.key === 'Enter') {
         event.preventDefault()
         this.sendMessage().then()
@@ -1605,6 +1702,9 @@ export class TolkiChat extends LitElement {
       this.resizeObserver = undefined
     }
 
+    // Clean up rating timer
+    this.cancelRatingTimer()
+
     // Clean up sources overlay listener
     if (this.boundSourcesOpenHandler) {
       document.removeEventListener('tolki:sources:open', this.boundSourcesOpenHandler)
@@ -1680,9 +1780,15 @@ export class TolkiChat extends LitElement {
                 item && item.type
                   ? keyed(
                       `${state.renderKey}-${index}`,
-                      chatItemTemplate(item, state.history, index)
+                      chatItemTemplate(item, state.history, index, state.bot?.uuid || '', state.chat || '')
                     )
                   : html``
+              )}
+              ${ratingTemplate(
+                state.ratingVisible,
+                state.ratingSubmitted,
+                (rating: number) => this.handleRate(rating),
+                () => this.handleRatingDismiss()
               )}
             </div>
             ${(() => {
@@ -1701,15 +1807,6 @@ export class TolkiChat extends LitElement {
               this.resolveI18nString(this.propsManager.getProps().messagePlaceholder)
             )}
             ${state.bot?.props?.unbranded ? '' : brandingTemplate()}
-            ${sourcesOverlayTemplate(
-              state.sourcesOverlayOpen,
-              state.sourcesOverlayData?.queries || [],
-              state.sourcesOverlayData?.results || [],
-              () => {
-                state.sourcesOverlayOpen = false
-                state.sourcesOverlayData = null
-              }
-            )}
           </div>
 
           ${state.inline
