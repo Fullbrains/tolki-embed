@@ -26,12 +26,12 @@ export type WindowSize = 'sm' | 'md' | 'lg' | 'xl'
 export type ToggleSize = 'sm' | 'md' | 'lg'
 
 /**
- * Dark mode options
+ * Theme options
  * - 'auto': follows system preference (prefers-color-scheme)
  * - 'light': always light mode
  * - 'dark': always dark mode
  */
-export type DarkMode = 'auto' | 'light' | 'dark'
+export type Theme = 'auto' | 'light' | 'dark'
 
 /**
  * Border radius options
@@ -58,7 +58,7 @@ export interface TolkiChatProps {
   unclosable: boolean
 
   // Appearance
-  dark: DarkMode
+  theme: Theme
   rounded: RoundedSize
   backdropColor: HexColor | null
   backdropOpacity: number // 0-1, default 0.5
@@ -106,7 +106,7 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   unclosable: false,
 
   // Appearance
-  dark: 'auto',
+  theme: 'auto',
   rounded: 'xl',
   backdropColor: null,
   backdropOpacity: 0.5,

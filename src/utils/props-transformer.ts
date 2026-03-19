@@ -88,7 +88,7 @@ export function transformBotPropsToTolkiProps(
     // Global styles
     props.position = getStyleValue(styles, 'position', null) ?? undefined
     props.margin = getMarginValue(styles)
-    props.dark = getStyleValue(styles, 'dark', null) ?? undefined
+    props.theme = getStyleValue(styles, 'theme', null) ?? undefined
     props.rounded = getStyleValue(styles, 'rounded', null) ?? undefined
 
     // Toggle styles

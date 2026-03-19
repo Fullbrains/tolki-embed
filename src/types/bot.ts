@@ -43,7 +43,7 @@ export interface StylesConfig {
   // Global (affects entire widget)
   position?: 'inline' | 'left' | 'center' | 'right'
   margin?: number | [number, number]
-  dark?: 'auto' | 'light' | 'dark'
+  theme?: 'auto' | 'light' | 'dark'
   rounded?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
   // Per element

@@ -124,9 +124,9 @@ export class PropsManager {
           props.backdropBlur = parseEnum(value as string, ['none', 'sm', 'md', 'lg', 'xl'])
           break
 
-        // Dark mode (enum: auto, light, dark)
-        case 'dark':
-          props.dark = parseEnum(value as string, ['auto', 'light', 'dark'])
+        // Theme (enum: auto, light, dark)
+        case 'theme':
+          props.theme = parseEnum(value as string, ['auto', 'light', 'dark'])
           break
 
         // Rounded (enum: none, xs, sm, md, lg, xl)

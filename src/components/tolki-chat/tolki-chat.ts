@@ -156,7 +156,7 @@ export class TolkiChat extends LitElement {
       'default-open',
       'expandable',
       'unclosable',
-      'dark',
+      'theme',
       'rounded',
       'avatar',
       'backdrop-color',
@@ -222,7 +222,7 @@ export class TolkiChat extends LitElement {
       this.handleCartLoaded()
     })
 
-    // Listen for system dark mode changes (for dark="auto")
+    // Listen for system dark mode changes (for theme="auto")
     this.darkModeMediaQuery = window.matchMedia?.('(prefers-color-scheme: dark)')
     this.boundDarkModeHandler = () => this.requestUpdate()
     this.darkModeMediaQuery?.addEventListener?.('change', this.boundDarkModeHandler)
@@ -724,17 +724,17 @@ export class TolkiChat extends LitElement {
   }
 
   /**
-   * Compute if dark mode should be active based on prop value
+   * Compute if dark mode should be active based on theme prop
    * - 'dark': always dark
    * - 'light': always light
    * - 'auto': follows system preference (prefers-color-scheme)
    */
   get isDarkMode(): boolean {
     const props = this.propsManager.getProps()
-    const darkProp = props.dark || 'auto'
+    const theme = props.theme || 'auto'
 
-    if (darkProp === 'dark') return true
-    if (darkProp === 'light') return false
+    if (theme === 'dark') return true
+    if (theme === 'light') return false
 
     // 'auto' - check system preference
     return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false
