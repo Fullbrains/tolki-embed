@@ -53,6 +53,7 @@ export interface TolkiChatProps {
   windowSize: WindowSize
   toggleSize: ToggleSize
   margin: number | [number, number] // Margin in pixels: number (all) or [x, y] (default: 20)
+  windowMaxHeight: string | null // CSS value for max-height (e.g. '728px', '50%', '90vh', 'calc(100vh - 50px)')
   defaultOpen: boolean
   expandable: boolean
   unclosable: boolean
@@ -109,6 +110,7 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   windowSize: 'sm',
   toggleSize: 'md',
   margin: 20,
+  windowMaxHeight: '728px',
   defaultOpen: true,
   expandable: true,
   unclosable: false,

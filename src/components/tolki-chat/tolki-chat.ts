@@ -173,6 +173,7 @@ export class TolkiChat extends LitElement {
       'window-size',
       'toggle-size',
       'margin',
+      'window-max-height',
       'default-open',
       'expandable',
       'unclosable',
@@ -875,6 +876,13 @@ export class TolkiChat extends LitElement {
     }
 
     return `--margin-x: ${marginX}px; --margin-y: ${marginY}px;`
+  }
+
+  get windowMaxHeightVariables() {
+    const props = this.propsManager.getProps()
+    const value = props.windowMaxHeight
+    if (!value) return ''
+    return `--window-max-height: ${value};`
   }
 
   get roundedVariables() {
@@ -1785,8 +1793,8 @@ export class TolkiChat extends LitElement {
     this.syncPropsToWindow()
 
     const hostStyles = !state.inline
-      ? `${this.colorVariables} ${this.windowSizeVariables} ${this.toggleSizeVariables} ${this.marginVariables} ${this.roundedVariables} ${this.hostPositionStyles}`
-      : `${this.colorVariables} ${this.windowSizeVariables} ${this.toggleSizeVariables} ${this.marginVariables} ${this.roundedVariables}`
+      ? `${this.colorVariables} ${this.windowSizeVariables} ${this.toggleSizeVariables} ${this.marginVariables} ${this.windowMaxHeightVariables} ${this.roundedVariables} ${this.hostPositionStyles}`
+      : `${this.colorVariables} ${this.windowSizeVariables} ${this.toggleSizeVariables} ${this.marginVariables} ${this.windowMaxHeightVariables} ${this.roundedVariables}`
 
     return state.bot?.status === BotStatus.ok
       ? html`
