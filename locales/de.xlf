@@ -191,6 +191,24 @@
   <source>Dismiss</source>
   <target>Verwerfen</target>
 </trans-unit>
+<trans-unit id="sc74b7675f65c3e23">
+  <source>Query</source>
+</trans-unit>
+<trans-unit id="seccb7987facba1b2">
+  <source>Query Search ID</source>
+</trans-unit>
+<trans-unit id="sfbe1d2fb2c4bac18">
+  <source>Results Search ID</source>
+</trans-unit>
+<trans-unit id="sb3d4f79d9d8b71e5">
+  <source>Submit</source>
+</trans-unit>
+<trans-unit id="sbb588bb505779122">
+  <source>Feedback</source>
+</trans-unit>
+<trans-unit id="sbe9d4db18df61026">
+  <source>Leave a feedback</source>
+</trans-unit>
         </body>
     </file>
 </xliff>

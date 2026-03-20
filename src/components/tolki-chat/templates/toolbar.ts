@@ -3,6 +3,7 @@ import { msg } from '@lit/localize'
 import {
   copyIcon,
   copiedIcon,
+  feedbackIcon,
   likeIcon,
   dislikeIcon,
   sourcesIcon,
@@ -52,7 +53,9 @@ export const toolbarTemplate = (
   history: Item[],
   messageIndex: number,
   botUuid: string,
-  chatUuid: string
+  chatUuid: string,
+  showQueries: boolean = false,
+  showFeedback: boolean = false
 ): TemplateResult => {
   const sources = getSourcesForMessage(history, messageIndex)
   const hasSources = sources.results.length > 0
@@ -87,9 +90,20 @@ export const toolbarTemplate = (
             <button
               class="tk__toolbar-btn"
               title=${msg('Sources')}
-              @click=${() => openSourcesOverlay(sources)}
+              @click=${() => openSourcesOverlay({ ...sources, showQueries })}
             >
               ${sourcesIcon()}
+            </button>
+          `
+        : ''}
+      ${showFeedback
+        ? html`
+            <button
+              class="tk__toolbar-btn"
+              title=${msg('Feedback')}
+              @click=${() => handleFeedback(botUuid, chatUuid, messageId)}
+            >
+              ${feedbackIcon()}
             </button>
           `
         : ''}
@@ -129,9 +143,18 @@ function handleDislike(_e: Event, botUuid: string, chatUuid: string, messageId: 
   }
 }
 
+function handleFeedback(botUuid: string, chatUuid: string, messageId: string) {
+  document.dispatchEvent(
+    new CustomEvent('tolki:feedback:open', {
+      detail: { botUuid, chatUuid, messageId },
+    })
+  )
+}
+
 function openSourcesOverlay(sources: {
   queries: DocumentSearchQueryResponse[]
   results: DocumentSearchResultsResponse[]
+  showQueries: boolean
 }) {
   // Dispatch custom event to open the sources overlay
   // The main component will handle rendering

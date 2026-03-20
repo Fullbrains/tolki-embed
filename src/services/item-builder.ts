@@ -4,6 +4,7 @@ import {
   ActionResponse,
   CartResponse,
   CartNotificationResponse,
+  FeedbackResponse,
   ItemType,
   MarkdownResponse,
   MarkdownResponseLevel,
@@ -130,6 +131,15 @@ export class ItemBuilder {
   static orders(): OrdersResponse {
     return {
       type: ItemType.orders,
+    }
+  }
+
+  static feedback(messageId: string, botUuid: string, chatUuid: string): FeedbackResponse {
+    return {
+      type: ItemType.feedback,
+      messageId,
+      botUuid,
+      chatUuid,
     }
   }
 

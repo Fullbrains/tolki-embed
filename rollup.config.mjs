@@ -1,4 +1,4 @@
-import template from "rollup-plugin-html-literals";
+import template from 'rollup-plugin-html-literals'
 import typescript from 'rollup-plugin-typescript2'
 import resolve from '@rollup/plugin-node-resolve'
 import postcss from 'rollup-plugin-postcss'
@@ -7,6 +7,7 @@ import postcssNested from 'postcss-nested'
 import postcssRootToHost from './postcss-root-to-host.cjs'
 import terser from '@rollup/plugin-terser'
 import commonjs from '@rollup/plugin-commonjs'
+import { visualizer } from 'rollup-plugin-visualizer'
 import serve from 'rollup-plugin-serve'
 import livereload from 'rollup-plugin-livereload'
 
@@ -30,11 +31,7 @@ export default {
     }),
     commonjs(),
     postcss({
-      plugins: [
-        postcssImport(),
-        postcssNested(),
-        postcssRootToHost(),
-      ],
+      plugins: [postcssImport(), postcssNested(), postcssRootToHost()],
       minimize: !isDev, // Don't minimize in dev mode
       inject: false,
       extract: false,
@@ -42,35 +39,45 @@ export default {
     typescript(),
 
     // Only minify in production
-    !isDev && terser({
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug'],
-      },
-      mangle: {
-        properties: {
-          regex: /^_/,
+    !isDev &&
+      terser({
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ['console.log', 'console.info', 'console.debug'],
         },
-      },
-      output: {
-        comments: false,
-      },
-    }),
+        mangle: {
+          properties: {
+            regex: /^_/,
+          },
+        },
+        output: {
+          comments: false,
+        },
+      }),
 
     // Development server with hot reload
-    isDev && serve({
-      open: true,
-      contentBase: ['dist', '.'],
-      host: 'localhost',
-      port: 8080,
-      openPage: '/index.html',
-    }),
+    isDev &&
+      serve({
+        open: true,
+        contentBase: ['dist', '.'],
+        host: 'localhost',
+        port: 8080,
+        openPage: '/index.html',
+      }),
 
     // Live reload on file changes
-    isDev && livereload({
-      watch: 'dist',
-      verbose: true,
-    }),
+    isDev &&
+      livereload({
+        watch: 'dist',
+        verbose: true,
+      }),
+    // Bundle analyzer (run: ANALYZE=true npm run build)
+    process.env.ANALYZE &&
+      visualizer({
+        filename: 'dist/stats.json',
+        template: 'raw-data',
+        gzipSize: true,
+      }),
   ].filter(Boolean), // Remove falsy plugins
 }

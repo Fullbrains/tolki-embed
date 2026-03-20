@@ -25,6 +25,15 @@ export const dislikeIcon = (): TemplateResult => html`
   </svg>
 `
 
+export const feedbackIcon = (): TemplateResult => html`
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="none">
+    <circle cx="128" cy="120" r="12" fill="currentColor"/>
+    <circle cx="84" cy="120" r="12" fill="currentColor"/>
+    <circle cx="172" cy="120" r="12" fill="currentColor"/>
+    <path d="M105.07,192l16,28a8,8,0,0,0,13.9,0l16-28H216a8,8,0,0,0,8-8V56a8,8,0,0,0-8-8H40a8,8,0,0,0-8,8V184a8,8,0,0,0,8,8Z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>
+  </svg>
+`
+
 export const sourcesIcon = (): TemplateResult => html`
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 256 256" fill="none">
     <line x1="40" y1="64" x2="216" y2="64" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16"/>

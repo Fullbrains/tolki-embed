@@ -32,6 +32,12 @@
 's52df77a89dccee06': `può commettere errori. Verifica le risposte.`,
 's539c0516abfbd1eb': `Nessun ordine trovato.`,
 's5b780a0beb551bb9': `Query di ricerca`,
+'sc74b7675f65c3e23': `Query`,
+'seccb7987facba1b2': `ID ricerca query`,
+'sfbe1d2fb2c4bac18': `ID ricerca risultati`,
+'sbe9d4db18df61026': `Lascia un feedback`,
+'sb3d4f79d9d8b71e5': `Invia`,
+'sbb588bb505779122': `Feedback`,
 's5e8250fb85d64c23': `Chiudi`,
 's61731584cd086e84': str`Altri
                     ${0}

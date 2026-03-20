@@ -32,6 +32,12 @@
 's52df77a89dccee06': `kann ungenau sein. Antworten überprüfen.`,
 's539c0516abfbd1eb': `Keine Bestellungen gefunden.`,
 's5b780a0beb551bb9': `Suchanfrage`,
+'sc74b7675f65c3e23': `Anfrage`,
+'seccb7987facba1b2': `Such-ID Anfrage`,
+'sfbe1d2fb2c4bac18': `Such-ID Ergebnisse`,
+'sbe9d4db18df61026': `Hinterlassen Sie ein Feedback`,
+'sb3d4f79d9d8b71e5': `Absenden`,
+'sbb588bb505779122': `Feedback`,
 's5e8250fb85d64c23': `Schliessen`,
 's61731584cd086e84': str`
                     ${0}

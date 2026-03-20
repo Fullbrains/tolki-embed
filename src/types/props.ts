@@ -95,7 +95,9 @@ export interface TolkiChatProps {
   showRating: boolean | number // true (default 90s), false (disabled), or number of seconds
 
   // Debug / development
-  showDocs: boolean
+  showSources: boolean
+  showQueries: boolean
+  showFeedback: boolean
 }
 
 /**
@@ -154,5 +156,7 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   showRating: true,
 
   // Debug / development
-  showDocs: false,
+  showSources: false,
+  showQueries: false,
+  showFeedback: false,
 }

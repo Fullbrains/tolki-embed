@@ -53,7 +53,7 @@ export class Api {
     bot_uuid: string,
     message: string,
     isAdk?: boolean,
-    showDocs?: boolean
+    showSources?: boolean
   ): Promise<ApiMessageResponse> {
 
     return new Promise((resolve, reject) => {
@@ -66,7 +66,7 @@ export class Api {
           const base = isAdk
             ? `${TOLKI_BRAIN_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`
             : `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`
-          const includeDocs = showDocs || this.isDevHost()
+          const includeDocs = showSources || this.isDevHost()
           const url = includeDocs ? `${base}?include_docs=true` : base
           fetch(url, {
             method: `POST`,
@@ -133,7 +133,7 @@ export class Api {
   }
 
   // ---------------------------------------------------------------------------
-  // Message feedback (like/dislike on a single message)
+  // Message feedback (like/dislike and/or text feedback on a single message)
   // ---------------------------------------------------------------------------
   // POST /v1/embed/{bot_uuid}/chat/{chat_uuid}/message/{id}/feedback
   //
@@ -142,9 +142,10 @@ export class Api {
   //     "id" field. At minimum on "markdown" items; ideally on every item type
   //     so we can extend feedback to other types later.
   //   - This endpoint receives the feedback and persists it.
+  //   - All fields in the body are optional; the API saves whatever is sent.
   //
   // Request body:
-  //   { "type": "like" | "dislike" }
+  //   { "type"?: "like" | "dislike", "message"?: string }
   //
   // Response:
   //   200 { "ok": true }
@@ -155,13 +156,17 @@ export class Api {
     bot_uuid: string,
     chat_uuid: string,
     id: string,
-    type: 'like' | 'dislike'
+    type?: 'like' | 'dislike',
+    message?: string
   ): Promise<void> {
     const url = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/${id}/feedback`
+    const body: { type?: string; message?: string } = {}
+    if (type) body.type = type
+    if (message) body.message = message
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type }),
+      body: JSON.stringify(body),
     })
     if (!response.ok) {
       throw new Error(`Feedback failed: ${response.status}`)

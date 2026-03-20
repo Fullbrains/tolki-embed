@@ -1,0 +1,50 @@
+/* Feedback widget - rendered inside a .tk__action bubble */
+
+.tk__feedback {
+  animation: tk__rating-fade-in 0.3s ease-out;
+  max-width: 85%;
+  width: 100%;
+}
+
+.tk__feedback--thanks {
+  animation: tk__rating-fade-in 0.2s ease-out;
+}
+
+.tk__feedback-body {
+  padding: 8px;
+}
+
+.tk__feedback-textarea {
+  background-color: var(--color-bg-primary);
+  border-radius: 6px 16px 6px 6px;
+  border: 1px solid var(--steel-20);
+  color: var(--eigen-45);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  max-height: 150px;
+  min-height: 50px;
+  outline: none;
+  padding: 4px 8px 20px 4px;
+  resize: none;
+  transition: border-color var(--transition-fast);
+  width: 100%;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: var(--steel-40);
+  }
+
+  &:focus {
+    border-color: var(--link-color);
+  }
+}
+
+.tk__feedback-counter {
+  color: var(--steel-40);
+  pointer-events: none;
+  font-size: 11px;
+  margin-top: -24px;
+  margin-right: 6px;
+  text-align: right;
+}

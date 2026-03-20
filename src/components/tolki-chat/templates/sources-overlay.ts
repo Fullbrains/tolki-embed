@@ -5,6 +5,7 @@ import {
   DocumentSearchResultsResponse,
   DocumentSearchDocument,
 } from '../../../types/item'
+import { ChatPosition } from '../../../types/props'
 
 function scoreColor(score: number): string {
   if (score >= 0.7) return 'tk__source-score--high'
@@ -37,19 +38,43 @@ function sourceDocTemplate(doc: DocumentSearchDocument): TemplateResult {
   `
 }
 
+function queryDebugTemplate(
+  query: DocumentSearchQueryResponse,
+  result: DocumentSearchResultsResponse
+): TemplateResult {
+  return html`
+    <div class="tk__source-query-debug">
+      <div class="tk__source-query-debug-row">
+        <span class="tk__source-query-debug-label">${msg('Query')}</span>
+        <span class="tk__source-query-debug-value">${query.query}</span>
+      </div>
+      <div class="tk__source-query-debug-row">
+        <span class="tk__source-query-debug-label tk__source-query-debug-label--query">${msg('Query Search ID')}</span>
+        <code class="tk__source-query-debug-value tk__source-query-debug-code">${query.search_id}</code>
+      </div>
+      <div class="tk__source-query-debug-row">
+        <span class="tk__source-query-debug-label tk__source-query-debug-label--results">${msg('Results Search ID')}</span>
+        <code class="tk__source-query-debug-value tk__source-query-debug-code">${result.search_id}</code>
+      </div>
+    </div>
+  `
+}
+
 function searchResultsTemplate(
   result: DocumentSearchResultsResponse,
-  queries: DocumentSearchQueryResponse[]
+  query: DocumentSearchQueryResponse | undefined,
+  showQueries: boolean
 ): TemplateResult {
-  const query = queries.find((q) => q.search_id === result.search_id)
   return html`
     <div class="tk__source-group">
-      ${query
-        ? html`<div class="tk__source-query">
-            <span class="tk__source-query-label">${msg('Search query')}:</span>
-            <span class="tk__source-query-text">${query.query}</span>
-          </div>`
-        : ''}
+      ${showQueries && query
+        ? queryDebugTemplate(query, result)
+        : query
+          ? html`<div class="tk__source-query">
+              <span class="tk__source-query-label">${msg('Search query')}:</span>
+              <span class="tk__source-query-text">${query.query}</span>
+            </div>`
+          : ''}
       <div class="tk__source-docs">
         ${result.documents.map((doc) => sourceDocTemplate(doc))}
       </div>
@@ -58,19 +83,40 @@ function searchResultsTemplate(
 }
 
 /**
- * Opens the sources overlay imperatively — no Lit re-render, no scroll impact.
- * Call this from an event handler passing the shadow root's .tk__window element.
+ * Determine which side the sidebar should appear on (opposite to the embed position).
+ */
+function getSidebarSide(position: ChatPosition): 'left' | 'right' | 'center' {
+  switch (position) {
+    case 'left':
+      return 'right'
+    case 'right':
+      return 'left'
+    case 'center':
+      return 'center'
+    case 'inline':
+      return 'right'
+    default:
+      return 'left'
+  }
+}
+
+/**
+ * Opens the sources sidebar outside the .tk__window element.
+ * The sidebar is positioned on the opposite side of the embed.
  */
 export function openSourcesOverlay(
   windowEl: HTMLElement,
   queries: DocumentSearchQueryResponse[],
-  results: DocumentSearchResultsResponse[]
+  results: DocumentSearchResultsResponse[],
+  showQueries: boolean = false,
+  position: ChatPosition = 'right'
 ) {
-  // Remove any existing overlay
+  // Remove any existing sidebar
   closeSourcesOverlayImmediate(windowEl)
 
+  const side = getSidebarSide(position)
   const container = document.createElement('div')
-  container.className = 'tk__sources-overlay tk__sources--enter'
+  container.className = `tk__sources-sidebar tk__sources-sidebar--${side} tk__sources--enter`
 
   const close = () => {
     container.classList.replace('tk__sources--enter', 'tk__sources--exit')
@@ -81,7 +127,7 @@ export function openSourcesOverlay(
 
   const content = html`
     <div class="tk__sources-content">
-      ${results.map((result) => searchResultsTemplate(result, queries))}
+      ${results.map((result, i) => searchResultsTemplate(result, queries[i], showQueries))}
     </div>
     <div class="tk__sources-footer">
       <button class="tk__sources-close" @click=${close}>
@@ -91,10 +137,22 @@ export function openSourcesOverlay(
   `
 
   render(content, container)
-  windowEl.appendChild(container)
+
+  // Append as sibling of .tk__window (inside the shadow root, but outside the window)
+  if (windowEl.parentNode) {
+    windowEl.parentNode.insertBefore(container, windowEl.nextSibling)
+  } else {
+    windowEl.appendChild(container)
+  }
 }
 
-function closeSourcesOverlayImmediate(windowEl: HTMLElement) {
-  windowEl.querySelectorAll('.tk__sources-overlay')
+export function closeSourcesOverlayImmediate(windowEl: HTMLElement) {
+  // Look for sidebar in parent (sibling) and in windowEl itself (legacy)
+  const parent = windowEl.parentNode
+  if (parent) {
+    parent.querySelectorAll('.tk__sources-sidebar, .tk__sources-overlay')
+      .forEach((el) => el.remove())
+  }
+  windowEl.querySelectorAll('.tk__sources-sidebar, .tk__sources-overlay')
     .forEach((el) => el.remove())
 }

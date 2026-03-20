@@ -7,6 +7,7 @@ export enum MarkdownResponseLevel {
 export enum ItemType {
   action = 'action',
   card = 'card',
+  feedback = 'feedback',
   markdown = 'markdown',
   product = 'product',
   thinking = 'thinking',
@@ -90,6 +91,13 @@ export interface CartNotificationResponse {
   // This type is dynamically rendered and not persisted in history
 }
 
+export interface FeedbackResponse {
+  type: ItemType.feedback
+  messageId: string // The message ID this feedback is for
+  botUuid: string
+  chatUuid: string
+}
+
 export interface DocumentSearchDocument {
   filename: string
   text: string
@@ -111,6 +119,7 @@ export interface DocumentSearchResultsResponse {
 export type Item =
   | ActionResponse
   | CardResponse
+  | FeedbackResponse
   | MarkdownResponse
   | ProductResponse
   | CartResponse

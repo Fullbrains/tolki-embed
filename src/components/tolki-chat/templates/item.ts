@@ -12,12 +12,14 @@ import {
 import { cartResponseTemplate } from './cart'
 import { ordersResponseTemplate } from './orders'
 import { cartNotificationTemplate } from './cart-notification'
+import { feedbackTemplate } from './feedback'
 import { toolbarTemplate } from './toolbar'
 
 // Import type-specific interfaces for type safety
 import {
   ActionResponse,
   CardResponse,
+  FeedbackResponse,
   MarkdownResponse,
   ProductResponse,
   UserInput,
@@ -32,7 +34,9 @@ export const chatItemTemplate = (
   history: Item[] = [],
   index: number = -1,
   botUuid: string = '',
-  chatUuid: string = ''
+  chatUuid: string = '',
+  showQueries: boolean = false,
+  showFeedback: boolean = false
 ): TemplateResult => {
   // document_search_query and document_search_results are consumed by the toolbar
   // and should not render as standalone chat items
@@ -51,6 +55,7 @@ export const chatItemTemplate = (
       markdownResponseTemplate(item as MarkdownResponse),
     [ItemType.product]: () => productResponseTemplate(item as ProductResponse),
     [ItemType.cart]: () => cartResponseTemplate(),
+    [ItemType.feedback]: () => feedbackTemplate(item as FeedbackResponse),
     [ItemType.orders]: () => ordersResponseTemplate(),
     [ItemType.thinking]: () => thinkingResponseTemplate(),
     [ItemType.userInput]: () => userInputTemplate(item as UserInput),
@@ -68,7 +73,7 @@ export const chatItemTemplate = (
     !(item as MarkdownResponse).level // Don't show on info/error messages
 
   const toolbar = showToolbar
-    ? toolbarTemplate((item as MarkdownResponse).content, history, index, botUuid, chatUuid)
+    ? toolbarTemplate((item as MarkdownResponse).content, history, index, botUuid, chatUuid, showQueries, showFeedback)
     : html``
 
   // Wrap the content in a standardized chat item container

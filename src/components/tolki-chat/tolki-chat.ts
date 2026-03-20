@@ -55,7 +55,7 @@ import { textareaTemplate } from './templates/textarea'
 import { toggleTemplate } from './templates/toggle'
 import { chatItemTemplate } from './templates/item'
 import { suggestionsTemplate } from './templates/suggestions'
-import { openSourcesOverlay } from './templates/sources-overlay'
+import { openSourcesOverlay, closeSourcesOverlayImmediate } from './templates/sources-overlay'
 import { ratingTemplate } from './templates/rating'
 
 // Utils
@@ -185,7 +185,9 @@ export class TolkiChat extends LitElement {
       'lang',
       'suggestions',
       'locales',
-      'show-docs',
+      'show-sources',
+      'show-queries',
+      'show-feedback',
       // Legacy - for backward compatibility
       'inline',
     ]
@@ -211,6 +213,8 @@ export class TolkiChat extends LitElement {
   private darkModeMediaQuery?: MediaQueryList
   private boundDarkModeHandler?: () => void
   private boundSourcesOpenHandler?: (e: Event) => void
+  private boundFeedbackOpenHandler?: (e: Event) => void
+  private boundFeedbackCancelHandler?: (e: Event) => void
   private initialScrollDone = false
   private isRestoredSession = false
   private ratingTimer?: ReturnType<typeof setTimeout>
@@ -254,10 +258,33 @@ export class TolkiChat extends LitElement {
       const detail = (e as CustomEvent).detail
       const windowEl = this.shadowRoot?.querySelector('.tk__window') as HTMLElement
       if (windowEl) {
-        openSourcesOverlay(windowEl, detail.queries, detail.results)
+        const position = this.propsManager.getProps().position
+        openSourcesOverlay(windowEl, detail.queries, detail.results, detail.showQueries, position)
       }
     }
     document.addEventListener('tolki:sources:open', this.boundSourcesOpenHandler)
+
+    // Listen for feedback open events
+    this.boundFeedbackOpenHandler = (e: Event) => {
+      const { botUuid, chatUuid, messageId } = (e as CustomEvent).detail
+      // Remove any existing feedback items (singleton)
+      state.history = state.history.filter(
+        (item) => item.type !== ItemType.feedback
+      )
+      state.history.push(ItemBuilder.feedback(messageId, botUuid, chatUuid))
+      this.updateComplete.then(() => {
+        this.scrollToLastMessage(TolkiChat.SCROLL_ANIMATION_SHORT_MS)
+      })
+    }
+    document.addEventListener('tolki:feedback:open', this.boundFeedbackOpenHandler)
+
+    // Listen for feedback cancel events (remove from history)
+    this.boundFeedbackCancelHandler = () => {
+      state.history = state.history.filter(
+        (item) => item.type !== ItemType.feedback
+      )
+    }
+    document.addEventListener('tolki:feedback:cancel', this.boundFeedbackCancelHandler)
 
     // Ensure Google Fonts load in Shadow DOM
     this.ensureFontLoading()
@@ -913,6 +940,9 @@ export class TolkiChat extends LitElement {
     } else {
       this.scrollLock.unlock()
       this.cancelRatingTimer()
+      // Close sources sidebar when closing the window
+      const windowEl = this.shadowRoot?.querySelector('.tk__window') as HTMLElement
+      if (windowEl) closeSourcesOverlayImmediate(windowEl)
     }
 
     // Scroll to bottom when opening chat
@@ -1305,7 +1335,7 @@ export class TolkiChat extends LitElement {
         state.bot.uuid,
         message,
         state.bot.props.isAdk,
-        this.propsManager.getProps().showDocs
+        this.propsManager.getProps().showSources
       )
 
       if (
@@ -1717,6 +1747,14 @@ export class TolkiChat extends LitElement {
       document.removeEventListener('tolki:sources:open', this.boundSourcesOpenHandler)
     }
 
+    // Clean up feedback listeners
+    if (this.boundFeedbackOpenHandler) {
+      document.removeEventListener('tolki:feedback:open', this.boundFeedbackOpenHandler)
+    }
+    if (this.boundFeedbackCancelHandler) {
+      document.removeEventListener('tolki:feedback:cancel', this.boundFeedbackCancelHandler)
+    }
+
     // Clean up body scroll lock if component is removed while open
     this.scrollLock.unlock()
   }
@@ -1787,7 +1825,7 @@ export class TolkiChat extends LitElement {
                 item && item.type
                   ? keyed(
                       `${state.renderKey}-${index}`,
-                      chatItemTemplate(item, state.history, index, state.bot?.uuid || '', state.chat || '')
+                      chatItemTemplate(item, state.history, index, state.bot?.uuid || '', state.chat || '', this.propsManager.getProps().showQueries, this.propsManager.getProps().showFeedback)
                     )
                   : html``
               )}

@@ -116,7 +116,9 @@ export class PropsManager {
         case 'expandable':
         case 'unclosable':
         case 'unbranded':
-        case 'showDocs':
+        case 'showSources':
+        case 'showQueries':
+        case 'showFeedback':
           props[propName] = parseBoolean(value)
           break
 
