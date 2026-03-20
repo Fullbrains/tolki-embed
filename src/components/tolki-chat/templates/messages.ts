@@ -2,7 +2,8 @@ import { html, TemplateResult } from 'lit'
 import { classMap } from 'lit/directives/class-map.js'
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 import { MarkdownResponse, MarkdownResponseLevel, UserInput } from '../../../types/item'
-import { resolveMarkdown } from 'lit-markdown'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 import { msg } from '@lit/localize'
 import { renderTemplate } from '../../../utils/templates'
 
@@ -46,10 +47,12 @@ export const markdownResponseTemplate = (item: MarkdownResponse): TemplateResult
   const content =
     item.level === MarkdownResponseLevel.info && hasHtmlEntities
       ? html`<p>${unsafeHTML(decodeHtmlEntities(processedContent))}</p>`
-      : resolveMarkdown(processedContent, {
-          includeImages: true,
-          includeCodeBlockClassNames: true,
-        })
+      : unsafeHTML(
+          DOMPurify.sanitize(marked.parse(processedContent) as string, {
+            ADD_TAGS: ['img'],
+            ADD_ATTR: ['target', 'class'],
+          })
+        )
 
   return html` <div
     class=${classMap({

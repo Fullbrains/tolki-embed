@@ -121,6 +121,19 @@
   img {
     max-width: 100%;
   }
+
+  ul,
+  ol {
+    margin: 10px 0;
+    padding-left: 1.2em;
+  }
+
+  ul ul,
+  ul ol,
+  ol ul,
+  ol ol {
+    padding-left: 1em;
+  }
 }
 
 .tk__user-input {

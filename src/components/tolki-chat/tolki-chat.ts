@@ -9,10 +9,17 @@ import { keyed } from 'lit/directives/keyed.js'
 import { msg, str } from '@lit/localize'
 import { setLocale } from '../../locales'
 import autosize from 'autosize'
-import {
-  isSupported as isVirtualKeyboardSupported,
-  subscribe as subscribeVirtualKeyboardVisibility,
-} from 'on-screen-keyboard-detector'
+// Lightweight virtual keyboard detection via visualViewport API
+function subscribeVirtualKeyboard(callback: (visibility: 'visible' | 'hidden') => void): void {
+  if (!window.visualViewport) return
+  let lastHeight = window.visualViewport.height
+  window.visualViewport.addEventListener('resize', () => {
+    const currentHeight = window.visualViewport!.height
+    const threshold = lastHeight * 0.75
+    callback(currentHeight < threshold ? 'visible' : 'hidden')
+    lastHeight = window.innerHeight // Reset to full height for next comparison
+  })
+}
 
 // Colors
 import { defaultColors } from '../../utils/defaults'
@@ -581,11 +588,9 @@ export class TolkiChat extends LitElement {
 
     Bot.init(botUUID)
       .then(async (bot) => {
-        if (isVirtualKeyboardSupported()) {
-          subscribeVirtualKeyboardVisibility((visibility) => {
-            state.virtualKeyboardVisibility = visibility
-          })
-        }
+        subscribeVirtualKeyboard((visibility) => {
+          state.virtualKeyboardVisibility = visibility
+        })
 
         state.bot = bot
 
