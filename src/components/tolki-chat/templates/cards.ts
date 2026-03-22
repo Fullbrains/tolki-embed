@@ -53,16 +53,8 @@ export const cardResponseTemplate = (item: CardResponse): TemplateResult => {
 export const productResponseTemplate = (
   item: ProductResponse
 ): TemplateResult => {
-  console.log('Product debug:', {
-    hasurl: !!item.url,
-    url: item.url,
-    urlTrimmed: item.url?.trim(),
-    productName: item.name,
-  })
-
   const handleClick = (e: Event) => {
     e.preventDefault()
-    console.log('Product clicked:', item.url)
     if (item.url && item.url.trim()) {
       navigateTo(item.url)
     } else {

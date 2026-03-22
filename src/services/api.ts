@@ -6,6 +6,16 @@ const TOLKI_API_BASE_URL: string = 'https://api.tolki.ai/chat/v1/embed/'
 const TOLKI_BRAIN_API_BASE_URL: string = 'https://brain.tolki.ai/v1/embed/'
 
 export class Api {
+  private static _isAdk: boolean = false
+
+  public static set isAdk(value: boolean) {
+    Api._isAdk = value
+  }
+
+  private static get baseUrl(): string {
+    return Api._isAdk ? TOLKI_BRAIN_API_BASE_URL : TOLKI_API_BASE_URL
+  }
+
   public static async settings(bot_uuid: string): Promise<ApiResponse> {
     // api.tolki.ai/chat/v1/embed/:bot_uuid/settings/:lang
     const lang: string = navigator.language || 'en'
@@ -45,14 +55,13 @@ export class Api {
   // Response items MUST include a top-level "id" field.
   // This is required for the like/dislike feedback endpoint to work.
   //
-  // Expected response shape (each item in data.items[]):
-  //   { "type": "markdown", "id": "123", "content": "..." }
+  // Expected response shape (data is a plain JSON array):
+  //   [{ "type": "markdown", "id": "123", "content": "..." }]
   // ---------------------------------------------------------------------------
   public static async message(
     chat_uuid: string,
     bot_uuid: string,
     message: string,
-    isAdk?: boolean,
     showSources?: boolean
   ): Promise<ApiMessageResponse> {
 
@@ -63,9 +72,7 @@ export class Api {
         message?.trim() !== ''
       ) {
         try {
-          const base = isAdk
-            ? `${TOLKI_BRAIN_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`
-            : `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`
+          const base = `${Api.baseUrl}${bot_uuid}/chat/${chat_uuid}/message`
           const includeDocs = showSources || this.isDevHost()
           const url = includeDocs ? `${base}?include_docs=true` : base
           fetch(url, {
@@ -159,7 +166,7 @@ export class Api {
     type?: 'like' | 'dislike',
     message?: string
   ): Promise<void> {
-    const url = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/${id}/feedback`
+    const url = `${Api.baseUrl}${bot_uuid}/chat/${chat_uuid}/message/${id}/feedback`
     const body: { type?: string; message?: string } = {}
     if (type) body.type = type
     if (message) body.message = message
@@ -191,7 +198,7 @@ export class Api {
     chat_uuid: string,
     rating: number
   ): Promise<void> {
-    const url = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/rating`
+    const url = `${Api.baseUrl}${bot_uuid}/chat/${chat_uuid}/rating`
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

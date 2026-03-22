@@ -20,6 +20,7 @@ export class Bot {
             .then(({ data }) => {
               this._status = BotStatus.ok
               this._props = data as BotProps
+              Api.isAdk = !!this._props.isAdk
               resolve({
                 status: this._status,
                 props: this._props,

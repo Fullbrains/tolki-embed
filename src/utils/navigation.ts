@@ -2,11 +2,7 @@
  * Universal navigation that works with both SPA and traditional websites
  */
 export const navigateTo = (url: string): void => {
-  console.log('navigateTo called with:', url)
-  if (!url) {
-    console.warn('navigateTo: No URL provided')
-    return
-  }
+  if (!url) return
 
 
   try {

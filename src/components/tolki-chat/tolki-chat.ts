@@ -196,6 +196,7 @@ export class TolkiChat extends LitElement {
       'show-sources',
       'show-queries',
       'show-feedback',
+      'show-rating',
       // Legacy - for backward compatibility
       'inline',
     ]
@@ -226,7 +227,6 @@ export class TolkiChat extends LitElement {
   private initialScrollDone = false
   private isRestoredSession = false
   private ratingTimer?: ReturnType<typeof setTimeout>
-  private ratingCountdownInterval?: ReturnType<typeof setInterval>
   private static readonly RATING_DEFAULT_DELAY_S = 90
   private static readonly RATING_THANKS_MS = 3_000
   private static readonly RATING_MIN_TURNS = 2
@@ -970,62 +970,8 @@ export class TolkiChat extends LitElement {
       })
     }
 
-    // Debug: log dimensions and position when opening
     if (!wasOpen && state.open === 'true') {
       this.updateComplete.then(() => {
-        const props = this.propsManager.getProps()
-        const windowEl = this.shadowRoot?.querySelector('.tk__window')
-        const toggleEl = this.shadowRoot?.querySelector('.tk__toggle')
-
-        console.group('🔍 Toggle Window Debug')
-        console.log('Position prop:', props.position)
-        console.log('Margin prop:', props.margin)
-        console.log('Window size prop:', props.windowSize)
-        console.log('Toggle size prop:', props.toggleSize)
-
-        if (windowEl) {
-          const windowRect = windowEl.getBoundingClientRect()
-          console.log('Window dimensions:', {
-            width: windowRect.width,
-            height: windowRect.height,
-            left: windowRect.left,
-            top: windowRect.top,
-          })
-          console.log('Window classes:', windowEl.className)
-          const computedStyle = getComputedStyle(windowEl)
-          console.log('Window computed CSS:', {
-            width: computedStyle.width,
-            maxWidth: computedStyle.maxWidth,
-            marginLeft: computedStyle.marginLeft,
-            marginRight: computedStyle.marginRight,
-            display: computedStyle.display,
-          })
-        }
-
-        if (toggleEl) {
-          const toggleRect = toggleEl.getBoundingClientRect()
-          console.log('Toggle position:', {
-            left: toggleRect.left,
-            right: window.innerWidth - toggleRect.right,
-            bottom: window.innerHeight - toggleRect.bottom,
-          })
-          console.log('Toggle classes:', toggleEl.className)
-          const computedStyle = getComputedStyle(toggleEl)
-          console.log('Toggle computed CSS:', {
-            left: computedStyle.left,
-            right: computedStyle.right,
-            bottom: computedStyle.bottom,
-            transform: computedStyle.transform,
-            position: computedStyle.position,
-          })
-        }
-
-        console.log('Viewport:', {
-          width: window.innerWidth,
-          height: window.innerHeight,
-        })
-        console.groupEnd()
-
         setTimeout(() => {
           if (this.textarea) {
             this.textarea.focus()
@@ -1200,18 +1146,7 @@ export class TolkiChat extends LitElement {
       : TolkiChat.RATING_DEFAULT_DELAY_S
     const delayMs = delaySec * 1000
 
-    let remaining = delaySec
-    console.log(`[Rating] Timer started: ${remaining}s countdown`)
-    this.ratingCountdownInterval = setInterval(() => {
-      remaining--
-      if (remaining > 0) console.log(`[Rating] ${remaining}s remaining`)
-    }, 1000)
-
     this.ratingTimer = setTimeout(() => {
-      if (this.ratingCountdownInterval) {
-        clearInterval(this.ratingCountdownInterval)
-        this.ratingCountdownInterval = undefined
-      }
       // Double-check chat is open
       if (state.open !== 'true' && !state.inline && !state.unclosable) return
       state.ratingVisible = true
@@ -1223,10 +1158,6 @@ export class TolkiChat extends LitElement {
     if (this.ratingTimer) {
       clearTimeout(this.ratingTimer)
       this.ratingTimer = undefined
-    }
-    if (this.ratingCountdownInterval) {
-      clearInterval(this.ratingCountdownInterval)
-      this.ratingCountdownInterval = undefined
     }
   }
 
@@ -1347,7 +1278,6 @@ export class TolkiChat extends LitElement {
         state.chat,
         state.bot.uuid,
         message,
-        state.bot.props.isAdk,
         this.propsManager.getProps().showSources
       )
 
@@ -1623,12 +1553,6 @@ export class TolkiChat extends LitElement {
             suggestion.getAttribute('data-original') || suggestion.textContent
           const { command } = this.extractCommand(originalText)
 
-          console.log('🔍 Suggestion clicked:', {
-            originalText,
-            command,
-            displayText: suggestion.textContent
-          })
-
           if (command) {
             // Execute command directly
             this.executeCommand(command)
@@ -1849,15 +1773,7 @@ export class TolkiChat extends LitElement {
                 () => this.handleRatingDismiss()
               )}
             </div>
-            ${(() => {
-              const suggestions = this.resolveI18nArray(this.propsManager.getProps().suggestions)
-              console.log('🔍 Suggestions debug:', {
-                raw: this.propsManager.getProps().suggestions,
-                resolved: suggestions,
-                length: suggestions?.length
-              })
-              return suggestionsTemplate(suggestions, this.extractCommand.bind(this))
-            })()}
+            ${suggestionsTemplate(this.resolveI18nArray(this.propsManager.getProps().suggestions), this.extractCommand.bind(this))}
             ${textareaTemplate(
               state.pending,
               state.showScrollDown,
