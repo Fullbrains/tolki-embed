@@ -85,17 +85,6 @@ export const toolbarTemplate = (
       >
         ${dislikeIcon()}
       </button>
-      ${hasSources
-        ? html`
-            <button
-              class="tk__toolbar-btn"
-              title=${msg('Sources')}
-              @click=${() => openSourcesOverlay({ ...sources, showQueries })}
-            >
-              ${sourcesIcon()}
-            </button>
-          `
-        : ''}
       ${showFeedback
         ? html`
             <button
@@ -104,6 +93,17 @@ export const toolbarTemplate = (
               @click=${() => handleFeedback(botUuid, chatUuid, messageId)}
             >
               ${feedbackIcon()}
+            </button>
+          `
+        : ''}
+      ${hasSources
+        ? html`
+            <button
+              class="tk__toolbar-btn"
+              title=${msg('Sources')}
+              @click=${() => openSourcesOverlay({ ...sources, showQueries })}
+            >
+              ${sourcesIcon()}
             </button>
           `
         : ''}
