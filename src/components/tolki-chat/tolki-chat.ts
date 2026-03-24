@@ -48,6 +48,7 @@ import { PropsManager } from '../../services/props-manager'
 import {
   Item,
   ItemType,
+  MarkdownResponse,
   DocumentSearchQueryResponse,
   DocumentSearchResultsResponse,
 } from '../../types/item'
@@ -279,7 +280,24 @@ export class TolkiChat extends LitElement {
       state.history = state.history.filter(
         (item) => item.type !== ItemType.feedback
       )
-      state.history.push(ItemBuilder.feedback(messageId, botUuid, chatUuid))
+      // Find the message and insert feedback right after it (and its trailing source items)
+      const msgIndex = state.history.findIndex(
+        (item) => item.type === ItemType.markdown && (item as MarkdownResponse).id === messageId
+      )
+      if (msgIndex !== -1) {
+        let insertAt = msgIndex + 1
+        while (insertAt < state.history.length) {
+          const t = state.history[insertAt].type
+          if (t === ItemType.documentSearchQuery || t === ItemType.documentSearchResults) {
+            insertAt++
+          } else {
+            break
+          }
+        }
+        state.history.splice(insertAt, 0, ItemBuilder.feedback(messageId, botUuid, chatUuid))
+      } else {
+        state.history.push(ItemBuilder.feedback(messageId, botUuid, chatUuid))
+      }
       this.updateComplete.then(() => {
         this.scrollToLastMessage(TolkiChat.SCROLL_ANIMATION_SHORT_MS)
       })
