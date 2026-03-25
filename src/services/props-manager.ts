@@ -1,12 +1,4 @@
-import {
-  TolkiChatProps,
-  DEFAULT_PROPS,
-  ChatPosition,
-  WindowSize,
-  ToggleSize,
-  I18nString,
-  I18nArray,
-} from '../types/props'
+import { TolkiChatProps, DEFAULT_PROPS } from '../types/props'
 import {
   parseBoolean,
   parseString,
@@ -62,7 +54,9 @@ export class PropsManager {
   /**
    * Set props from user attributes (HTML attributes or JS API)
    */
-  setUserAttributes(attributes: { [key: string]: string | boolean | null }): void {
+  setUserAttributes(attributes: {
+    [key: string]: string | boolean | null
+  }): void {
     const props = this.parseUserAttributes(attributes)
     this.removeSource(PropsPriority.USER_ATTRIBUTES)
     this.sources.push({
@@ -102,7 +96,12 @@ export class PropsManager {
           ])
           break
         case 'windowSize':
-          props.windowSize = parseEnum(value as string, ['sm', 'md', 'lg', 'xl'])
+          props.windowSize = parseEnum(value as string, [
+            'sm',
+            'md',
+            'lg',
+            'xl',
+          ])
           break
         case 'toggleSize':
           props.toggleSize = parseEnum(value as string, ['sm', 'md', 'lg'])
@@ -139,7 +138,13 @@ export class PropsManager {
 
         // Backdrop blur (enum: none, sm, md, lg, xl)
         case 'backdropBlur':
-          props.backdropBlur = parseEnum(value as string, ['none', 'sm', 'md', 'lg', 'xl'])
+          props.backdropBlur = parseEnum(value as string, [
+            'none',
+            'sm',
+            'md',
+            'lg',
+            'xl',
+          ])
           break
 
         // Theme (enum: auto, light, dark)
@@ -149,7 +154,14 @@ export class PropsManager {
 
         // Rounded (enum: none, xs, sm, md, lg, xl)
         case 'rounded':
-          props.rounded = parseEnum(value as string, ['none', 'xs', 'sm', 'md', 'lg', 'xl'])
+          props.rounded = parseEnum(value as string, [
+            'none',
+            'xs',
+            'sm',
+            'md',
+            'lg',
+            'xl',
+          ])
           break
 
         // Simple strings
@@ -160,25 +172,36 @@ export class PropsManager {
 
         // Backdrop
         case 'backdropColor':
-          props.backdropColor = parseHexColor(value as string) as HexColor | null
+          props.backdropColor = parseHexColor(
+            value as string
+          ) as HexColor | null
           break
-        case 'backdropOpacity':
+        case 'backdropOpacity': {
           const opacity = parseFloat(value as string)
           if (!isNaN(opacity) && opacity >= 0 && opacity <= 1) {
             props.backdropOpacity = opacity
           }
           break
+        }
         case 'toggleBackground':
-          props.toggleBackground = parseHexColor(value as string) as HexColor | undefined
+          props.toggleBackground = parseHexColor(value as string) as
+            | HexColor
+            | undefined
           break
         case 'toggleContent':
-          props.toggleContent = parseHexColor(value as string) as HexColor | null
+          props.toggleContent = parseHexColor(
+            value as string
+          ) as HexColor | null
           break
         case 'messageBackground':
-          props.messageBackground = parseHexColor(value as string) as HexColor | undefined
+          props.messageBackground = parseHexColor(value as string) as
+            | HexColor
+            | undefined
           break
         case 'messageContent':
-          props.messageContent = parseHexColor(value as string) as HexColor | null
+          props.messageContent = parseHexColor(
+            value as string
+          ) as HexColor | null
           break
 
         // Avatar
@@ -247,7 +270,9 @@ export class PropsManager {
     let result: TolkiChatProps = { ...DEFAULT_PROPS }
 
     // Sort sources by priority (ascending)
-    const sortedSources = [...this.sources].sort((a, b) => a.priority - b.priority)
+    const sortedSources = [...this.sources].sort(
+      (a, b) => a.priority - b.priority
+    )
 
     // Apply each source in order (lower priority first, so higher overrides)
     for (const source of sortedSources) {
@@ -270,16 +295,21 @@ export class PropsManager {
   ): TolkiChatProps {
     const result = { ...base }
 
-    for (const [key, value] of Object.entries(incoming)) {
+    for (const key of Object.keys(incoming) as (keyof TolkiChatProps)[]) {
+      const value = incoming[key]
+
       // Skip undefined, but allow null for auto-generated color props
       if (value === undefined) continue
 
       // Allow null for toggleContent and messageContent (they auto-generate)
-      const isNullableProp = key === 'toggleContent' || key === 'messageContent' || key === 'windowMaxHeight'
+      const isNullableProp =
+        key === 'toggleContent' ||
+        key === 'messageContent' ||
+        key === 'windowMaxHeight'
       if (value === null && !isNullableProp) continue
 
       // Apply the value (including null for auto-generated props)
-      ;(result as any)[key] = value
+      ;(result[key] as typeof value) = value
     }
 
     return result
@@ -293,12 +323,16 @@ export class PropsManager {
 
     // Auto-generate toggleContent if not set (based on toggleBackground lightness)
     if (!result.toggleContent) {
-      result.toggleContent = getContrastColor(result.toggleBackground) as HexColor
+      result.toggleContent = getContrastColor(
+        result.toggleBackground
+      ) as HexColor
     }
 
     // Auto-generate messageContent if not set (based on messageBackground lightness)
     if (!result.messageContent) {
-      result.messageContent = getContrastColor(result.messageBackground) as HexColor
+      result.messageContent = getContrastColor(
+        result.messageBackground
+      ) as HexColor
     }
 
     return result
