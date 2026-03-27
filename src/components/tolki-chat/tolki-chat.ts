@@ -664,6 +664,13 @@ export class TolkiChat extends LitElement {
           this.scrollLock.lock()
         }
 
+        // Notify host about initial open state
+        this.dispatchEvent(new CustomEvent('tolki:toggle', {
+          bubbles: true,
+          composed: true,
+          detail: { open: state.open === 'true' },
+        }))
+
         // Use a MutationObserver to catch the final render and scroll to bottom instantly.
         // This handles all deferred re-renders (lil-gui, props, etc.)
         this.initialScrollDone = false
@@ -965,8 +972,15 @@ export class TolkiChat extends LitElement {
     state.open = state.open === 'true' ? '' : 'true'
     this.saveSetting('open', state.open === 'true' ? 'true' : 'false')
 
+    const isOpen = state.open === 'true'
+    this.dispatchEvent(new CustomEvent('tolki:toggle', {
+      bubbles: true,
+      composed: true,
+      detail: { open: isOpen },
+    }))
+
     // Handle body scroll lock on mobile
-    if (state.open === 'true') {
+    if (isOpen) {
       this.scrollLock.lock()
     } else {
       this.scrollLock.unlock()
@@ -977,7 +991,7 @@ export class TolkiChat extends LitElement {
     }
 
     // Scroll to bottom when opening chat
-    if (!wasOpen && state.open === 'true') {
+    if (!wasOpen && isOpen) {
       this.updateComplete.then(() => {
         // Use rAF to ensure the window is visible and layout is computed
         requestAnimationFrame(() => {
@@ -988,7 +1002,7 @@ export class TolkiChat extends LitElement {
       })
     }
 
-    if (!wasOpen && state.open === 'true') {
+    if (!wasOpen && isOpen) {
       this.updateComplete.then(() => {
         setTimeout(() => {
           if (this.textarea) {
