@@ -6,9 +6,12 @@ import { HexColor } from '../utils/color'
 export type I18nString = string | { [lang: string]: string }
 
 /**
- * Internationalized array - can be a plain array or an object with language keys containing arrays
+ * Internationalized array - can be:
+ * - Plain string array: ["Hello", "Help"]
+ * - Per-item i18n objects: [{ en: "Hello", it: "Ciao" }, { en: "Help", it: "Aiuto" }]
+ * - Per-language arrays: { en: ["Hello", "Help"], it: ["Ciao", "Aiuto"] }
  */
-export type I18nArray = string[] | { [lang: string]: string }[]
+export type I18nArray = string[] | { [lang: string]: string }[] | { [lang: string]: string[] }
 
 /**
  * Position options for the chat widget

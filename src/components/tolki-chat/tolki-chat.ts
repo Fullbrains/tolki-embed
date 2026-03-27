@@ -801,35 +801,38 @@ export class TolkiChat extends LitElement {
 
   /**
    * Resolve an I18nArray to a plain string array based on current language
+   * Supports:
+   * - Plain string array: ["Hello", "Help"]
+   * - Per-item i18n objects: [{ en: "Hello", it: "Ciao" }, { en: "Help", it: "Aiuto" }]
+   * - Per-language arrays: { en: ["Hello", "Help"], it: ["Ciao", "Aiuto"] }
    */
-  private resolveI18nArray(value: string[] | { [lang: string]: string }[]): string[] {
+  private resolveI18nArray(value: string[] | { [lang: string]: string }[] | { [lang: string]: string[] }): string[] {
     if (!value) return []
+
+    const props = this.propsManager.getProps()
+    const lang = props.lang || 'en'
+
+    // Per-language object: { en: ["Hello", "Help"], it: ["Ciao", "Aiuto"] }
+    if (!Array.isArray(value) && typeof value === 'object') {
+      const langObj = value as { [lang: string]: string[] }
+      if (langObj[lang]) return langObj[lang]
+      if (langObj['en']) return langObj['en']
+      const keys = Object.keys(langObj)
+      return keys.length > 0 ? langObj[keys[0]] : []
+    }
 
     // If it's already a plain string array, return it
     if (value.length === 0 || typeof value[0] === 'string') {
       return value as string[]
     }
 
-    const props = this.propsManager.getProps()
-    const lang = props.lang || 'en'
-
-    // It's an array of objects with language keys
+    // Per-item i18n objects: [{ en: "Hello", it: "Ciao" }]
     const objectArray = value as { [lang: string]: string }[]
     return objectArray.map((item) => {
-      // Try current language
-      if (item[lang]) {
-        return item[lang]
-      }
-      // Fallback to 'en'
-      if (item['en']) {
-        return item['en']
-      }
-      // Fallback to first available language
+      if (item[lang]) return item[lang]
+      if (item['en']) return item['en']
       const keys = Object.keys(item)
-      if (keys.length > 0) {
-        return item[keys[0]]
-      }
-      return ''
+      return keys.length > 0 ? item[keys[0]] : ''
     })
   }
 

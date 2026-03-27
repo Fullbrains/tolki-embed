@@ -127,9 +127,16 @@ export function parseI18nArray(value: string | null | undefined): I18nArray {
   const trimmed = value.trim()
 
   // Try JSON first
-  const jsonResult = tryParseJSON<string[] | { [lang: string]: string }[]>(trimmed)
-  if (jsonResult && Array.isArray(jsonResult)) {
-    return jsonResult
+  const jsonResult = tryParseJSON<string[] | { [lang: string]: string }[] | { [lang: string]: string[] }>(trimmed)
+  if (jsonResult) {
+    // JSON array: ["item1"] or [{"en":"Hi","it":"Ciao"}]
+    if (Array.isArray(jsonResult)) {
+      return jsonResult
+    }
+    // Per-language object: { "en": ["Hello", "Help"], "it": ["Ciao", "Aiuto"] }
+    if (typeof jsonResult === 'object') {
+      return jsonResult as { [lang: string]: string[] }
+    }
   }
 
   // Try comma-separated list (could be pipe format or plain strings)

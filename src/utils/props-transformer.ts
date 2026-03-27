@@ -27,11 +27,11 @@ export function transformBotPropsToTolkiProps(
     props.welcomeMessage = botProps.welcomeMessage
   }
 
-  if (botProps.suggestions && Array.isArray(botProps.suggestions)) {
+  if (botProps.suggestions) {
     props.suggestions = botProps.suggestions
   }
 
-  if (botProps.toasts && Array.isArray(botProps.toasts)) {
+  if (botProps.toasts) {
     props.toasts = botProps.toasts
   }
 
