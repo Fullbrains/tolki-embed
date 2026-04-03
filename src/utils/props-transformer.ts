@@ -135,17 +135,20 @@ export function transformBotPropsToTolkiProps(
   }
 
   // === Backdrop ===
+  // Only set backdrop props when backdropEnabled is true (or not provided)
 
-  if (botProps.backdropColor) {
-    props.backdropColor = botProps.backdropColor as HexColor
-  }
+  if (botProps.backdropEnabled !== false) {
+    if (botProps.backdropColor) {
+      props.backdropColor = botProps.backdropColor as HexColor
+    }
 
-  if (typeof botProps.backdropOpacity === 'number') {
-    props.backdropOpacity = botProps.backdropOpacity
-  }
+    if (typeof botProps.backdropOpacity === 'number') {
+      props.backdropOpacity = botProps.backdropOpacity
+    }
 
-  if (botProps.backdropBlur) {
-    props.backdropBlur = botProps.backdropBlur
+    if (botProps.backdropBlur) {
+      props.backdropBlur = botProps.backdropBlur
+    }
   }
 
   // === Features ===
