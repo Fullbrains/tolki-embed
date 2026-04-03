@@ -1,6 +1,6 @@
 {
   "name": "tolki-chat",
-  "version": "2.0.5",
+  "version": "2.0.6",
   "description": "Tolki Chat Web Component",
   "main": "index.js",
   "scripts": {

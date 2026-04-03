@@ -616,17 +616,21 @@ export class TolkiChat extends LitElement {
 
         // Transform backend props and pass to props manager
         // Backend decides what to send (including PRO props like icon/unbranded if applicable)
-        if (bot.props) {
-          const transformedProps = transformBotPropsToTolkiProps(bot.props)
-          if (Object.keys(transformedProps).length > 0) {
-            this.propsManager.setBackendProps(transformedProps)
-          }
+        const transformedProps = bot.props
+          ? transformBotPropsToTolkiProps(bot.props)
+          : {}
+
+        // Ensure lang is always set (from detected locale if backend doesn't send it)
+        if (!transformedProps.lang) {
+          transformedProps.lang = initialLang
         }
 
-        // Sync HTML attributes (including lang) into propsManager
+        this.propsManager.setBackendProps(transformedProps)
+
+        // Sync HTML attributes (including lang) into propsManager — user attrs override backend
         this.updatePropsFromAttributes()
 
-        // Update locale if resolved language differs from initial
+        // Update Lit localize if resolved language differs from initial
         const resolvedLang = this.propsManager.getProps().lang
         if (resolvedLang && resolvedLang !== initialLang) {
           await TolkiChat.setLanguage(resolvedLang)
