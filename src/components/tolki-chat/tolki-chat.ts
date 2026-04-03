@@ -601,8 +601,9 @@ export class TolkiChat extends LitElement {
     const botUUID: string = this.getAttribute('bot')
     if (!botUUID) return
 
-    // Set locale based on lang attribute or browser language
-    const initialLang = this.requestedLang || navigator.language.split('-')[0] // Use lang attribute or browser language
+    // Set locale: component lang attribute > <html lang> > browser language
+    const htmlLang = document.documentElement.lang?.split('-')[0]
+    const initialLang = this.requestedLang || htmlLang || navigator.language?.split('-')[0] || 'en'
     await TolkiChat.setLanguage(initialLang)
 
     Bot.init(botUUID, initialLang)
