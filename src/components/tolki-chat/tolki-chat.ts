@@ -622,6 +622,15 @@ export class TolkiChat extends LitElement {
           }
         }
 
+        // Sync HTML attributes (including lang) into propsManager
+        this.updatePropsFromAttributes()
+
+        // Update locale if resolved language differs from initial
+        const resolvedLang = this.propsManager.getProps().lang
+        if (resolvedLang && resolvedLang !== initialLang) {
+          await TolkiChat.setLanguage(resolvedLang)
+        }
+
         const chatUUID = this.getSetting<string>('chat')
         if (!validateUUID(chatUUID)) {
           state.chat = UUID()
