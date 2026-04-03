@@ -605,7 +605,7 @@ export class TolkiChat extends LitElement {
     const initialLang = this.requestedLang || navigator.language.split('-')[0] // Use lang attribute or browser language
     await TolkiChat.setLanguage(initialLang)
 
-    Bot.init(botUUID)
+    Bot.init(botUUID, initialLang)
       .then(async (bot) => {
         subscribeVirtualKeyboard((visibility) => {
           state.virtualKeyboardVisibility = visibility

@@ -37,7 +37,7 @@ function handleSubmit(item: FeedbackResponse) {
     if (!message) return
 
     // Send feedback via API
-    Api.messageFeedback(item.botUuid, item.chatUuid, item.messageId, undefined, message).catch(() => {})
+    Api.messageFeedback(item.botUuid, item.chatUuid, item.messageId, message).catch(() => {})
 
     // Replace with thanks message
     const wrapper = container.closest('.tk__chat-item')

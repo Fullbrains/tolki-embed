@@ -8,7 +8,7 @@ export class Bot {
   private static _status: BotStatus
   private static _props: BotProps
 
-  static async init(uuid: string): Promise<BotInitResult> {
+  static async init(uuid: string, lang?: string): Promise<BotInitResult> {
     return new Promise((resolve, reject) => {
       this._uuid = uuid || null
       this._status = BotStatus.unknown
@@ -16,7 +16,7 @@ export class Bot {
 
       if (this._uuid) {
         if (validateUUID(this._uuid)) {
-          Api.settings(this._uuid)
+          Api.settings(this._uuid, lang)
             .then(({ data }) => {
               const response = data as BotSettingsResponse
               this._status = BotStatus.ok

@@ -133,13 +133,13 @@ function handleCopy(e: Event, content: string) {
 
 function handleLike(_e: Event, botUuid: string, chatUuid: string, messageId: string) {
   if (messageId) {
-    Api.messageFeedback(botUuid, chatUuid, messageId, 'like').catch(() => {})
+    Api.messageReaction(botUuid, chatUuid, messageId, 'like').catch(() => {})
   }
 }
 
 function handleDislike(_e: Event, botUuid: string, chatUuid: string, messageId: string) {
   if (messageId) {
-    Api.messageFeedback(botUuid, chatUuid, messageId, 'dislike').catch(() => {})
+    Api.messageReaction(botUuid, chatUuid, messageId, 'dislike').catch(() => {})
   }
 }
 

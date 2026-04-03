@@ -16,11 +16,11 @@ export class Api {
     return Api._isAdk ? TOLKI_BRAIN_API_BASE_URL : TOLKI_API_BASE_URL
   }
 
-  public static async settings(bot_uuid: string): Promise<ApiResponse> {
+  public static async settings(bot_uuid: string, lang?: string): Promise<ApiResponse> {
     // api.tolki.ai/chat/v1/embed/:bot_uuid/settings/:lang
-    const lang: string = navigator.language || 'en'
+    const resolvedLang: string = lang || navigator.language?.split('-')[0] || 'en'
     return new Promise((resolve, reject) => {
-      fetch(`${TOLKI_API_BASE_URL}${bot_uuid}/settings/${lang}`)
+      fetch(`${TOLKI_API_BASE_URL}${bot_uuid}/settings/${resolvedLang}`)
         .then((response: Response) => {
           if (response.status === 200) {
             response.json().then((data) => {
@@ -140,40 +140,55 @@ export class Api {
   }
 
   // ---------------------------------------------------------------------------
-  // Message feedback (like/dislike and/or text feedback on a single message)
+  // Message reaction (like/dislike on a single message)
   // ---------------------------------------------------------------------------
-  // POST /v1/embed/{bot_uuid}/chat/{chat_uuid}/message/{id}/feedback
-  //
-  // Backend requirements:
-  //   - Every item returned by the /message endpoint MUST include a top-level
-  //     "id" field. At minimum on "markdown" items; ideally on every item type
-  //     so we can extend feedback to other types later.
-  //   - This endpoint receives the feedback and persists it.
-  //   - All fields in the body are optional; the API saves whatever is sent.
+  // POST /v1/embed/{bot_uuid}/chat/{chat_uuid}/message/{id}/reaction
   //
   // Request body:
-  //   { "type"?: "like" | "dislike", "message"?: string }
+  //   { "type": "like" | "dislike" }
   //
   // Response:
   //   200 { "ok": true }
-  //   400 { "error": "invalid id" | "invalid type" }
-  //   404 { "error": "message not found" }
+  // ---------------------------------------------------------------------------
+  public static async messageReaction(
+    bot_uuid: string,
+    chat_uuid: string,
+    id: string,
+    type: 'like' | 'dislike'
+  ): Promise<void> {
+    const url = `${TOLKI_BRAIN_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/${id}/reaction`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type }),
+    })
+    if (!response.ok) {
+      throw new Error(`Reaction failed: ${response.status}`)
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Message feedback (text feedback on a single message)
+  // ---------------------------------------------------------------------------
+  // POST /v1/embed/{bot_uuid}/chat/{chat_uuid}/message/{id}/feedback
+  //
+  // Request body:
+  //   { "message": string }
+  //
+  // Response:
+  //   200 { "ok": true }
   // ---------------------------------------------------------------------------
   public static async messageFeedback(
     bot_uuid: string,
     chat_uuid: string,
     id: string,
-    type?: 'like' | 'dislike',
-    message?: string
+    message: string
   ): Promise<void> {
-    const url = `${Api.baseUrl}${bot_uuid}/chat/${chat_uuid}/message/${id}/feedback`
-    const body: { type?: string; message?: string } = {}
-    if (type) body.type = type
-    if (message) body.message = message
+    const url = `${TOLKI_BRAIN_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/${id}/feedback`
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ message }),
     })
     if (!response.ok) {
       throw new Error(`Feedback failed: ${response.status}`)
@@ -198,7 +213,7 @@ export class Api {
     chat_uuid: string,
     rating: number
   ): Promise<void> {
-    const url = `${Api.baseUrl}${bot_uuid}/chat/${chat_uuid}/rating`
+    const url = `${TOLKI_BRAIN_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/rating`
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
