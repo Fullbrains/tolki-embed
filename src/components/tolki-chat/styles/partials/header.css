@@ -22,7 +22,10 @@
 .tk__title {
   line-height: var(--circle-btn-size);
   margin-right: auto;
+  overflow: hidden;
   padding-left: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tk__avatar-wrapper {

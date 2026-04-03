@@ -1,6 +1,24 @@
 import { BotProps } from '../types/bot'
-import { TolkiChatProps } from '../types/props'
+import { TolkiChatProps, I18nString, I18nArray } from '../types/props'
 import { HexColor } from './color'
+
+/**
+ * Check if an I18nString has actual content (not empty string, not empty object)
+ */
+function isNonEmptyI18n(value: I18nString | null | undefined): value is I18nString {
+  if (!value) return false
+  if (typeof value === 'string') return value.trim().length > 0
+  return Object.keys(value).length > 0
+}
+
+/**
+ * Check if an I18nArray has actual content (not empty array, not empty object)
+ */
+function isNonEmptyI18nArray(value: I18nArray | null | undefined): value is I18nArray {
+  if (!value) return false
+  if (Array.isArray(value)) return value.length > 0
+  return Object.keys(value).length > 0
+}
 
 /**
  * Transform backend BotProps (flat structure) to TolkiChatProps format
@@ -12,7 +30,7 @@ export function transformBotPropsToTolkiProps(
 
   // === Identity ===
 
-  if (botProps.name) {
+  if (isNonEmptyI18n(botProps.name)) {
     props.name = botProps.name
   }
 
@@ -36,23 +54,23 @@ export function transformBotPropsToTolkiProps(
 
   // === Content ===
 
-  if (botProps.welcomeMessage) {
+  if (isNonEmptyI18n(botProps.welcomeMessage)) {
     props.welcomeMessage = botProps.welcomeMessage
   }
 
-  if (botProps.suggestions) {
+  if (isNonEmptyI18nArray(botProps.suggestions)) {
     props.suggestions = botProps.suggestions
   }
 
-  if (botProps.toasts) {
+  if (isNonEmptyI18nArray(botProps.toasts)) {
     props.toasts = botProps.toasts
   }
 
-  if (botProps.messagePlaceholder) {
+  if (isNonEmptyI18n(botProps.messagePlaceholder)) {
     props.messagePlaceholder = botProps.messagePlaceholder
   }
 
-  if (botProps.togglePlaceholder) {
+  if (isNonEmptyI18n(botProps.togglePlaceholder)) {
     props.togglePlaceholder = botProps.togglePlaceholder
   }
 
