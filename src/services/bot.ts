@@ -1,6 +1,6 @@
 import { validateUUID } from '../utils/uuid'
 import { Api } from './api'
-import { BotStatus, BotInitResult, BotProps } from '../types/bot'
+import { BotStatus, BotInitResult, BotProps, BotSettingsResponse } from '../types/bot'
 
 
 export class Bot {
@@ -18,9 +18,10 @@ export class Bot {
         if (validateUUID(this._uuid)) {
           Api.settings(this._uuid)
             .then(({ data }) => {
+              const response = data as BotSettingsResponse
               this._status = BotStatus.ok
-              this._props = data as BotProps
-              Api.isAdk = !!this._props.isAdk
+              this._props = response.props
+              Api.isAdk = !!response.isAdk
               resolve({
                 status: this._status,
                 props: this._props,

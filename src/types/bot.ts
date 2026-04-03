@@ -16,57 +16,16 @@ export interface BotInitResult {
   uuid?: string
 }
 
-// === New Styles Structure ===
-
-export interface ToggleStyles {
-  size?: 'sm' | 'md' | 'lg'
-  background?: HexColor
-  foreground?: HexColor | null
+/**
+ * API response shape from /v1/embed/:bot_uuid/settings/:language
+ */
+export interface BotSettingsResponse {
+  name: string
+  isAdk: boolean
+  props: BotProps
 }
 
-export interface WindowStyles {
-  size?: 'sm' | 'md' | 'lg' | 'xl'
-}
-
-export interface MessageStyles {
-  background?: HexColor
-  foreground?: HexColor | null
-}
-
-export interface BackdropStyles {
-  color?: HexColor | null
-  opacity?: number
-  blur?: 'none' | 'sm' | 'md' | 'lg' | 'xl'
-}
-
-export interface StylesConfig {
-  // Global (affects entire widget)
-  position?: 'inline' | 'left' | 'center' | 'right'
-  margin?: number | [number, number]
-  theme?: 'auto' | 'light' | 'dark'
-  rounded?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'
-
-  // Per element
-  toggle?: ToggleStyles
-  window?: WindowStyles
-  message?: MessageStyles
-  backdrop?: BackdropStyles
-
-  // Legacy structure (for backward compatibility)
-  chat?: {
-    button?: {
-      defaultBackgroundColor?: string
-      hoverBackgroundColor?: string
-      foregroundColor?: string
-    }
-    bubble?: {
-      backgroundColor?: string
-      foregroundColor?: string
-    }
-  }
-}
-
-// === Bot Props ===
+// === Bot Props (flat structure matching API response) ===
 
 export interface BotProps {
   // Identity
@@ -93,15 +52,37 @@ export interface BotProps {
   icon?: string
   unbranded?: boolean
 
-  // API routing (determines which backend to use, NOT related to PRO)
-  isAdk?: boolean
+  // Layout & positioning
+  position?: 'inline' | 'left' | 'center' | 'right'
+  windowSize?: 'sm' | 'md' | 'lg' | 'xl'
+  toggleSize?: 'sm' | 'md' | 'lg'
+  marginX?: number
+  marginY?: number
+  marginLinked?: boolean
 
-  // Styles
-  styles?: StylesConfig
+  // Appearance
+  theme?: 'auto' | 'light' | 'dark'
+  /** @deprecated Use `theme` instead */
+  dark?: 'auto' | 'light' | 'dark'
+  rounded?: 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
-  // Legacy (deprecated, kept for backward compatibility)
-  /** @deprecated - not used */
-  team?: string
-  /** @deprecated - not used */
-  version?: string
+  // Toggle colors
+  toggleBackground?: HexColor
+  toggleContent?: HexColor | string
+
+  // Message colors
+  messageBackground?: HexColor
+  messageContent?: HexColor | string
+
+  // Backdrop
+  backdropColor?: HexColor
+  backdropOpacity?: number
+  backdropBlur?: 'none' | 'sm' | 'md' | 'lg' | 'xl'
+  backdropEnabled?: boolean
+
+  // Features
+  showFeedback?: boolean
+  showRating?: boolean | number
+  showSources?: boolean
+  showQueries?: boolean
 }

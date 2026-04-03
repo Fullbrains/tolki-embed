@@ -1,19 +1,16 @@
-import { BotProps, StylesConfig } from '../types/bot'
+import { BotProps } from '../types/bot'
 import { TolkiChatProps } from '../types/props'
 import { HexColor } from './color'
-import { Logger } from '../services/logger'
 
 /**
- * Transform backend BotProps to TolkiChatProps format
- * Handles mapping from backend API structure to component props
- * Supports both new structure and legacy fallback
+ * Transform backend BotProps (flat structure) to TolkiChatProps format
  */
 export function transformBotPropsToTolkiProps(
   botProps: BotProps
 ): Partial<TolkiChatProps> {
   const props: Partial<TolkiChatProps> = {}
 
-  // === Direct mappings (root props) ===
+  // === Identity ===
 
   if (botProps.name) {
     props.name = botProps.name
@@ -23,17 +20,7 @@ export function transformBotPropsToTolkiProps(
     props.avatar = botProps.avatar
   }
 
-  if (botProps.welcomeMessage) {
-    props.welcomeMessage = botProps.welcomeMessage
-  }
-
-  if (botProps.suggestions) {
-    props.suggestions = botProps.suggestions
-  }
-
-  if (botProps.toasts) {
-    props.toasts = botProps.toasts
-  }
+  // === Behavior ===
 
   if (typeof botProps.defaultOpen === 'boolean') {
     props.defaultOpen = botProps.defaultOpen
@@ -47,6 +34,20 @@ export function transformBotPropsToTolkiProps(
     props.unclosable = botProps.unclosable
   }
 
+  // === Content ===
+
+  if (botProps.welcomeMessage) {
+    props.welcomeMessage = botProps.welcomeMessage
+  }
+
+  if (botProps.suggestions) {
+    props.suggestions = botProps.suggestions
+  }
+
+  if (botProps.toasts) {
+    props.toasts = botProps.toasts
+  }
+
   if (botProps.messagePlaceholder) {
     props.messagePlaceholder = botProps.messagePlaceholder
   }
@@ -54,6 +55,8 @@ export function transformBotPropsToTolkiProps(
   if (botProps.togglePlaceholder) {
     props.togglePlaceholder = botProps.togglePlaceholder
   }
+
+  // === i18n ===
 
   if (botProps.lang) {
     props.lang = botProps.lang
@@ -63,7 +66,7 @@ export function transformBotPropsToTolkiProps(
     props.locales = botProps.locales
   }
 
-  // === PRO props (backend only sends these if bot is PRO) ===
+  // === PRO ===
 
   if (botProps.icon) {
     props.icon = botProps.icon
@@ -73,146 +76,95 @@ export function transformBotPropsToTolkiProps(
     props.unbranded = botProps.unbranded
   }
 
-  // === Extract from styles ===
+  // === Layout & positioning ===
 
-  if (botProps.styles) {
-    const styles = botProps.styles
-    const isLegacy = hasLegacyStructure(styles)
+  if (botProps.position) {
+    props.position = botProps.position
+  }
 
-    if (isLegacy) {
-      Logger.warn(
-        'Deprecated: Using legacy styles.chat.* structure. Please migrate to new styles.toggle.*, styles.message.* structure.'
-      )
+  if (botProps.windowSize) {
+    props.windowSize = botProps.windowSize
+  }
+
+  if (botProps.toggleSize) {
+    props.toggleSize = botProps.toggleSize
+  }
+
+  // Margin: API sends marginX, marginY, marginLinked
+  if (typeof botProps.marginX === 'number' || typeof botProps.marginY === 'number') {
+    const x = botProps.marginX ?? 20
+    const y = botProps.marginY ?? 20
+    if (botProps.marginLinked || x === y) {
+      props.margin = x
+    } else {
+      props.margin = [x, y]
     }
+  }
 
-    // Global styles
-    props.position = getStyleValue(styles, 'position', null) ?? undefined
-    props.margin = getMarginValue(styles)
-    props.theme = getStyleValue(styles, 'theme', null) ?? undefined
-    props.rounded = getStyleValue(styles, 'rounded', null) ?? undefined
+  // === Appearance ===
 
-    // Toggle styles
-    props.toggleSize = getStyleValue(styles, 'toggle.size', null) ?? undefined
-    props.toggleBackground = getToggleBackground(styles)
-    props.toggleContent = getToggleForeground(styles)
+  // theme (with legacy `dark` fallback)
+  if (botProps.theme) {
+    props.theme = botProps.theme
+  } else if (botProps.dark) {
+    props.theme = botProps.dark
+  }
 
-    // Window styles
-    props.windowSize = getStyleValue(styles, 'window.size', null) ?? undefined
+  if (botProps.rounded) {
+    props.rounded = botProps.rounded
+  }
 
-    // Message styles
-    props.messageBackground = getMessageBackground(styles)
-    props.messageContent = getMessageForeground(styles)
+  // === Toggle colors ===
 
-    // Backdrop styles
-    props.backdropColor = getStyleValue(styles, 'backdrop.color', null)
-    props.backdropOpacity = getStyleValue(styles, 'backdrop.opacity', null) ?? undefined
-    props.backdropBlur = getStyleValue(styles, 'backdrop.blur', null) ?? undefined
+  if (botProps.toggleBackground) {
+    props.toggleBackground = botProps.toggleBackground as HexColor
+  }
+
+  if (botProps.toggleContent) {
+    props.toggleContent = botProps.toggleContent as HexColor
+  }
+
+  // === Message colors ===
+
+  if (botProps.messageBackground) {
+    props.messageBackground = botProps.messageBackground as HexColor
+  }
+
+  if (botProps.messageContent) {
+    props.messageContent = botProps.messageContent as HexColor
+  }
+
+  // === Backdrop ===
+
+  if (botProps.backdropColor) {
+    props.backdropColor = botProps.backdropColor as HexColor
+  }
+
+  if (typeof botProps.backdropOpacity === 'number') {
+    props.backdropOpacity = botProps.backdropOpacity
+  }
+
+  if (botProps.backdropBlur) {
+    props.backdropBlur = botProps.backdropBlur
+  }
+
+  // === Features ===
+
+  if (typeof botProps.showFeedback === 'boolean') {
+    props.showFeedback = botProps.showFeedback
+  }
+
+  if (typeof botProps.showRating === 'boolean' || typeof botProps.showRating === 'number') {
+    props.showRating = botProps.showRating
+  }
+
+  if (typeof botProps.showSources === 'boolean') {
+    props.showSources = botProps.showSources
+  }
+
+  if (typeof botProps.showQueries === 'boolean') {
+    props.showQueries = botProps.showQueries
   }
 
   return props
-}
-
-// === Helper functions ===
-
-/**
- * Check if styles use legacy structure
- */
-function hasLegacyStructure(styles: StylesConfig): boolean {
-  return !!(styles.chat?.button || styles.chat?.bubble)
-}
-
-/**
- * Get a value from nested path with type safety
- */
-function getStyleValue<T>(
-  styles: StylesConfig,
-  path: string,
-  defaultValue: T
-): T {
-  const parts = path.split('.')
-  let value: unknown = styles
-
-  for (const part of parts) {
-    if (value && typeof value === 'object' && part in value) {
-      value = (value as Record<string, unknown>)[part]
-    } else {
-      return defaultValue
-    }
-  }
-
-  return (value as T) ?? defaultValue
-}
-
-/**
- * Get toggle background color (new structure or legacy fallback)
- */
-function getToggleBackground(styles: StylesConfig): HexColor | undefined {
-  // New structure (priority)
-  if (styles.toggle?.background) {
-    return styles.toggle.background
-  }
-  // Legacy fallback
-  if (styles.chat?.button?.defaultBackgroundColor) {
-    return styles.chat.button.defaultBackgroundColor as HexColor
-  }
-  return undefined
-}
-
-/**
- * Get toggle foreground color (new structure or legacy fallback)
- */
-function getToggleForeground(styles: StylesConfig): HexColor | null | undefined {
-  // New structure (priority)
-  if (styles.toggle && 'foreground' in styles.toggle) {
-    return styles.toggle.foreground
-  }
-  // Legacy fallback
-  if (styles.chat?.button?.foregroundColor) {
-    return styles.chat.button.foregroundColor as HexColor
-  }
-  return undefined
-}
-
-/**
- * Get message background color (new structure or legacy fallback)
- */
-function getMessageBackground(styles: StylesConfig): HexColor | undefined {
-  // New structure (priority)
-  if (styles.message?.background) {
-    return styles.message.background
-  }
-  // Legacy fallback
-  if (styles.chat?.bubble?.backgroundColor) {
-    return styles.chat.bubble.backgroundColor as HexColor
-  }
-  return undefined
-}
-
-/**
- * Get message foreground color (new structure or legacy fallback)
- */
-function getMessageForeground(styles: StylesConfig): HexColor | null | undefined {
-  // New structure (priority)
-  if (styles.message && 'foreground' in styles.message) {
-    return styles.message.foreground
-  }
-  // Legacy fallback
-  if (styles.chat?.bubble?.foregroundColor) {
-    return styles.chat.bubble.foregroundColor as HexColor
-  }
-  return undefined
-}
-
-/**
- * Get margin value (number or tuple)
- */
-function getMarginValue(styles: StylesConfig): number | [number, number] | undefined {
-  const margin = styles.margin
-  if (typeof margin === 'number') {
-    return margin
-  }
-  if (Array.isArray(margin) && margin.length === 2) {
-    return margin as [number, number]
-  }
-  return undefined
 }
