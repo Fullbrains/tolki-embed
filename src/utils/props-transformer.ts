@@ -171,10 +171,6 @@ export function transformBotPropsToTolkiProps(
 
   // === Features ===
 
-  if (typeof botProps.showFeedback === 'boolean') {
-    props.showFeedback = botProps.showFeedback
-  }
-
   if (typeof botProps.showRating === 'boolean' || typeof botProps.showRating === 'number') {
     props.showRating = botProps.showRating
   }

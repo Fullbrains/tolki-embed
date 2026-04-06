@@ -32,12 +32,6 @@
 's52df77a89dccee06': `kann ungenau sein. Antworten überprüfen.`,
 's539c0516abfbd1eb': `Keine Bestellungen gefunden.`,
 's5b780a0beb551bb9': `Suchanfrage`,
-'sc74b7675f65c3e23': `Anfrage`,
-'seccb7987facba1b2': `Such-ID Anfrage`,
-'sfbe1d2fb2c4bac18': `Such-ID Ergebnisse`,
-'sbe9d4db18df61026': `Hinterlassen Sie ein Feedback`,
-'sb3d4f79d9d8b71e5': `Absenden`,
-'sbb588bb505779122': `Feedback`,
 's5e8250fb85d64c23': `Schliessen`,
 's61731584cd086e84': str`
                     ${0}
@@ -60,6 +54,7 @@
 'sc8da3cc71de63832': `Anmelden`,
 'sd0eb9d5b0f609a49': `Bestellungen anzeigen`,
 'sd3bb9b94928481f8': `Möchten Sie einen neuen Chat starten? Sie verlieren die aktuellen Nachrichten.`,
+'sea8ec22ebd6397c5': `Hinterlassen Sie ein Feedback (optional)`,
 'seb5a92532ad0d001': str`Sie haben
                     ${0} ${1}
                     im Warenkorb.
@@ -71,5 +66,9 @@
 'sfbd40db33f87611b': `Warenkorb laden...`,
 'sb9e306d8fcfb3c1c': `Send message`,
 's1b9b0f519f1e0891': `You have items in cart.`,
+'sb3d4f79d9d8b71e5': `Submit`,
+'sc74b7675f65c3e23': `Query`,
+'seccb7987facba1b2': `Query Search ID`,
+'sfbe1d2fb2c4bac18': `Results Search ID`,
     };
   

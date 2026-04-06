@@ -101,7 +101,6 @@ export interface TolkiChatProps {
   // Debug / development
   showSources: boolean
   showQueries: boolean
-  showFeedback: boolean
 }
 
 /**
@@ -163,5 +162,4 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   // Debug / development
   showSources: false,
   showQueries: false,
-  showFeedback: false,
 }

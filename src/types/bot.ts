@@ -81,7 +81,6 @@ export interface BotProps {
   backdropEnabled?: boolean
 
   // Features
-  showFeedback?: boolean
   showRating?: boolean | number
   showSources?: boolean
   showQueries?: boolean

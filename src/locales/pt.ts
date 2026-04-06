@@ -32,12 +32,6 @@
 's52df77a89dccee06': `pode ser impreciso. Verifique as respostas.`,
 's539c0516abfbd1eb': `Nenhum pedido encontrado.`,
 's5b780a0beb551bb9': `Consulta de pesquisa`,
-'sc74b7675f65c3e23': `Consulta`,
-'seccb7987facba1b2': `ID pesquisa consulta`,
-'sfbe1d2fb2c4bac18': `ID pesquisa resultados`,
-'sbe9d4db18df61026': `Deixe um feedback`,
-'sb3d4f79d9d8b71e5': `Enviar`,
-'sbb588bb505779122': `Feedback`,
 's5e8250fb85d64c23': `Fechar`,
 's61731584cd086e84': str`
                     Mais ${0}
@@ -59,6 +53,7 @@
 'sc8da3cc71de63832': `Entrar`,
 'sd0eb9d5b0f609a49': `Ver Pedidos`,
 'sd3bb9b94928481f8': `Deseja iniciar uma nova conversa? Você perderá as mensagens atuais.`,
+'sea8ec22ebd6397c5': `Deixe um feedback (opcional)`,
 'seb5a92532ad0d001': str`Você tem
                     ${0} ${1}
                     no carrinho.
@@ -70,5 +65,9 @@
 'sfbd40db33f87611b': `Carregando carrinho...`,
 'sb9e306d8fcfb3c1c': `Send message`,
 's1b9b0f519f1e0891': `You have items in cart.`,
+'sb3d4f79d9d8b71e5': `Submit`,
+'sc74b7675f65c3e23': `Query`,
+'seccb7987facba1b2': `Query Search ID`,
+'sfbe1d2fb2c4bac18': `Results Search ID`,
     };
   

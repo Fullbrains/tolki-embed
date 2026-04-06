@@ -196,7 +196,6 @@ export class TolkiChat extends LitElement {
       'locales',
       'show-sources',
       'show-queries',
-      'show-feedback',
       'show-rating',
       // Legacy - for backward compatibility
       'inline',
@@ -1811,7 +1810,7 @@ export class TolkiChat extends LitElement {
                 item && item.type
                   ? keyed(
                       `${state.renderKey}-${index}`,
-                      chatItemTemplate(item, state.history, index, state.bot?.uuid || '', state.chat || '', this.propsManager.getProps().showQueries, this.propsManager.getProps().showFeedback)
+                      chatItemTemplate(item, state.history, index, state.bot?.uuid || '', state.chat || '', this.propsManager.getProps().showQueries)
                     )
                   : html``
               )}

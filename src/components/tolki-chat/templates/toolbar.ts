@@ -3,7 +3,6 @@ import { msg } from '@lit/localize'
 import {
   copyIcon,
   copiedIcon,
-  feedbackIcon,
   likeIcon,
   dislikeIcon,
   sourcesIcon,
@@ -55,7 +54,6 @@ export const toolbarTemplate = (
   botUuid: string,
   chatUuid: string,
   showQueries: boolean = false,
-  showFeedback: boolean = false
 ): TemplateResult => {
   const sources = getSourcesForMessage(history, messageIndex)
   const hasSources = sources.results.length > 0
@@ -85,17 +83,6 @@ export const toolbarTemplate = (
       >
         ${dislikeIcon()}
       </button>
-      ${showFeedback
-        ? html`
-            <button
-              class="tk__toolbar-btn"
-              title=${msg('Feedback')}
-              @click=${() => handleFeedback(botUuid, chatUuid, messageId)}
-            >
-              ${feedbackIcon()}
-            </button>
-          `
-        : ''}
       ${hasSources
         ? html`
             <button
@@ -134,16 +121,18 @@ function handleCopy(e: Event, content: string) {
 function handleLike(_e: Event, botUuid: string, chatUuid: string, messageId: string) {
   if (messageId) {
     Api.messageReaction(botUuid, chatUuid, messageId, 'like').catch(() => {})
+    openFeedback(botUuid, chatUuid, messageId)
   }
 }
 
 function handleDislike(_e: Event, botUuid: string, chatUuid: string, messageId: string) {
   if (messageId) {
     Api.messageReaction(botUuid, chatUuid, messageId, 'dislike').catch(() => {})
+    openFeedback(botUuid, chatUuid, messageId)
   }
 }
 
-function handleFeedback(botUuid: string, chatUuid: string, messageId: string) {
+function openFeedback(botUuid: string, chatUuid: string, messageId: string) {
   document.dispatchEvent(
     new CustomEvent('tolki:feedback:open', {
       detail: { botUuid, chatUuid, messageId },

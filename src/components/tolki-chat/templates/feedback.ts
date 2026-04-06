@@ -1,6 +1,6 @@
 import { html, TemplateResult } from 'lit'
 import { msg } from '@lit/localize'
-import { FeedbackResponse, ItemType } from '../../../types/item'
+import { FeedbackResponse } from '../../../types/item'
 import { Api } from '../../../services/api'
 
 const MAX_CHARS = 300
@@ -34,7 +34,18 @@ function handleSubmit(item: FeedbackResponse) {
 
     const textarea = container.querySelector('.tk__feedback-textarea') as HTMLTextAreaElement
     const message = textarea?.value?.trim()
-    if (!message) return
+
+    // If empty, treat as cancel (field is optional)
+    if (!message) {
+      const wrapper = container.closest('.tk__chat-item')
+      if (wrapper) {
+        document.dispatchEvent(
+          new CustomEvent('tolki:feedback:cancel', { detail: { element: wrapper } })
+        )
+        wrapper.remove()
+      }
+      return
+    }
 
     // Send feedback via API
     Api.messageFeedback(item.botUuid, item.chatUuid, item.messageId, message).catch(() => {})
@@ -76,7 +87,7 @@ export const feedbackTemplate = (item: FeedbackResponse): TemplateResult => {
       <div class="tk__feedback-body">
         <textarea
           class="tk__feedback-textarea"
-          placeholder=${msg('Leave a feedback')}
+          placeholder=${msg('Leave a feedback (optional)')}
           maxlength=${MAX_CHARS}
           rows="2"
           @input=${handleInput}
