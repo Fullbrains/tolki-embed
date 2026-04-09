@@ -1,6 +1,9 @@
 import { validateUUID } from '../utils/uuid'
-import { ApiResponse, ApiMessageResponse, ApiMessageResponseStatus } from '../types/api'
-
+import {
+  ApiResponse,
+  ApiMessageResponse,
+  ApiMessageResponseStatus,
+} from '../types/api'
 
 const TOLKI_API_BASE_URL: string = 'https://api.tolki.ai/chat/v1/embed/'
 const TOLKI_BRAIN_API_BASE_URL: string = 'https://brain.tolki.ai/v1/embed/'
@@ -13,12 +16,20 @@ export class Api {
   }
 
   private static get baseUrl(): string {
-    return Api._isAdk ? TOLKI_BRAIN_API_BASE_URL : TOLKI_API_BASE_URL
+    // TEMP: always return TOLKI_API_BASE_URL during migration from
+    // TOLKI_BRAIN_API_BASE_URL to TOLKI_API_BASE_URL.
+    // Revert to `Api._isAdk ? TOLKI_BRAIN_API_BASE_URL : TOLKI_API_BASE_URL`
+    // once migration is complete.
+    return TOLKI_API_BASE_URL
   }
 
-  public static async settings(bot_uuid: string, lang?: string): Promise<ApiResponse> {
+  public static async settings(
+    bot_uuid: string,
+    lang?: string
+  ): Promise<ApiResponse> {
     // api.tolki.ai/chat/v1/embed/:bot_uuid/settings/:lang
-    const resolvedLang: string = lang || navigator.language?.split('-')[0] || 'en'
+    const resolvedLang: string =
+      lang || navigator.language?.split('-')[0] || 'en'
     return new Promise((resolve, reject) => {
       fetch(`${TOLKI_API_BASE_URL}${bot_uuid}/settings/${resolvedLang}`)
         .then((response: Response) => {
@@ -64,7 +75,6 @@ export class Api {
     message: string,
     showSources?: boolean
   ): Promise<ApiMessageResponse> {
-
     return new Promise((resolve, reject) => {
       if (
         validateUUID(chat_uuid) &&
@@ -156,7 +166,7 @@ export class Api {
     id: string,
     type: 'like' | 'dislike'
   ): Promise<void> {
-    const url = `${TOLKI_BRAIN_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/${id}/reaction`
+    const url = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/${id}/reaction`
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -184,7 +194,7 @@ export class Api {
     id: string,
     message: string
   ): Promise<void> {
-    const url = `${TOLKI_BRAIN_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/${id}/feedback`
+    const url = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/${id}/feedback`
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -213,7 +223,7 @@ export class Api {
     chat_uuid: string,
     rating: number
   ): Promise<void> {
-    const url = `${TOLKI_BRAIN_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/rating`
+    const url = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/rating`
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
