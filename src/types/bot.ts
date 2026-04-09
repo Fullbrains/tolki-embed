@@ -21,7 +21,6 @@ export interface BotInitResult {
  */
 export interface BotSettingsResponse {
   name: string
-  isAdk: boolean
   props: BotProps
 }
 

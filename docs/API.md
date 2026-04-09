@@ -81,12 +81,11 @@ This document describes the internal API architecture and data types used by the
 
 ## REST API Endpoints
 
-The component communicates with two backend services:
+The component communicates with the Tolki backend:
 
 | Service | Base URL | Purpose |
 |---------|----------|---------|
-| Chat API | `https://api.tolki.ai/chat/v1/embed/` | Standard chat functionality |
-| Brain API | `https://brain.tolki.ai/v1/embed/` | ADK-enabled bots |
+| Chat API | `https://api.tolki.ai/chat/v1/embed/` | Chat functionality |
 
 ### GET /settings
 
@@ -153,11 +152,6 @@ Sends a user message and receives bot response.
 POST https://api.tolki.ai/chat/v1/embed/{bot_uuid}/chat/{chat_uuid}/message
 ```
 
-For ADK-enabled bots:
-```
-POST https://brain.tolki.ai/v1/embed/{bot_uuid}/chat/{chat_uuid}/message
-```
-
 **Parameters:**
 
 | Parameter | Type | Location | Description |
@@ -204,14 +198,6 @@ CHAT_UUID=$(uuidgen | tr '[:upper:]' '[:lower:]')
 curl -X POST "https://api.tolki.ai/chat/v1/embed/9da7b9b4-2fb3-4189-a5d2-391f509f5286/chat/${CHAT_UUID}/message" \
   -H "Content-Type: application/json" \
   -d '{"message": "Hello, I need help with my order"}'
-```
-
-**cURL Example (ADK-enabled bot):**
-
-```bash
-curl -X POST "https://brain.tolki.ai/v1/embed/9da7b9b4-2fb3-4189-a5d2-391f509f5286/chat/${CHAT_UUID}/message" \
-  -H "Content-Type: application/json" \
-  -d '{"message": "What products do you have?"}'
 ```
 
 ---
@@ -262,9 +248,6 @@ interface BotProps {
   // PRO Features (backend-controlled)
   icon?: string                 // Custom toggle icon URL
   unbranded?: boolean           // Remove Tolki branding
-
-  // API Routing
-  isAdk?: boolean               // Use Brain API instead of Chat API
 
   // Styles
   styles?: StylesConfig         // Visual configuration

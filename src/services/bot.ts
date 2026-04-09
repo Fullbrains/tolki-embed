@@ -21,7 +21,6 @@ export class Bot {
               const response = data as BotSettingsResponse
               this._status = BotStatus.ok
               this._props = response.props
-              Api.isAdk = !!response.isAdk
               resolve({
                 status: this._status,
                 props: this._props,

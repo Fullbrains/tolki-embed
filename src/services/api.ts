@@ -6,23 +6,8 @@ import {
 } from '../types/api'
 
 const TOLKI_API_BASE_URL: string = 'https://api.tolki.ai/chat/v1/embed/'
-const TOLKI_BRAIN_API_BASE_URL: string = 'https://brain.tolki.ai/v1/embed/'
 
 export class Api {
-  private static _isAdk: boolean = false
-
-  public static set isAdk(value: boolean) {
-    Api._isAdk = value
-  }
-
-  private static get baseUrl(): string {
-    // TEMP: always return TOLKI_API_BASE_URL during migration from
-    // TOLKI_BRAIN_API_BASE_URL to TOLKI_API_BASE_URL.
-    // Revert to `Api._isAdk ? TOLKI_BRAIN_API_BASE_URL : TOLKI_API_BASE_URL`
-    // once migration is complete.
-    return TOLKI_API_BASE_URL
-  }
-
   public static async settings(
     bot_uuid: string,
     lang?: string
@@ -82,7 +67,7 @@ export class Api {
         message?.trim() !== ''
       ) {
         try {
-          const base = `${Api.baseUrl}${bot_uuid}/chat/${chat_uuid}/message`
+          const base = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message`
           const includeDocs = showSources || this.isDevHost()
           const url = includeDocs ? `${base}?include_docs=true` : base
           fetch(url, {
