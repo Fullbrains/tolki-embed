@@ -44,6 +44,77 @@ export class Api {
   }
 
   // ---------------------------------------------------------------------------
+  // Stream message (SSE)
+  // ---------------------------------------------------------------------------
+  // POST /v1/embed/{bot_uuid}/chat/{chat_uuid}/message/stream
+  //
+  // Returns a `text/event-stream` of NDJSON events:
+  //   { "type": "text_delta", "delta": "..." }
+  //   { "type": "document_search_query", ... }
+  //   { "type": "document_search_results", ... }
+  //   { "type": "error", "message": "..." }
+  //   { "type": "done", "message_id": 123 }
+  //
+  // The caller passes `onEvent` to react to each chunk as it arrives. The
+  // returned promise resolves once the server closes the stream.
+  // ---------------------------------------------------------------------------
+  public static async messageStream(
+    chat_uuid: string,
+    bot_uuid: string,
+    message: string,
+    onEvent: (event: { type: string; [key: string]: unknown }) => void
+  ): Promise<void> {
+    if (
+      !validateUUID(chat_uuid) ||
+      !validateUUID(bot_uuid) ||
+      !message?.trim()
+    ) {
+      throw new Error('Invalid stream parameters')
+    }
+
+    const url = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/stream`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Accept: 'text/event-stream',
+      },
+      body: JSON.stringify({ message }),
+    })
+
+    if (!response.ok || !response.body) {
+      throw new Error(`Stream HTTP ${response.status}`)
+    }
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      buffer += decoder.decode(value, { stream: true })
+
+      // SSE frames are separated by a blank line; lines start with "data: "
+      let sepIdx: number
+      while ((sepIdx = buffer.indexOf('\n\n')) !== -1) {
+        const frame = buffer.slice(0, sepIdx)
+        buffer = buffer.slice(sepIdx + 2)
+        for (const line of frame.split('\n')) {
+          if (!line.startsWith('data:')) continue
+          const payload = line.slice(5).trim()
+          if (!payload) continue
+          try {
+            onEvent(JSON.parse(payload))
+          } catch (e) {
+            console.error('Tolki: bad SSE payload', payload, e)
+          }
+        }
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Send message
   // ---------------------------------------------------------------------------
   // POST /v1/embed/{bot_uuid}/chat/{chat_uuid}/message

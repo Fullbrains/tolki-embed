@@ -49,6 +49,7 @@ import {
   Item,
   ItemType,
   MarkdownResponse,
+  MarkdownResponseLevel,
   DocumentSearchQueryResponse,
   DocumentSearchResultsResponse,
 } from '../../types/item'
@@ -1322,41 +1323,82 @@ export class TolkiChat extends LitElement {
     this.afterSend()
 
     try {
-      const response = await Api.message(
+      const showSources = !!this.propsManager.getProps().showSources
+      let streamingMessage: MarkdownResponse | null = null
+      let firstNewMessageIndex = -1
+
+      await Api.messageStream(
         state.chat,
         state.bot.uuid,
         message,
-        this.propsManager.getProps().showSources
+        (event) => {
+          const eventType = event.type as string
+
+          if (eventType === 'text_delta') {
+            const delta = (event.delta as string) || ''
+            if (!delta) return
+
+            if (!streamingMessage) {
+              // First text delta — drop thinking, start a new markdown bubble
+              this.clearHistory()
+              firstNewMessageIndex = state.history.length
+              streamingMessage = {
+                type: ItemType.markdown,
+                content: delta,
+                level: MarkdownResponseLevel.default,
+              }
+              state.history.push(streamingMessage)
+            } else {
+              streamingMessage.content += delta
+            }
+            // Lit-app/state doesn't notify on .push()/in-place mutation, so
+            // force the component to re-render with the new content.
+            this.requestUpdate()
+            return
+          }
+
+          if (
+            eventType === 'document_search_query' ||
+            eventType === 'document_search_results'
+          ) {
+            // These types match the existing Item shape exactly. Only show
+            // them when the bot has source display enabled.
+            if (showSources) {
+              state.history.push(event as unknown as Item)
+              this.requestUpdate()
+            }
+            return
+          }
+
+          if (eventType === 'done') {
+            const messageId = event.message_id as number | null | undefined
+            if (streamingMessage && messageId != null) {
+              streamingMessage.id = String(messageId)
+            }
+            // If the model produced no text at all, drop thinking and surface
+            // an empty-response error so the user sees something.
+            if (!streamingMessage) {
+              this.clearHistory()
+              state.history.push(ItemBuilder.error())
+            }
+            return
+          }
+
+          if (eventType === 'error') {
+            this.logError('Stream error event', event.message)
+            return
+          }
+        }
       )
 
-      if (
-        response.status === ApiMessageResponseStatus.error ||
-        response.status === ApiMessageResponseStatus.notOk
-      ) {
-        throw new Error(`API Error: ${response.status}`)
-      }
+      // Process any setLocale messages that were added (mirrors blocking flow)
+      await this.processHistoryLocales()
 
-      const { data } = response
-
-      if (Array.isArray(data)) {
-        const items: Item[] = data
-
-        // First remove thinking indicator
-        this.clearHistory()
-
-        // Now track the index of the first new message for scrolling
-        // This will be the correct index after thinking is removed
-        const firstNewMessageIndex = state.history.length
-
-        for (const item of items) {
-          state.history.push(item)
-        }
-
-        // Process any setLocale messages that were added
-        await this.processHistoryLocales()
-
-        this.saveHistory()
+      this.saveHistory()
+      if (firstNewMessageIndex >= 0) {
         this.afterReceiveWithTarget(firstNewMessageIndex)
+      } else {
+        this.afterReceive()
       }
     } catch (error) {
       // Remove thinking indicator and add error message
