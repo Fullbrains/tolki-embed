@@ -89,6 +89,8 @@ export class Api {
     const reader = response.body.getReader()
     const decoder = new TextDecoder()
     let buffer = ''
+    const yieldToRenderer = () =>
+      new Promise<void>((r) => setTimeout(r, 0))
 
     while (true) {
       const { done, value } = await reader.read()
@@ -97,6 +99,7 @@ export class Api {
 
       // SSE frames are separated by a blank line; lines start with "data: "
       let sepIdx: number
+      let hadEvents = false
       while ((sepIdx = buffer.indexOf('\n\n')) !== -1) {
         const frame = buffer.slice(0, sepIdx)
         buffer = buffer.slice(sepIdx + 2)
@@ -106,11 +109,15 @@ export class Api {
           if (!payload) continue
           try {
             onEvent(JSON.parse(payload))
+            hadEvents = true
           } catch (e) {
             console.error('Tolki: bad SSE payload', payload, e)
           }
         }
       }
+
+      // Yield to the browser so Lit can flush pending renders between chunks
+      if (hadEvents) await yieldToRenderer()
     }
   }
 
