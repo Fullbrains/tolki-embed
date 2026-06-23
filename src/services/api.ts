@@ -5,7 +5,7 @@ import {
   ApiMessageResponseStatus,
 } from '../types/api'
 
-const TOLKI_API_BASE_URL: string = 'https://api.tolki.ai/chat/v1/embed/'
+const TOLKI_API_BASE_URL: string = 'https://brain.tolki.ai/v1/embed/'
 
 export class Api {
   public static async settings(
@@ -89,8 +89,7 @@ export class Api {
     const reader = response.body.getReader()
     const decoder = new TextDecoder()
     let buffer = ''
-    const yieldToRenderer = () =>
-      new Promise<void>((r) => setTimeout(r, 0))
+    const yieldToRenderer = () => new Promise<void>((r) => setTimeout(r, 0))
 
     while (true) {
       const { done, value } = await reader.read()
