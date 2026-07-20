@@ -149,13 +149,79 @@
   width: max-content;
 }
 
+/* No bubble here: the thinking state sits directly on the chat background */
 .tk__thinking {
-  background-color: var(--steel-10);
-  border-radius: 6px 22px 22px 22px;
-  padding: 15px;
+  width: max-content;
 
-  span {
+  /* Scoped to the dots so it doesn't hit the message text spans */
+  .tk__thinking-dots span {
     background-color: var(--steel-30);
+  }
+
+  &--with-messages {
+    align-items: center;
+    display: flex;
+    gap: 10px;
+    max-width: 80%;
+  }
+}
+
+/* Viewport for the cycling messages: one line tall. The message span slides
+   in/out inside it (motion driven by the cyclingMessage directive via WAAPI),
+   and the overflow clips it as it leaves through the top or enters from below.
+   Typography matches regular chat messages (15px / --leading-base). */
+.tk__thinking-messages {
+  color: var(--color-text-primary);
+  font-size: 15px;
+  height: calc(1em * var(--leading-base));
+  overflow: hidden;
+  position: relative;
+}
+
+.tk__thinking-message {
+  display: block;
+  line-height: var(--leading-base);
+  white-space: nowrap;
+  will-change: transform, opacity;
+}
+
+/* The shimmer sweeps a lighter band across the solid text color, briefly
+   fading the characters it passes over. Purely decorative and independent of
+   the slide, so it stays in CSS. Gated on background-clip: text — without it,
+   the element keeps the inherited solid color instead of going transparent
+   (which would make the text invisible). */
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .tk__thinking-message {
+    animation: tk__thinking-shimmer 2s linear infinite;
+    background: linear-gradient(
+      90deg,
+      var(--color-text-primary) 35%,
+      var(--color-text-muted) 50%,
+      var(--color-text-primary) 65%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    background-size: 200% 100%;
+    color: transparent;
+  }
+}
+
+@keyframes tk__thinking-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/* Drop the shimmer sweep when motion is reduced; the directive already skips
+   the slide and lands the text in its resting position. */
+@media (prefers-reduced-motion: reduce) {
+  .tk__thinking-message {
+    animation: none;
+    background: none;
+    color: var(--color-text-primary);
   }
 }
 

@@ -90,6 +90,8 @@ export interface TolkiChatProps {
   welcomeMessage: I18nString | null
   suggestions: I18nArray
   toasts: I18nArray
+  /** Strings cycled while the bot is thinking, to reduce perceived wait time */
+  thinkingMessages: I18nArray
 
   // Internationalization
   lang: string
@@ -151,6 +153,7 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   welcomeMessage: null,
   suggestions: [],
   toasts: [],
+  thinkingMessages: [],
 
   // Internationalization
   lang: 'en',

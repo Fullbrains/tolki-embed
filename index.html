@@ -445,6 +445,7 @@ window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
         welcomeMessage: defaults.welcomeMessage ?? '',
         suggestions: defaults.suggestions ?? '',
         toasts: defaults.toasts ?? '',
+        thinkingMessages: defaults.thinkingMessages ?? '',
 
         // Internationalization
         lang: defaults.lang ?? 'en',
@@ -617,6 +618,9 @@ window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
       contentFolder.add(config, 'toasts')
         .onChange(v => updateAttribute('toasts', v))
         .name('toasts (CSV/JSON)')
+      contentFolder.add(config, 'thinkingMessages')
+        .onChange(v => updateAttribute('thinking-messages', v))
+        .name('thinkingMessages (CSV/JSON)')
 
       // Internationalization
       const i18nFolder = gui.addFolder('i18n')
@@ -656,6 +660,7 @@ window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
           config.welcomeMessage = ''
           config.suggestions = ''
           config.toasts = ''
+          config.thinkingMessages = ''
           config.lang = 'en'
           config.locales = 'en,it,es,fr,de,pt'
           gui.controllersRecursive().forEach(c => c.updateDisplay())

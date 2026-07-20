@@ -66,6 +66,10 @@ export function transformBotPropsToTolkiProps(
     props.toasts = botProps.toasts
   }
 
+  if (isNonEmptyI18nArray(botProps.thinkingMessages)) {
+    props.thinkingMessages = botProps.thinkingMessages
+  }
+
   if (isNonEmptyI18n(botProps.messagePlaceholder)) {
     props.messagePlaceholder = botProps.messagePlaceholder
   }

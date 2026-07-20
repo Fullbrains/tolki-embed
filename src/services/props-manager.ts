@@ -229,6 +229,9 @@ export class PropsManager {
         case 'toasts':
           props.toasts = parseI18nArray(value as string)
           break
+        case 'thinkingMessages':
+          props.thinkingMessages = parseI18nArray(value as string)
+          break
 
         // String arrays
         case 'locales':

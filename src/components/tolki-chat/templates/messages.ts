@@ -6,6 +6,7 @@ import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import { msg } from '@lit/localize'
 import { renderTemplate } from '../../../utils/templates'
+import { cyclingMessage } from '../../../utils/cycling-message'
 
 // Helper: Decode HTML entities
 const decodeHtmlEntities = (text: string): string => {
@@ -71,8 +72,24 @@ export const userInputTemplate = (item: UserInput): TemplateResult => {
 }
 
 // Template: Thinking indicator with animated dots
-export const thinkingResponseTemplate = (): TemplateResult => {
-  return html` <div class="tk__thinking tk__dots tk__dots--animated">
+// When thinkingMessages are configured, they cycle next to the dots to reduce
+// the perceived wait. A single text node is reused; the enter/exit motion and
+// the advance timing are both driven by the cyclingMessage directive (WAAPI).
+export const thinkingResponseTemplate = (messages: string[] = []): TemplateResult => {
+  const dots = html`<div class="tk__thinking-dots tk__dots tk__dots--animated">
     <span></span><span></span><span></span>
+  </div>`
+
+  if (!messages.length) {
+    return html`<div class="tk__thinking">${dots}</div>`
+  }
+
+  return html`<div class="tk__thinking tk__thinking--with-messages">
+    ${dots}
+    <div
+      class="tk__thinking-messages"
+      aria-live="polite"
+      ${cyclingMessage(messages)}
+    ></div>
   </div>`
 }

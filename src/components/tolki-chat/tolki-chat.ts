@@ -194,6 +194,7 @@ export class TolkiChat extends LitElement {
       'toasts',
       'lang',
       'suggestions',
+      'thinking-messages',
       'locales',
       'show-sources',
       'show-queries',
@@ -1852,7 +1853,7 @@ export class TolkiChat extends LitElement {
                 item && item.type
                   ? keyed(
                       `${state.renderKey}-${index}`,
-                      chatItemTemplate(item, state.history, index, state.bot?.uuid || '', state.chat || '', this.propsManager.getProps().showQueries)
+                      chatItemTemplate(item, state.history, index, state.bot?.uuid || '', state.chat || '', this.propsManager.getProps().showQueries, this.resolveI18nArray(this.propsManager.getProps().thinkingMessages))
                     )
                   : html``
               )}

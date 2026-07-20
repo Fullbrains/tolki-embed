@@ -40,6 +40,7 @@ export interface BotProps {
   welcomeMessage?: I18nString
   suggestions?: I18nArray
   toasts?: I18nArray
+  thinkingMessages?: I18nArray
   messagePlaceholder?: I18nString
   togglePlaceholder?: I18nString
 
