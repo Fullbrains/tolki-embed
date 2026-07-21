@@ -104,6 +104,9 @@
   color: color-mix(in srgb, var(--sky-50) 50%, var(--cobalt-30) 50%);
 }
 
+/* Markdown messages are bubbled by default — this covers welcome, toasts,
+   system notices and (in bubble mode) agent replies too. Bubbleless mode strips
+   the bubble from agent replies only; see below. */
 .tk__markdown {
   background-color: var(--steel-10);
   border-radius: 6px 22px 22px 22px;
@@ -137,6 +140,25 @@
   }
 }
 
+/* Bubbleless mode (the default, i.e. NOT .tk--bubble): only genuine agent
+   replies lose the bubble and go full width. Welcome/system/info messages keep
+   theirs, since they are not tagged .tk__chat-item--agent. */
+.tk__window:not(.tk--bubble) .tk__chat-item--agent .tk__markdown {
+  background-color: transparent;
+  border-radius: 0;
+  max-width: 100%;
+  padding: 0;
+
+  /* No padding, so collapse the outer paragraph margins to sit flush. */
+  > p:first-child {
+    margin-top: 0;
+  }
+
+  > p:last-child {
+    margin-bottom: 0;
+  }
+}
+
 .tk__user-input {
   background-color: var(--message-background);
   border-radius: 22px 6px 22px 22px;
@@ -149,13 +171,19 @@
   width: max-content;
 }
 
-/* No bubble here: the thinking state sits directly on the chat background */
+/* No bubble here: the thinking state sits directly on the chat background,
+   but keeps the same vertical padding the bubble used to have. */
 .tk__thinking {
+  padding-block: 15px;
   width: max-content;
 
-  /* Scoped to the dots so it doesn't hit the message text spans */
+  /* Scoped to the dots so it doesn't hit the message text spans.
+     aspect-ratio + flex-shrink keep every dot a perfect circle inside the
+     flex row, regardless of available width. */
   .tk__thinking-dots span {
+    aspect-ratio: 1;
     background-color: var(--steel-30);
+    flex-shrink: 0;
   }
 
   &--with-messages {

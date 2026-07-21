@@ -1,4 +1,5 @@
 import { html, TemplateResult } from 'lit'
+import { classMap } from 'lit/directives/class-map.js'
 import { Item, ItemType } from '../../../types/item'
 
 // Import all specialized template functions
@@ -21,6 +22,7 @@ import {
   CardResponse,
   FeedbackResponse,
   MarkdownResponse,
+  MarkdownResponseLevel,
   ProductResponse,
   UserInput,
 } from '../../../types/item'
@@ -66,19 +68,37 @@ export const chatItemTemplate = (
   const templateFunction = templateMap[item.type]
   const content = templateFunction ? templateFunction() : html``
 
-  // Show toolbar under assistant markdown messages
-  const showToolbar =
+  // A genuine assistant reply is a plain markdown answer streamed from the
+  // backend: level 'default' (or none) and no propKey/templateKey — those mark
+  // welcome/toast/system/translated notices, which are authored by us.
+  // This single flag drives both behaviours that must stay in sync:
+  //   - the feedback toolbar shows ONLY on agent replies
+  //   - bubbleless mode strips the bubble ONLY from agent replies
+  // Everything else (welcome, system, info, error) keeps its bubble and has no
+  // toolbar, in both bubble and bubbleless modes.
+  const md = item as MarkdownResponse
+  const isAgentReply =
     item.type === ItemType.markdown &&
-    index >= 0 &&
-    !(item as MarkdownResponse).level // Don't show on info/error messages
+    !md.propKey &&
+    !md.templateKey &&
+    (!md.level || md.level === MarkdownResponseLevel.default)
+
+  const showToolbar = isAgentReply && index >= 0
 
   const toolbar = showToolbar
-    ? toolbarTemplate((item as MarkdownResponse).content, history, index, botUuid, chatUuid, showQueries)
+    ? toolbarTemplate(md.content, history, index, botUuid, chatUuid, showQueries)
     : html``
 
-  // Wrap the content in a standardized chat item container
+  // Wrap the content in a standardized chat item container. The agent-reply
+  // marker lets CSS target bubbleless mode without re-deriving the condition.
   return html`
-    <div class="tk__chat-item tk__chat-item--${item.type || 'legacy'}">
+    <div
+      class=${classMap({
+        'tk__chat-item': true,
+        [`tk__chat-item--${item.type || 'legacy'}`]: true,
+        'tk__chat-item--agent': isAgentReply,
+      })}
+    >
       ${content} ${toolbar}
     </div>
   `

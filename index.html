@@ -423,6 +423,7 @@ window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
         unclosable: defaults.unclosable ?? false,
 
         // Appearance
+        bubble: defaults.bubble ?? false,
         theme: defaults.theme ?? 'auto',
         rounded: defaults.rounded ?? 'xl',
         backdropColor: defaults.backdropColor ?? '',
@@ -507,6 +508,9 @@ window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
 
       // Appearance
       const appearanceFolder = gui.addFolder('Appearance')
+      appearanceFolder.add(config, 'bubble')
+        .onChange(v => updateAttribute('bubble', v))
+        .name('bubble (message bubble)')
       appearanceFolder.add(config, 'theme', ['auto', 'light', 'dark'])
         .onChange(v => updateAttribute('theme', v))
       appearanceFolder.add(config, 'rounded', ['none', 'xs', 'sm', 'md', 'lg', 'xl'])
@@ -644,6 +648,7 @@ window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
           config.defaultOpen = true
           config.expandable = true
           config.unclosable = false
+          config.bubble = false
           config.theme = 'auto'
           config.rounded = 'xl'
           config.backdropColor = ''

@@ -187,5 +187,9 @@ export function transformBotPropsToTolkiProps(
     props.showQueries = botProps.showQueries
   }
 
+  if (typeof botProps.bubble === 'boolean') {
+    props.bubble = botProps.bubble
+  }
+
   return props
 }

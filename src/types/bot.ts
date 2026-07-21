@@ -84,4 +84,8 @@ export interface BotProps {
   showRating?: boolean | number
   showSources?: boolean
   showQueries?: boolean
+
+  // Appearance: wrap assistant replies in a chat bubble. Defaults to false
+  // (bubbleless) — only bots that opt in via Studio show the bubble.
+  bubble?: boolean
 }

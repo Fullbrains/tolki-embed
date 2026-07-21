@@ -103,6 +103,10 @@ export interface TolkiChatProps {
   // Debug / development
   showSources: boolean
   showQueries: boolean
+
+  // Appearance: true wraps assistant replies in a chat bubble; false (default)
+  // renders them bubbleless — no background/padding, full width.
+  bubble: boolean
 }
 
 /**
@@ -165,4 +169,7 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   // Debug / development
   showSources: false,
   showQueries: false,
+
+  // Appearance
+  bubble: false,
 }

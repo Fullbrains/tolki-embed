@@ -198,6 +198,7 @@ export class TolkiChat extends LitElement {
       'locales',
       'show-sources',
       'show-queries',
+      'bubble',
       'show-rating',
       // Legacy - for backward compatibility
       'inline',
@@ -1820,6 +1821,9 @@ export class TolkiChat extends LitElement {
           <div
             class=${classMap({
               tk__window: true,
+              // Bubble mode is opt-in; without it, assistant replies render
+              // bubbleless (the default). See .tk--bubble in messages.css.
+              'tk--bubble': this.propsManager.getProps().bubble,
               'tk__window--open':
                 (state.open === 'true' || state.unclosable) && !state.inline,
               'tk__window--inline': state.inline,

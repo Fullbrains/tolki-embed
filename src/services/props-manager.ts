@@ -120,6 +120,7 @@ export class PropsManager {
         case 'unbranded':
         case 'showSources':
         case 'showQueries':
+        case 'bubble':
           props[propName] = parseBoolean(value)
           break
 
