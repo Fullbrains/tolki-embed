@@ -138,6 +138,20 @@
   ol ol {
     padding-left: 1em;
   }
+
+  /* Links inside rendered markdown. Without this they fall back to the
+     browser's default blue, which is unreadable on the dark background.
+     --link-color already has a light variant for dark mode. */
+  a {
+    color: var(--link-color);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--link-color), transparent 60%);
+    transition: text-decoration-color var(--transition-default);
+
+    &:hover {
+      text-decoration-color: var(--link-color);
+    }
+  }
 }
 
 /* Bubbleless mode (the default, i.e. NOT .tk--bubble): only genuine agent
