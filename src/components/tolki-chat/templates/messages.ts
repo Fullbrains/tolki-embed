@@ -1,11 +1,11 @@
-import { html, TemplateResult } from 'lit'
+import { html, nothing, TemplateResult } from 'lit'
 import { classMap } from 'lit/directives/class-map.js'
 import { unsafeHTML } from 'lit/directives/unsafe-html.js'
 import { MarkdownResponse, MarkdownResponseLevel, UserInput } from '../../../types/item'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
-import { msg } from '@lit/localize'
 import { renderTemplate } from '../../../utils/templates'
+import { trisGame } from '../../../utils/tris-game'
 import { cyclingMessage } from '../../../utils/cycling-message'
 
 // Helper: Decode HTML entities
@@ -75,21 +75,27 @@ export const userInputTemplate = (item: UserInput): TemplateResult => {
 // When thinkingMessages are configured, they cycle next to the dots to reduce
 // the perceived wait. A single text node is reused; the enter/exit motion and
 // the advance timing are both driven by the cyclingMessage directive (WAAPI).
-export const thinkingResponseTemplate = (messages: string[] = []): TemplateResult => {
+export const thinkingResponseTemplate = (
+  messages: string[] = [],
+  showGame: boolean = false
+): TemplateResult => {
   const dots = html`<div class="tk__thinking-dots tk__dots tk__dots--animated">
     <span></span><span></span><span></span>
   </div>`
 
-  if (!messages.length) {
-    return html`<div class="tk__thinking">${dots}</div>`
-  }
+  const indicator = messages.length
+    ? html`<div class="tk__thinking tk__thinking--with-messages">
+        ${dots}
+        <div
+          class="tk__thinking-messages"
+          aria-live="polite"
+          ${cyclingMessage(messages)}
+        ></div>
+      </div>`
+    : html`<div class="tk__thinking">${dots}</div>`
 
-  return html`<div class="tk__thinking tk__thinking--with-messages">
-    ${dots}
-    <div
-      class="tk__thinking-messages"
-      aria-live="polite"
-      ${cyclingMessage(messages)}
-    ></div>
-  </div>`
+  // The game sits in its own card below the indicator. It is an ordinary
+  // history item, so the conversation above stays scrollable, and it is removed
+  // with the thinking item on the first text_delta.
+  return html`${indicator}${showGame ? html`<div class="tk__tris" ${trisGame()}></div>` : nothing}`
 }

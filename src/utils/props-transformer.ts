@@ -179,6 +179,10 @@ export function transformBotPropsToTolkiProps(
     props.showRating = botProps.showRating
   }
 
+  if (typeof botProps.showGame === 'boolean') {
+    props.showGame = botProps.showGame
+  }
+
   if (typeof botProps.showSources === 'boolean') {
     props.showSources = botProps.showSources
   }

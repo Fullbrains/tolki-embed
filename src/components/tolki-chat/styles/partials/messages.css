@@ -437,3 +437,88 @@
 }
 
 /* Legacy message styles (da rimuovere gradualmente) */
+
+/* Tris (tic-tac-toe) shown while waiting for the first token. Sits in the
+   message flow as its own card rather than an overlay, so the conversation
+   above stays scrollable. Removed with the thinking item on the first delta. */
+.tk__tris {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px;
+  margin: 6px 0 2px;
+  border-radius: 12px;
+  background: var(--color-bg-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.tk__tris-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 34px);
+  grid-template-rows: repeat(3, 34px);
+  gap: 4px;
+}
+
+.tk__tris-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  line-height: 1;
+  font-family: inherit;
+  border: 0;
+  padding: 0;
+  border-radius: 7px;
+  /* steel-15/20 both have dark-mode overrides (base/dark-mode.css); steel-14
+     does not, and would stay light grey on a dark card. */
+  background: var(--steel-15);
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.tk__tris-cell:hover:not(:disabled) {
+  background: var(--steel-20);
+}
+
+.tk__tris-cell:active:not(:disabled) {
+  transform: scale(0.94);
+}
+
+.tk__tris-cell:disabled {
+  cursor: default;
+}
+
+.tk__tris-cell--x {
+  color: var(--message-background);
+  font-weight: 700;
+}
+
+.tk__tris-cell--o {
+  /* Red and larger than the user's mark: the opponent moves first, so its
+     circle is what signals the game is live and whose turn it is. The ○ glyph
+     also renders visually smaller than ✕ at the same font-size. */
+  color: #e5484d;
+  font-size: 23px;
+  font-weight: 700;
+}
+
+.tk__tris-cell--win {
+  background: var(--message-background);
+  /* Contrast colour is already computed centrally from messageBackground —
+     hardcoding #fff went white-on-white for light accents. */
+  color: var(--message-content);
+}
+
+.tk__tris-status {
+  font-size: 11px;
+  opacity: 0.6;
+  min-height: 14px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tk__tris-cell {
+    transition: none;
+  }
+}

@@ -100,6 +100,9 @@ export interface TolkiChatProps {
   // Features
   showRating: boolean | number // true (default 90s), false (disabled), or number of seconds
 
+  /** Show a small tic-tac-toe game in the thinking card while waiting */
+  showGame: boolean
+
   // Debug / development
   showSources: boolean
   showQueries: boolean
@@ -165,6 +168,8 @@ export const DEFAULT_PROPS: TolkiChatProps = {
 
   // Features
   showRating: true,
+
+  showGame: false,
 
   // Debug / development
   showSources: false,

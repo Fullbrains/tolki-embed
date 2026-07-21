@@ -118,6 +118,7 @@ export class PropsManager {
         case 'expandable':
         case 'unclosable':
         case 'unbranded':
+        case 'showGame':
         case 'showSources':
         case 'showQueries':
         case 'bubble':

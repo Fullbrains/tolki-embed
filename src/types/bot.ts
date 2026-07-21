@@ -82,6 +82,7 @@ export interface BotProps {
 
   // Features
   showRating?: boolean | number
+  showGame?: boolean
   showSources?: boolean
   showQueries?: boolean
 

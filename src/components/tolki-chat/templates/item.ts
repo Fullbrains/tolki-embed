@@ -39,6 +39,7 @@ export const chatItemTemplate = (
   chatUuid: string = '',
   showQueries: boolean = false,
   thinkingMessages: string[] = [],
+  showGame: boolean = false,
 ): TemplateResult => {
   // document_search_query and document_search_results are consumed by the toolbar
   // and should not render as standalone chat items
@@ -59,7 +60,8 @@ export const chatItemTemplate = (
     [ItemType.cart]: () => cartResponseTemplate(),
     [ItemType.feedback]: () => feedbackTemplate(item as FeedbackResponse),
     [ItemType.orders]: () => ordersResponseTemplate(),
-    [ItemType.thinking]: () => thinkingResponseTemplate(thinkingMessages),
+    [ItemType.thinking]: () =>
+      thinkingResponseTemplate(thinkingMessages, showGame),
     [ItemType.userInput]: () => userInputTemplate(item as UserInput),
     [ItemType.cartNotification]: () => cartNotificationTemplate(),
   }
