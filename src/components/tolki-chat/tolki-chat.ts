@@ -1363,8 +1363,11 @@ export class TolkiChat extends LitElement {
             eventType === 'document_search_query' ||
             eventType === 'document_search_results'
           ) {
-            // These types match the existing Item shape exactly. Only show
-            // them when the bot has source display enabled.
+            // These types match the existing Item shape exactly. The server
+            // already withholds them unless include_docs was requested, but
+            // keep the check: during a deploy where this widget is newer than
+            // the backend, the old server still sends them unconditionally and
+            // they must not be rendered for a bot with sources disabled.
             if (showSources) {
               state.history.push(event as unknown as Item)
               this.requestUpdate()
@@ -1390,7 +1393,8 @@ export class TolkiChat extends LitElement {
             this.logError('Stream error event', event.message)
             return
           }
-        }
+        },
+        showSources
       )
 
       // Process any setLocale messages that were added (mirrors blocking flow)

@@ -62,7 +62,8 @@ export class Api {
     chat_uuid: string,
     bot_uuid: string,
     message: string,
-    onEvent: (event: { type: string; [key: string]: unknown }) => void
+    onEvent: (event: { type: string; [key: string]: unknown }) => void,
+    showSources?: boolean
   ): Promise<void> {
     if (
       !validateUUID(chat_uuid) ||
@@ -72,7 +73,12 @@ export class Api {
       throw new Error('Invalid stream parameters')
     }
 
-    const url = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/stream`
+    // The server only emits document_search_* when include_docs is set, so the
+    // flag must be requested up front — filtering client-side would mean every
+    // visitor received the retrieved chunk text regardless of this setting.
+    const base = `${TOLKI_API_BASE_URL}${bot_uuid}/chat/${chat_uuid}/message/stream`
+    const includeDocs = showSources || this.isDevHost()
+    const url = includeDocs ? `${base}?include_docs=true` : base
     const response = await fetch(url, {
       method: 'POST',
       headers: {
