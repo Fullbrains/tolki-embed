@@ -56,6 +56,7 @@ export interface BotProps {
   position?: 'inline' | 'left' | 'center' | 'right'
   windowSize?: 'sm' | 'md' | 'lg' | 'xl'
   toggleSize?: 'sm' | 'md' | 'lg'
+  toggleMode?: 'button' | 'ask'
   marginX?: number
   marginY?: number
   marginLinked?: boolean

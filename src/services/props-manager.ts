@@ -106,6 +106,9 @@ export class PropsManager {
         case 'toggleSize':
           props.toggleSize = parseEnum(value as string, ['sm', 'md', 'lg'])
           break
+        case 'toggleMode':
+          props.toggleMode = parseEnum(value as string, ['button', 'ask'])
+          break
         case 'margin':
           props.margin = parseMargin(value as string) ?? undefined
           break

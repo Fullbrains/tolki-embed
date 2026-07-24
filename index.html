@@ -418,6 +418,7 @@ window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
         position: defaults.position ?? 'right',
         windowSize: defaults.windowSize ?? 'sm',
         toggleSize: defaults.toggleSize ?? 'md',
+        toggleMode: defaults.toggleMode ?? 'button',
         defaultOpen: defaults.defaultOpen ?? false,
         expandable: defaults.expandable ?? false,
         unclosable: defaults.unclosable ?? false,
@@ -499,6 +500,9 @@ window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
       layoutFolder.add(config, 'toggleSize', ['sm', 'md', 'lg'])
         .onChange(v => updateAttribute('toggle-size', v))
         .name('toggleSize')
+      layoutFolder.add(config, 'toggleMode', ['button', 'ask'])
+        .onChange(v => updateAttribute('toggle-mode', v))
+        .name('toggleMode')
       layoutFolder.add(config, 'defaultOpen')
         .onChange(v => updateAttribute('default-open', v))
         .name('defaultOpen')

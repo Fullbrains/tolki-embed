@@ -112,6 +112,10 @@ export function transformBotPropsToTolkiProps(
     props.toggleSize = botProps.toggleSize
   }
 
+  if (botProps.toggleMode) {
+    props.toggleMode = botProps.toggleMode
+  }
+
   // Margin: API sends marginX, marginY, marginLinked
   if (typeof botProps.marginX === 'number' || typeof botProps.marginY === 'number') {
     const x = botProps.marginX ?? 20

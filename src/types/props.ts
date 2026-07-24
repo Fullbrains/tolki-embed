@@ -29,6 +29,15 @@ export type WindowSize = 'sm' | 'md' | 'lg' | 'xl'
 export type ToggleSize = 'sm' | 'md' | 'lg'
 
 /**
+ * Collapsed-state rendering of the widget
+ * - 'button': round bubble with the brand dots (default)
+ * - 'ask': full-width input bar; typing and submitting opens the window
+ *   and sends the message. Ignored when position is 'inline' or unclosable is
+ *   set, since neither has a collapsed state.
+ */
+export type ToggleMode = 'button' | 'ask'
+
+/**
  * Theme options
  * - 'auto': follows system preference (prefers-color-scheme)
  * - 'light': always light mode
@@ -55,6 +64,7 @@ export interface TolkiChatProps {
   position: ChatPosition
   windowSize: WindowSize
   toggleSize: ToggleSize
+  toggleMode: ToggleMode
   margin: number | [number, number] // Margin in pixels: number (all) or [x, y] (default: 20)
   windowMaxHeight: string | null // CSS value for max-height (e.g. '728px', '50%', '90vh', 'calc(100vh - 50px)')
   defaultOpen: boolean
@@ -120,6 +130,7 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   position: 'right',
   windowSize: 'sm',
   toggleSize: 'md',
+  toggleMode: 'button',
   margin: 20,
   windowMaxHeight: '728px',
   defaultOpen: true,

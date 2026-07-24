@@ -62,6 +62,7 @@ import { headerTemplate } from './templates/header'
 import { brandingTemplate } from './templates/branding'
 import { textareaTemplate } from './templates/textarea'
 import { toggleTemplate } from './templates/toggle'
+import { askbarTemplate } from './templates/askbar'
 import { chatItemTemplate } from './templates/item'
 import { suggestionsTemplate } from './templates/suggestions'
 import { openSourcesOverlay, closeSourcesOverlayImmediate } from './templates/sources-overlay'
@@ -174,6 +175,7 @@ export class TolkiChat extends LitElement {
       'toggle-placeholder',
       'window-size',
       'toggle-size',
+      'toggle-mode',
       'margin',
       'window-max-height',
       'default-open',
@@ -213,6 +215,9 @@ export class TolkiChat extends LitElement {
   @query('.tk__send') send: HTMLButtonElement
   @query('.tk__textarea') textarea: HTMLTextAreaElement
   @query('.tk__toggle') toggle: HTMLButtonElement
+  @query('.tk__askbar-input') askbarInput: HTMLInputElement
+  @query('.tk__askbar-send') askbarSend: HTMLButtonElement
+  @query('.tk__askbar-open') askbarOpen: HTMLButtonElement
   @queryAll('.tk__suggestion') suggestions: HTMLButtonElement[]
   @query('.tk__suggestions') suggestionsContainer: HTMLElement
   @query('.tk__suggestions-scroll-left') scrollLeftBtn: HTMLButtonElement
@@ -221,6 +226,8 @@ export class TolkiChat extends LitElement {
   private resizeObserver?: ResizeObserver
   private boundToggleWindow?: () => void
   private boundResetChat?: () => void
+  private boundAskbarSubmit?: () => void
+  private boundAskbarKeydown?: (event: KeyboardEvent) => void
   private unsubscribeTolkiUpdate?: () => void
   private unsubscribeCartLoaded?: () => void
   private darkModeMediaQuery?: MediaQueryList
@@ -241,6 +248,13 @@ export class TolkiChat extends LitElement {
     // Bind event handlers
     this.boundToggleWindow = () => this.toggleWindow()
     this.boundResetChat = () => this.resetChat()
+    this.boundAskbarSubmit = () => this.submitFromAskbar()
+    this.boundAskbarKeydown = (event: KeyboardEvent) => {
+      if (event.key === 'Enter') {
+        event.preventDefault()
+        this.submitFromAskbar()
+      }
+    }
 
     // Initialize services
     this.initializeServices()
@@ -1033,6 +1047,60 @@ export class TolkiChat extends LitElement {
     }
   }
 
+  /**
+   * The askbar replaces the bubble only in the collapsed floating state:
+   * inline has no collapsed state, unclosable never collapses, and once the
+   * window is open the bubble is the close affordance.
+   */
+  private get showAskbar(): boolean {
+    return (
+      this.propsManager.getProps().toggleMode === 'ask' &&
+      !state.inline &&
+      !state.unclosable &&
+      state.open !== 'true'
+    )
+  }
+
+  private get collapsedPosition(): 'left' | 'center' | 'right' {
+    const position = this.propsManager.getProps().position
+    return position === 'inline' ? 'right' : position
+  }
+
+  /**
+   * Suggested queries to cycle as the askbar's typewriter placeholder.
+   * Reuses the bot's suggestions, stripped of any [command] tokens the way the
+   * suggestion chips display them.
+   */
+  private get askbarPhrases(): string[] {
+    return this.resolveI18nArray(this.propsManager.getProps().suggestions)
+      .map((s) => s.replace(/\[[^\]]*\]/g, '').trim())
+      .filter(Boolean)
+  }
+
+  /**
+   * Askbar submit: open the window, then hand the text to the regular send
+   * path. The textarea is always in the DOM — the window is only hidden when
+   * closed — so it can be seeded as soon as the render settles.
+   */
+  private submitFromAskbar(): void {
+    const message: string = this.askbarInput?.value?.trim() || ''
+
+    // Empty submit is just a request to open the chat.
+    if (!message) {
+      this.toggleWindow()
+      return
+    }
+
+    this.askbarInput.value = ''
+    this.toggleWindow()
+
+    this.updateComplete.then(() => {
+      if (!this.textarea) return
+      this.textarea.value = message
+      this.sendMessage().then()
+    })
+  }
+
   resetMessage() {
     this.textarea.value = ''
     this.textarea.style.height = `${TolkiChat.TEXTAREA_DEFAULT_HEIGHT_PX}px`
@@ -1614,6 +1682,18 @@ export class TolkiChat extends LitElement {
       this.toggle.removeEventListener('click', this.boundToggleWindow)
       this.toggle.addEventListener('click', this.boundToggleWindow)
     }
+    if (this.askbarOpen && this.boundToggleWindow) {
+      this.askbarOpen.removeEventListener('click', this.boundToggleWindow)
+      this.askbarOpen.addEventListener('click', this.boundToggleWindow)
+    }
+    if (this.askbarSend && this.boundAskbarSubmit) {
+      this.askbarSend.removeEventListener('click', this.boundAskbarSubmit)
+      this.askbarSend.addEventListener('click', this.boundAskbarSubmit)
+    }
+    if (this.askbarInput && this.boundAskbarKeydown) {
+      this.askbarInput.removeEventListener('keydown', this.boundAskbarKeydown)
+      this.askbarInput.addEventListener('keydown', this.boundAskbarKeydown)
+    }
     if (this.close && this.boundToggleWindow) {
       this.close.removeEventListener('click', this.boundToggleWindow)
       this.close.addEventListener('click', this.boundToggleWindow)
@@ -1885,18 +1965,24 @@ export class TolkiChat extends LitElement {
 
           ${state.inline
             ? ''
-            : toggleTemplate(
-                state.open === 'true',
-                state.unclosable,
-                this.resolveI18nString(this.propsManager.getProps().togglePlaceholder) || 'Chat',
-                (this.propsManager.getProps().position === 'inline'
-                  ? 'right'
-                  : this.propsManager.getProps().position) as
-                  | 'left'
-                  | 'center'
-                  | 'right',
-                this.resolveI18nString(this.propsManager.getProps().togglePlaceholder)
-              )}
+            : this.showAskbar
+              ? askbarTemplate(
+                  this.resolveI18nString(this.propsManager.getProps().name) ||
+                    this.resolveI18nString(state.bot?.props?.name) ||
+                    'Tolki AI',
+                  this.collapsedPosition,
+                  this.resolveI18nString(this.propsManager.getProps().togglePlaceholder) ||
+                    this.resolveI18nString(this.propsManager.getProps().messagePlaceholder),
+                  this.isDarkMode,
+                  this.askbarPhrases
+                )
+              : toggleTemplate(
+                  state.open === 'true',
+                  state.unclosable,
+                  this.resolveI18nString(this.propsManager.getProps().togglePlaceholder) || 'Chat',
+                  this.collapsedPosition,
+                  this.resolveI18nString(this.propsManager.getProps().togglePlaceholder)
+                )}
           ${!state.inline && !state.unclosable && this.propsManager.getProps().backdropColor
             ? html`<div
                 class=${classMap({
