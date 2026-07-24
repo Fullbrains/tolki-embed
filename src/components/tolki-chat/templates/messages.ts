@@ -94,8 +94,12 @@ export const thinkingResponseTemplate = (
       </div>`
     : html`<div class="tk__thinking">${dots}</div>`
 
-  // The game sits in its own card below the indicator. It is an ordinary
-  // history item, so the conversation above stays scrollable, and it is removed
-  // with the thinking item on the first text_delta.
-  return html`${indicator}${showGame ? html`<div class="tk__tris" ${trisGame()}></div>` : nothing}`
+  // The game sits in its own card below the indicator. Both are wrapped in a
+  // column block so they stack vertically — the log is a row-wrap flex, so bare
+  // siblings would sit side by side. The block is an ordinary history item, so
+  // the conversation above stays scrollable, and it is removed with the
+  // thinking item on the first text_delta.
+  return html`<div class="tk__thinking-block">
+    ${indicator}${showGame ? html`<div class="tk__tris" ${trisGame()}></div>` : nothing}
+  </div>`
 }

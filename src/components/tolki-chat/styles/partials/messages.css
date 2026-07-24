@@ -185,6 +185,17 @@
   width: max-content;
 }
 
+/* Wrapper that stacks the "thinking" indicator over the game. The log is a
+   row-wrap flex; width:100% makes this claim its own row so the game can't sit
+   beside the text, and align-items:flex-start keeps each child at its natural
+   width (left-aligned) instead of stretching. */
+.tk__thinking-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+}
+
 /* No bubble here: the thinking state sits directly on the chat background,
    but keeps the same vertical padding the bubble used to have. */
 .tk__thinking {
