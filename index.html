@@ -438,6 +438,7 @@ window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
         toggleContent: defaults.toggleContent ?? '',
         messageBackground: defaults.messageBackground ?? '',
         messageContent: defaults.messageContent ?? '',
+        askbarBackground: defaults.askbarBackground ?? '',
 
         // Branding (PRO only)
         unbranded: defaults.unbranded ?? false,
@@ -602,11 +603,13 @@ window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
       if (!config.toggleContent) config.toggleContent = '#ffffff'
       if (!config.messageBackground) config.messageBackground = '#001ccb'
       if (!config.messageContent) config.messageContent = '#ffffff'
+      if (!config.askbarBackground) config.askbarBackground = '#eeedec'
 
       addColorControl(colorsFolder, config, 'toggleBackground', 'Toggle Background', '#001ccb')
       addColorControl(colorsFolder, config, 'toggleContent', 'Toggle Content', '#ffffff')
       addColorControl(colorsFolder, config, 'messageBackground', 'Message Background', '#001ccb')
       addColorControl(colorsFolder, config, 'messageContent', 'Message Content', '#ffffff')
+      addColorControl(colorsFolder, config, 'askbarBackground', 'Ask Bar Background', '#eeedec')
 
       colorsFolder.open()
 
@@ -668,6 +671,7 @@ window.tolki.bot = '70f6ac30-1399-432b-bb92-49b5a2500fb4'</script>
           config.toggleContent = '#ffffff'
           config.messageBackground = '#001ccb'
           config.messageContent = '#ffffff'
+          config.askbarBackground = '#eeedec'
           config.unbranded = false
           config.messagePlaceholder = 'Ask anything'
           config.togglePlaceholder = ''

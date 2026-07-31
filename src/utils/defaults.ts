@@ -28,6 +28,9 @@ export const defaultColors = {
   'message-background': DEFAULT_BG,
   'message-content': DEFAULT_FG, // Fallback only, auto-detected based on messageBackground
 
+  // Ask-bar background (warm-neutral gray-150)
+  'askbar-background': '#eeedec',
+
   // Bot message colors (not customizable via props)
   'bot-background': '#f3f4f6', // gray-100
   'bot-content': '#1f2937', // gray-800

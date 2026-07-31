@@ -98,11 +98,19 @@
 
     span {
         background-color: currentColor;
-        border-radius: var(--brand-dot-size);
+        /* 50% (not the fractional --brand-dot-size, ~7.2px) stays a perfect
+           circle even when subpixel rounding renders width/height as slightly
+           different integers. */
+        border-radius: 50%;
         height: var(--brand-dot-size);
         margin: calc(var(--brand-dot-size) * 0.33);
         pointer-events: none;
         width: var(--brand-dot-size);
+        /* Keep every dot a perfect circle: flex-shrink:0 stops the flex row from
+           squashing them horizontally, aspect-ratio guarantees 1:1 even if one
+           dimension is ever constrained. */
+        aspect-ratio: 1;
+        flex-shrink: 0;
 
         &:nth-child(2) {
             animation-delay: 0.1s;

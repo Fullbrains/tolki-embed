@@ -71,12 +71,18 @@ class TypingPlaceholderDirective extends AsyncDirective {
       this.attachListeners()
     }
 
+    const fallbackChanged = fallback !== this.fallback
     this.fallback = fallback
 
     if (phrasesChanged) {
       this.phrases = phrases
       this.index = 0
       this.restart()
+    } else if (!this.phrases.length && fallbackChanged && this.el && !this.el.value) {
+      // No phrases to animate: keep the static fallback in sync. Without this,
+      // an unchanged-but-empty phrase list never (re)runs restart(), so a
+      // fallback that arrives or changes after mount would never be shown.
+      this.el.placeholder = this.fallback
     }
 
     return noChange

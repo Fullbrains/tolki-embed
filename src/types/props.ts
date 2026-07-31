@@ -87,6 +87,9 @@ export interface TolkiChatProps {
   messageBackground: HexColor
   messageContent: HexColor | null
 
+  // Ask-bar background (toggle-mode="ask")
+  askbarBackground: HexColor
+
   // Icon URL (backend only sends this if bot is PRO)
   icon: string | null
 
@@ -152,6 +155,7 @@ export const DEFAULT_PROPS: TolkiChatProps = {
   // Message bubble colors
   messageBackground: '#001ccb',
   messageContent: null, // Auto-generated based on messageBackground
+  askbarBackground: '#eeedec', // warm-neutral gray-150, matches placeholder family
 
   // PRO features (backend only sends these if bot is PRO)
   icon: null,

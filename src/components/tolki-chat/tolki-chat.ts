@@ -190,6 +190,7 @@ export class TolkiChat extends LitElement {
       'toggle-background',
       'toggle-content',
       'message-background',
+      'askbar-background',
       'message-content',
       'unbranded',
       'welcome-message',
@@ -778,6 +779,10 @@ export class TolkiChat extends LitElement {
     // Message bubble colors (user messages)
     map['message-background'] =
       props.messageBackground || defaultColors['message-background']
+
+    // Ask-bar background
+    map['askbar-background'] =
+      props.askbarBackground || defaultColors['askbar-background']
     // messageContent: if null, calculate contrast based on FINAL messageBackground
     map['message-content'] =
       props.messageContent || getContrastColor(map['message-background'])
@@ -1073,12 +1078,45 @@ export class TolkiChat extends LitElement {
   }
 
   /**
+   * Resolve an I18nArray to the bot's language only, WITHOUT the
+   * "first available language" fallback that resolveI18nArray applies. Used for
+   * the askbar so a leftover other-language entry (e.g. `it` on an English-only
+   * bot) never leaks in — it falls through to the static placeholder instead.
+   */
+  private resolveI18nArrayStrict(
+    value: string[] | { [lang: string]: string }[] | { [lang: string]: string[] }
+  ): string[] {
+    if (!value) return []
+
+    const lang = this.propsManager.getProps().lang || 'en'
+
+    // Per-language object: only the bot's language, then 'en' — never a random
+    // leftover language.
+    if (!Array.isArray(value) && typeof value === 'object') {
+      const langObj = value as { [lang: string]: string[] }
+      return langObj[lang] ?? langObj['en'] ?? []
+    }
+
+    // Plain string array: language-agnostic, safe to return as-is.
+    if (value.length === 0 || typeof value[0] === 'string') {
+      return value as string[]
+    }
+
+    // Per-item objects: same strict per-item resolution, dropping items that
+    // have neither the bot language nor English.
+    const objectArray = value as { [lang: string]: string }[]
+    return objectArray
+      .map((item) => item[lang] ?? item['en'] ?? '')
+      .filter(Boolean)
+  }
+
+  /**
    * Suggested queries to cycle as the askbar's typewriter placeholder.
    * Reuses the bot's suggestions, stripped of any [command] tokens the way the
    * suggestion chips display them.
    */
   private get askbarPhrases(): string[] {
-    return this.resolveI18nArray(this.propsManager.getProps().suggestions)
+    return this.resolveI18nArrayStrict(this.propsManager.getProps().suggestions)
       .map((s) => s.replace(/\[[^\]]*\]/g, '').trim())
       .filter(Boolean)
   }

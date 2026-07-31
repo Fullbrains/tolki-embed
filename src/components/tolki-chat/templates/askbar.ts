@@ -39,7 +39,7 @@ export const askbarTemplate = (
       aria-label="${placeholder}"
       ${typingPlaceholder(phrases, placeholder)}
     />
-    <button class="tk__askbar-send" aria-label="${msg('Send message')}">
+    <button class="tk__send tk__askbar-send" aria-label="${msg('Send message')}">
       ${send}
     </button>
   </div>`

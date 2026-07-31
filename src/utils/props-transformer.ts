@@ -156,6 +156,10 @@ export function transformBotPropsToTolkiProps(
     props.messageBackground = botProps.messageBackground as HexColor
   }
 
+  if (botProps.askbarBackground) {
+    props.askbarBackground = botProps.askbarBackground as HexColor
+  }
+
   if (botProps.messageContent) {
     props.messageContent = botProps.messageContent as HexColor
   }

@@ -1,7 +1,10 @@
 :host {
   /* Sizes */
   --toggle-btn-size: 60px;
-  --brand-dot-size: calc(var(--toggle-btn-size) * 0.12);
+  /* round() to a whole pixel: the raw 0.12 ratio yields fractional sizes
+     (e.g. 7.2px) that rasterize to slightly different width/height integers,
+     making the dots look squashed. Rounding keeps every dot a clean square. */
+  --brand-dot-size: round(calc(var(--toggle-btn-size) * 0.12), 1px);
   --circle-btn-size: 40px;
   --header-height: 60px;
   --margin: 20px;

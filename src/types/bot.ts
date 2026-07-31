@@ -75,6 +75,9 @@ export interface BotProps {
   messageBackground?: HexColor
   messageContent?: HexColor | string
 
+  // Ask-bar background (toggle-mode="ask")
+  askbarBackground?: HexColor
+
   // Backdrop
   backdropColor?: HexColor
   backdropOpacity?: number

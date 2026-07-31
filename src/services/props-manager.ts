@@ -207,6 +207,11 @@ export class PropsManager {
             value as string
           ) as HexColor | null
           break
+        case 'askbarBackground':
+          props.askbarBackground = parseHexColor(value as string) as
+            | HexColor
+            | undefined
+          break
 
         // Avatar
         case 'avatar':
