@@ -676,8 +676,14 @@ export class TolkiChat extends LitElement {
 
         const savedOpen = this.getSetting<string>('open')
         const isMobile = window.innerWidth <= TolkiChat.MOBILE_BREAKPOINT_PX
+        const isAskMode = this.propsManager.getProps().toggleMode === 'ask'
 
-        if (isMobile) {
+        if (isAskMode) {
+          // Ask-bar mode has no "open on load" concept: the collapsed state IS
+          // the ask bar, so the window always starts closed regardless of
+          // default-open or the saved open state.
+          state.open = ''
+        } else if (isMobile) {
           // On mobile, never auto-open (fullscreen modal is intrusive on page load)
           state.open = ''
         } else if (savedOpen === 'false') {
